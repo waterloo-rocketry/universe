@@ -1,14 +1,28 @@
+// TODO: Maybe there's a better name for this file?
+
 import { io } from 'socket.io-client'
 import msgpackParser from 'socket.io-msgpack-parser'
-import { toCamelCase, toSnakeCase } from './helpers.js'
+import { snakeCaseParser, toSnakeCase } from './helpers.js'
+import { tryit } from 'radash'
 
-import type { DAQMessage } from './data/daqMessage.ts'
+import { z } from 'zod'
+
+import { DAQMessageSchema } from './data/DAQMessage.js'
+import type { DAQMessage } from './data/DAQMessage.ts'
+
+import {
+    ParsleyMessageSchema,
+    CANCommandMessageSchema,
+    RLCSv3MessageSchema,
+    ParsleyHeartbeatMessageSchema,
+} from './data/CANMessage.js'
+
 import type {
     ParsleyMessage,
     CANCommandMessage,
     RLCSv3Message,
     ParsleyHeartbeatMessage,
-} from './data/canMessage.ts'
+} from './data/CANMessage.ts'
 
 export type AnyPayload =
     | DAQMessage
@@ -18,11 +32,12 @@ export type AnyPayload =
     | ParsleyHeartbeatMessage
 
 type ChannelLiteralToPayloadType<T extends AnyPayload> =
-    T extends DAQMessage ? `DAQ${string}`
-    : T extends ParsleyMessage ? `CAN/Parsley${string}`
-    : T extends CANCommandMessage ? `CAN/Commands${string}`
-    : T extends ParsleyHeartbeatMessage ? `Parsley/Health${string}`
-    : T extends RLCSv3Message ? `RLCS${string}`
+    T extends DAQMessage ? `DAQ/${string}` | 'DAQ'
+    : T extends ParsleyMessage ? `CAN/Parsley/${string}` | 'CAN/Parsley'
+    : T extends CANCommandMessage ? `CAN/Commands/${string}` | 'CAN/Commands'
+    : T extends ParsleyHeartbeatMessage ?
+        `Parsley/Health/${string}` | 'Parsley/Health'
+    : T extends RLCSv3Message ? `RLCS/${string}` | 'RLCS'
     : never
 
 export interface Message<T extends AnyPayload> {
@@ -33,6 +48,29 @@ export interface Message<T extends AnyPayload> {
 
 export interface MessageToSend<T extends AnyPayload> extends Message<T> {
     channel: ChannelLiteralToPayloadType<T>
+}
+
+const getPayloadSchemaFromChannel = (channel: unknown) => {
+    if (typeof channel !== 'string') {
+        throw new Error(
+            `[Omnibus] Channel must be a string, got: ${typeof channel}`
+        )
+    }
+
+    const mapChannelPrefix: Record<string, z.ZodObject | z.ZodRecord> = {
+        DAQ: DAQMessageSchema,
+        'CAN/Parsley': ParsleyMessageSchema,
+        'CAN/Commands': CANCommandMessageSchema,
+        'Parsley/Health': ParsleyHeartbeatMessageSchema,
+        RLCS: RLCSv3MessageSchema,
+    }
+
+    const channelPrefix = Object.keys(mapChannelPrefix).find((prefix) => {
+        const channelParts = channel.split('/')
+        return prefix.split('/').every((part, i) => channelParts[i] === part)
+    })
+
+    return channelPrefix ? mapChannelPrefix[channelPrefix] : undefined
 }
 
 export const socketCallbackBuilder = <T extends AnyPayload>(
@@ -47,28 +85,51 @@ export const socketCallbackBuilder = <T extends AnyPayload>(
         return {
             channel: channel,
             timestamp: timestamp,
-            payload: toCamelCase(payload) as T,
+            payload: payload as T,
         }
     }
-    return (event: string, timestamp: number, payload: object) => {
-        if (
-            typeof timestamp !== 'number' ||
-            typeof payload !== 'object' ||
-            !payload
-        ) {
+
+    const eventHandler = (
+        event: string,
+        timestamp: number,
+        payload: object
+    ) => {
+        if (!event.startsWith(channel) && channel !== '') return
+
+        const [schemaGetError, schema] = tryit(getPayloadSchemaFromChannel)(
+            event
+        )
+
+        if (schemaGetError) {
+            console.warn(schemaGetError)
+            return
+        }
+
+        if (!schema) {
             console.warn(
-                `[Omnibus] Malformed Message! ${[event, timestamp, payload]}`
+                '[Omnibus] Received message on unknown channel:',
+                event
             )
             return
         }
 
-        if (
-            event.toLowerCase().startsWith(channel.toLowerCase()) ||
-            channel === ''
-        ) {
-            afterMessageReceived(buildMessageObject(event, timestamp, payload))
+        const [parserError, messagePayload] = tryit(
+            snakeCaseParser(schema).parse
+        )(payload)
+
+        if (parserError) {
+            console.warn(
+                `[Omnibus] Received malformed payload on channel ${event}:`,
+                parserError
+            )
+            return
         }
+
+        const msgObject = buildMessageObject(event, timestamp, messagePayload)
+        afterMessageReceived(msgObject)
     }
+
+    return eventHandler
 }
 
 export function getOmnibusSenderReceiver(serverURL: string) {
@@ -86,18 +147,20 @@ export function getOmnibusSenderReceiver(serverURL: string) {
         channel: string | '',
         callback: (msg: Message<T>) => void
     ) => {
-        socket.onAny(socketCallbackBuilder<T>(channel, callback))
+        const handler = socketCallbackBuilder(channel, callback)
+        socket.onAny(handler)
+        return () => socket.offAny(handler)
     }
 
     const receive = <T extends AnyPayload>(
         channel: ChannelLiteralToPayloadType<T>,
         callback: (msg: Message<T>) => void
     ) => {
-        _attachReceiver(channel, callback)
+        return _attachReceiver(channel, callback)
     }
 
     const receiveAll = (callback: (msg: Message<AnyPayload>) => void) => {
-        _attachReceiver<AnyPayload>('', callback)
+        return _attachReceiver('', callback)
     }
 
     // No static type checking or runtime sanity checks
@@ -112,9 +175,11 @@ export function getOmnibusSenderReceiver(serverURL: string) {
             payload: T
         }) => void
     ) => {
-        socket.onAny((event: string, timestamp: number, payload: T) => {
+        const fn = (event: string, timestamp: number, payload: T) => {
             callback({ channel: event, timestamp, payload })
-        })
+        }
+        socket.onAny(fn)
+        return () => socket.offAny(fn)
     }
 
     const disconnect = () => {

@@ -1,7 +1,7 @@
 {
     "name": "@waterloorocketry/omnibus-ts",
     "public": true,
-    "version": "0.2.0",
+    "version": "0.3.0",
     "description": "Omnibus Message bindings for TypeScript and SocketIO",
     "license": "MIT",
     "author": "Waterloo Rocketry",

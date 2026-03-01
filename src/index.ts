@@ -2,6 +2,7 @@ import { getOmnibusSenderReceiver } from './message.js'
 
 export type * from './data/DAQMessage.ts'
 export type * from './data/CANMessage.ts'
+export type { ConnectionStatus } from './message.ts'
 
 const communicator = ({
     serverURL,
@@ -19,10 +20,12 @@ const communicator = ({
         receiver: typeof fns.receiver
         unsafeReceiveGenericMessage?: typeof fns.unsafeReceiveGenericMessage
         disconnect: typeof fns.disconnect
+        connection: typeof fns.connection
     } = {
         sender: fns.sender,
         receiver: fns.receiver,
         disconnect: fns.disconnect,
+        connection: fns.connection,
     }
     if (allowUnsafe) {
         res.unsafeReceiveGenericMessage = fns.unsafeReceiveGenericMessage

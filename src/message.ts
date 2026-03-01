@@ -40,6 +40,12 @@ type ChannelLiteralToPayloadType<T extends AnyPayload> =
     : T extends RLCSv3Message ? `RLCS/${string}` | 'RLCS'
     : never
 
+export type ConnectionStatus =
+    | 'connecting'
+    | 'connected'
+    | 'disconnected'
+    | 'error'
+
 export interface Message<T extends AnyPayload> {
     channel: string
     timestamp: number
@@ -182,6 +188,31 @@ export function getOmnibusSenderReceiver(serverURL: string) {
         return () => socket.offAny(fn)
     }
 
+    const onConnectionChange = (
+        callback: (status: ConnectionStatus, error?: Error) => void
+    ): (() => void) => {
+        const onConnect = () => callback('connected')
+        const onDisconnect = () => callback('disconnected')
+        const onError = (err: Error) => callback('error', err)
+
+        socket.on('connect', onConnect)
+        socket.on('disconnect', onDisconnect)
+        socket.on('connect_error', onError)
+
+        // Emit current state immediately
+        if (socket.connected) {
+            callback('connected')
+        }
+
+        return () => {
+            socket.off('connect', onConnect)
+            socket.off('disconnect', onDisconnect)
+            socket.off('connect_error', onError)
+        }
+    }
+
+    const isConnected = () => socket.connected
+
     const disconnect = () => {
         socket.disconnect()
     }
@@ -195,5 +226,9 @@ export function getOmnibusSenderReceiver(serverURL: string) {
         },
         unsafeReceiveGenericMessage,
         disconnect,
+        connection: {
+            onConnectionChange,
+            isConnected,
+        },
     }
 }

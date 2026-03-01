@@ -6,7 +6,7 @@ import msgpackParser from 'socket.io-msgpack-parser'
 
 import { communicator } from '../src/index.js'
 
-import { Message, AnyPayload } from '../src/message.ts'
+import { Message, AnyPayload, ConnectionStatus } from '../src/message.ts'
 
 import type { DAQMessage } from '../src/data/DAQMessage.ts'
 
@@ -235,5 +235,83 @@ describe('test Omnibus communication functions', () => {
         })
         expect(fns.socket!.onAny).toHaveBeenCalled()
         fns.socket?.emit('DAQ', 'bad timestamp', 'string or something')
+    })
+
+    it('isConnected should return true when connected', async () => {
+        const fns = await getCommunicatorInstance()
+        expect(fns.connection.isConnected()).toBe(true)
+    })
+
+    it('isConnected should return false after disconnect', async () => {
+        const fns = await getCommunicatorInstance()
+        fns.disconnect()
+        expect(fns.connection.isConnected()).toBe(false)
+    })
+
+    it('onConnectionChange should emit connected immediately when already connected', async () => {
+        const fns = await getCommunicatorInstance()
+        const statuses: ConnectionStatus[] = []
+        fns.connection.onConnectionChange((status) => {
+            statuses.push(status)
+        })
+        // Should have fired synchronously with 'connected' since socket is already connected
+        expect(statuses).toEqual(['connected'])
+    })
+
+    it('onConnectionChange should fire connected on new connection', async () => {
+        const c = communicator({
+            serverURL: 'http://localhost:3000',
+            allowExposeSocket: true,
+        })
+        const connected = new Promise<ConnectionStatus>((res) => {
+            c.connection.onConnectionChange((status) => {
+                if (status === 'connected') res(status)
+            })
+        })
+        expect(await connected).toBe('connected')
+    })
+
+    it('onConnectionChange should fire disconnected on disconnect', async () => {
+        const fns = await getCommunicatorInstance()
+        const disconnected = new Promise<ConnectionStatus>((res) => {
+            fns.connection.onConnectionChange((status) => {
+                if (status === 'disconnected') res(status)
+            })
+        })
+        fns.disconnect()
+        expect(await disconnected).toBe('disconnected')
+    })
+
+    it('onConnectionChange should fire error on connection failure', async () => {
+        const c = communicator({
+            serverURL: 'http://localhost:9999',
+            allowExposeSocket: true,
+        })
+        const result = await new Promise<{ status: ConnectionStatus; error?: Error }>((res) => {
+            c.connection.onConnectionChange((status, error) => {
+                if (status === 'error') res({ status, error })
+            })
+        })
+        expect(result.status).toBe('error')
+        expect(result.error).toBeInstanceOf(Error)
+        c.disconnect()
+    })
+
+    it('onConnectionChange unsubscribe should remove listeners', async () => {
+        const fns = await getCommunicatorInstance()
+        const statuses: ConnectionStatus[] = []
+        const unsubscribe = fns.connection.onConnectionChange((status) => {
+            statuses.push(status)
+        })
+        // 'connected' fires immediately since already connected
+        expect(statuses).toEqual(['connected'])
+
+        unsubscribe()
+        fns.disconnect()
+
+        // Wait briefly to ensure no more callbacks fire
+        await new Promise((res) => setTimeout(res, 100))
+        // Should still only have the initial 'connected', no 'disconnected'
+        expect(statuses).toEqual(['connected'])
     })
 })

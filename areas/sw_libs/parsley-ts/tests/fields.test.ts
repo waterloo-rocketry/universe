@@ -3,9 +3,6 @@ import { ASCII, Enum, Numeric, Floating, Switch, Bitfield } from '../src/fields.
 import { BoardTypeId, BoardErrorBitfieldOffset } from '../src/messageTypes.js'
 
 // Adapted from waterloo-rocketry/parsley tests/test_fields.py.
-// The Python tests use `bytes`; we use the bigint LSB-aligned form that
-// BitString.pop()/push() exchange with field encoders. Conversion: a byte
-// sequence b"\xAA\xBB" of length 16 maps to the bigint 0xAABBn.
 
 describe('ASCII', () => {
     it('encode and decode round-trip', () => {
@@ -22,8 +19,6 @@ describe('ASCII', () => {
     })
 
     it('decodes implicit leading zeros (front padding)', () => {
-        // Equivalent to Python's a.decode(b"\x57") with length 32 — the bigint
-        // is 0x57n and the decoder reconstitutes the full 4-byte field.
         const a = new ASCII('string', 32)
         expect(a.decode(0x57n)).toBe('W')
     })
@@ -55,12 +50,18 @@ describe('ASCII', () => {
 
     it('throws on non-ASCII characters', () => {
         const a = new ASCII('string', 16)
-        expect(() => a.encode('😎')).toThrow()
+        expect(() => a.encode('💀')).toThrow()
+        expect(() => a.encode('🥀')).toThrow()
     })
 
     it('throws when string overflows the field', () => {
         const a = new ASCII('string', 16)
         expect(() => a.encode('xdd')).toThrow()
+    })
+
+    it('rejects non-byte-aligned lengths at construction', () => {
+        expect(() => new ASCII('string', 12)).toThrow()
+        expect(() => new ASCII('string', 7)).toThrow()
     })
 })
 
@@ -182,6 +183,15 @@ describe('Numeric', () => {
         expect(() => n.encode(5)).toThrow()
     })
 
+    it('uses floor when encoding negative scaled values', () => {
+        // -13 / 2 = -6.5. Python's int(value // scale) = -7 (floor).
+        // Math.trunc would give -6, which would be wrong.
+        const n = new Numeric('time', 16, 2, true)
+        const [data] = n.encode(-13)
+        // -7 in two's complement, 16 bits = 0xFFF9
+        expect(data).toBe(0xfff9n)
+    })
+
     it('signed two\'s complement decode', () => {
         const n = new Numeric('num', 8, 1, true)
         expect(n.decode(0xfcn)).toBe(-4)
@@ -256,26 +266,27 @@ describe('Bitfield', () => {
     const make = () =>
         new Bitfield('general_board_status', 16, 'E_NOMINAL', BoardErrorBitfieldOffset)
 
-    const singleBitCases: [bigint, string][] = [
-        [0x0000n, 'E_NOMINAL'],
-        [0x0001n, 'E_5V_OVER_CURRENT'],
-        [0x0002n, 'E_5V_OVER_VOLTAGE'],
-        [0x0004n, 'E_5V_UNDER_VOLTAGE'],
-        [0x0008n, 'E_12V_OVER_CURRENT'],
-        [0x0010n, 'E_12V_OVER_VOLTAGE'],
-        [0x0020n, 'E_12V_UNDER_VOLTAGE'],
-        [0x0040n, 'E_BATT_OVER_CURRENT'],
-        [0x0080n, 'E_BATT_OVER_VOLTAGE'],
-        [0x0100n, 'E_BATT_UNDER_VOLTAGE'],
-        [0x0200n, 'E_MOTOR_OVER_CURRENT'],
-        [0x0400n, 'E_IO_ERROR'],
-        [0x0800n, 'E_FS_ERROR'],
-        [0x1000n, 'E_WATCHDOG_TIMEOUT'],
-        [0x2000n, 'E_12V_EFUSE_FAULT'],
-        [0x4000n, 'E_5V_EFUSE_FAULT'],
-        [0x8000n, 'E_PT_OUT_OF_RANGE'],
+    // [bigint value, hex display, expected flag]
+    const singleBitCases: [bigint, string, string][] = [
+        [0x0000n, '0x0000', 'E_NOMINAL'],
+        [0x0001n, '0x0001', 'E_5V_OVER_CURRENT'],
+        [0x0002n, '0x0002', 'E_5V_OVER_VOLTAGE'],
+        [0x0004n, '0x0004', 'E_5V_UNDER_VOLTAGE'],
+        [0x0008n, '0x0008', 'E_12V_OVER_CURRENT'],
+        [0x0010n, '0x0010', 'E_12V_OVER_VOLTAGE'],
+        [0x0020n, '0x0020', 'E_12V_UNDER_VOLTAGE'],
+        [0x0040n, '0x0040', 'E_BATT_OVER_CURRENT'],
+        [0x0080n, '0x0080', 'E_BATT_OVER_VOLTAGE'],
+        [0x0100n, '0x0100', 'E_BATT_UNDER_VOLTAGE'],
+        [0x0200n, '0x0200', 'E_MOTOR_OVER_CURRENT'],
+        [0x0400n, '0x0400', 'E_IO_ERROR'],
+        [0x0800n, '0x0800', 'E_FS_ERROR'],
+        [0x1000n, '0x1000', 'E_WATCHDOG_TIMEOUT'],
+        [0x2000n, '0x2000', 'E_12V_EFUSE_FAULT'],
+        [0x4000n, '0x4000', 'E_5V_EFUSE_FAULT'],
+        [0x8000n, '0x8000', 'E_PT_OUT_OF_RANGE'],
     ]
-    it.each(singleBitCases)('decode 0x%s → %s', (data, expected) => {
+    it.each(singleBitCases)('decode %s → %s', (data, _hex, expected) => {
         expect(make().decode(data)).toBe(expected)
     })
 

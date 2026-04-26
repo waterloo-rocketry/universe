@@ -61,6 +61,10 @@ export class ASCII extends Field {
     */
     constructor(name: string, length: number) {
         super(name, length);
+        // ASCII characters are 8 bits each; sub-byte fields don't make sense.
+        if (length % 8 !== 0) {
+            throw new Error(`ASCII "${name}": length must be a multiple of 8, got ${length}`);
+        }
         this.variable_length = true;
     }
 

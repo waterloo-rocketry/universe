@@ -32,9 +32,7 @@ function isError<T>(r: T | { error: string }): r is { error: string } & T {
     return r !== null && typeof r === 'object' && 'error' in (r as object)
 }
 
-// ============================================================
 // parseToObject — additional input-format tests
-// ============================================================
 
 describe('parseToObject input coercion', () => {
     const sidBytes = createMsgSid('HIGH', 'GENERAL_BOARD_STATUS', 0, 'POWER', 'GROUND')
@@ -71,9 +69,7 @@ describe('parseToObject input coercion', () => {
     })
 })
 
-// ============================================================
 // formatLine
-// ============================================================
 
 describe('formatLine', () => {
     it('header contains prio, type, board ids and msg_metadata', () => {
@@ -137,9 +133,7 @@ describe('formatLine', () => {
     })
 })
 
-// ============================================================
 // encodeData — reverse direction
-// ============================================================
 
 describe('encodeData', () => {
     it('round-trips a GENERAL_BOARD_STATUS via parseToObject', () => {
@@ -238,9 +232,7 @@ describe('encodeData', () => {
     })
 })
 
-// ============================================================
 // USBDebugParser
-// ============================================================
 
 describe('USBDebugParser', () => {
     const parser = new USBDebugParser()
@@ -289,9 +281,7 @@ describe('USBDebugParser', () => {
     })
 })
 
-// ============================================================
 // LiveTelemetryParser
-// ============================================================
 
 describe('LiveTelemetryParser', () => {
     const parser = new LiveTelemetryParser()
@@ -341,9 +331,7 @@ describe('LiveTelemetryParser', () => {
     })
 })
 
-// ============================================================
 // LoggerParser
-// ============================================================
 
 describe('LoggerParser', () => {
     const parser = new LoggerParser()
@@ -418,9 +406,7 @@ describe('LoggerParser', () => {
     })
 })
 
-// ============================================================
 // BitstringParser
-// ============================================================
 
 describe('BitstringParser', () => {
     const parser = new BitstringParser()

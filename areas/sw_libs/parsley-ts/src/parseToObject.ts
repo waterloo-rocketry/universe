@@ -28,9 +28,7 @@ import type { MsgType, MsgPrio, BoardTypeId, BoardInstId } from './messageTypes.
 // SID is exactly 29 bits, transported in 4 bytes (3 leading pad bits).
 export const MESSAGE_SID_BYTES = Math.ceil(MESSAGE_SID_LEN / 8)
 
-// ============================================================
 // Helpers
-// ============================================================
 
 function hexify(bytes: Uint8Array): string {
     if (bytes.length === 0) return '0x'
@@ -50,15 +48,27 @@ function safeDecode(field: Field, raw: bigint): string {
     }
 }
 
-// ============================================================
 // Main entry point
-// ============================================================
 
 // Coerce a SID input (raw bytes, bigint, or number) into the canonical 4-byte big-endian form.
 // For numeric inputs, missing high bits are implicitly zero (the docs' "pad bits 31:29").
 function coerceSid(sid: Uint8Array | bigint | number): Uint8Array {
     if (sid instanceof Uint8Array) return sid
-    let v = typeof sid === 'number' ? BigInt(sid) : sid
+    let v: bigint
+    if (typeof sid === 'number') {
+        if (!Number.isInteger(sid) || sid < 0) {
+            throw new Error(`SID number must be a non-negative integer, got ${sid}`)
+        }
+        v = BigInt(sid)
+    } else if (typeof sid === 'bigint') {
+        if (sid < 0n) throw new Error(`SID bigint must be non-negative, got ${sid}`)
+        v = sid
+    } else {
+        throw new Error(`SID must be Uint8Array, number, or bigint`)
+    }
+    if (v >> BigInt(MESSAGE_SID_BYTES * 8) !== 0n) {
+        throw new Error(`SID exceeds ${MESSAGE_SID_BYTES} bytes`)
+    }
     const out = new Uint8Array(MESSAGE_SID_BYTES)
     for (let i = MESSAGE_SID_BYTES - 1; i >= 0; i--) {
         out[i] = Number(v & 0xffn)
@@ -68,15 +78,34 @@ function coerceSid(sid: Uint8Array | bigint | number): Uint8Array {
 }
 
 function coerceData(data: Uint8Array | number[]): Uint8Array {
-    return data instanceof Uint8Array ? data : Uint8Array.from(data)
+    if (data instanceof Uint8Array) return data
+    if (!Array.isArray(data)) throw new Error(`msgData must be Uint8Array or number[]`)
+    return Uint8Array.from(data)
 }
 
 export function parseToObject(
     msgSidIn: Uint8Array | bigint | number,
     msgDataIn: Uint8Array | number[],
 ): ParsleyMessage | ParsleyError {
-    const msgSid = coerceSid(msgSidIn)
-    const msgData = coerceData(msgDataIn)
+    let msgSid: Uint8Array
+    let msgData: Uint8Array
+    try {
+        msgSid = coerceSid(msgSidIn)
+        msgData = coerceData(msgDataIn)
+    } catch (err) {
+        // Coercion failed before we have canonical bytes — render inputs best-effort.
+        const sidRepr = msgSidIn instanceof Uint8Array ? hexify(msgSidIn) : String(msgSidIn)
+        const dataRepr = msgDataIn instanceof Uint8Array ? hexify(msgDataIn) : String(msgDataIn)
+        return {
+            msg_prio: '',
+            board_type_id: sidRepr,
+            board_inst_id: sidRepr,
+            msg_type: sidRepr,
+            msg_metadata: 0,
+            msg_data: dataRepr,
+            error: `error: ${(err as Error).message}`,
+        }
+    }
 
     // Catch-all error builder for early SID failures (msg_prio not yet known).
     const earlyError = (err: unknown): ParsleyError => ({
@@ -187,9 +216,7 @@ function typeRawToBytes(raw: bigint): number[] {
     return bytes
 }
 
-// ============================================================
 // formatLine — pretty-print a parsed message (mirrors Python format_line)
-// ============================================================
 
 const MSG_PRIO_LEN      = Math.max(...Object.keys(MESSAGE_PRIO.map_key_val).map((k) => k.length))
 const MSG_TYPE_LEN      = Math.max(...Object.keys(MESSAGE_TYPE.map_key_val).map((k) => k.length))
@@ -228,9 +255,7 @@ export function formatLine(parsed: ParsleyMessage): string {
     return header + body
 }
 
-// ============================================================
 // encodeData — reverse direction: parsed object -> (sid, msgData)
-// ============================================================
 
 export interface ParsedMessageLike {
     msg_prio: keyof typeof MsgPrio | string
@@ -263,7 +288,11 @@ export function encodeData(parsed: ParsedMessageLike): { sid: bigint; data: Uint
     // ---- Build payload data ----
     const dataBits = new BitString()
     let totalBits = 0
-    if (parsed.data !== null) {
+    if (parsed.data === null) {
+        if (cls.fields.length > 0) {
+            throw new Error(`msg_type "${String(parsed.msg_type)}" requires payload data, got null`)
+        }
+    } else {
         for (const field of cls.fields) {
             const value = (parsed.data as Record<string, unknown>)[field.name]
             const [bits, len] = field.encode(value)

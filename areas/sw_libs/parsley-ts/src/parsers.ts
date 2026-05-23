@@ -18,17 +18,13 @@ import type { ParsleyError } from './schemas.js'
 
 export type ParseResult = ParsleyMessage | ParsleyError
 
-// ============================================================
 // Abstract base
-// ============================================================
 
 export abstract class ParsleyParser {
     abstract parse(...args: unknown[]): unknown
 }
 
-// ============================================================
 // USBDebugParser — "$<sid_hex>[:<byte_hex>,<byte_hex>,...]"
-// ============================================================
 
 export class USBDebugParser extends ParsleyParser {
     override parse(line: string): ParseResult {
@@ -40,8 +36,12 @@ export class USBDebugParser extends ParsleyParser {
 
         let sid: bigint
         let data: number[]
-        if (body.includes(':')) {
-            const [sidStr, dataStr] = body.split(':') as [string, string]
+        const colonIdx = body.indexOf(':')
+        if (colonIdx !== -1) {
+            const sidStr = body.slice(0, colonIdx)
+            const dataStr = body.slice(colonIdx + 1)
+            if (sidStr.length === 0) throw new Error('Incorrect line format: empty SID')
+            if (dataStr.includes(':')) throw new Error('Incorrect line format: multiple colons')
             sid = BigInt('0x' + sidStr)
             data = dataStr.length === 0 ? [] : dataStr.split(',').map((b) => parseInt(b, 16))
         } else {
@@ -53,10 +53,8 @@ export class USBDebugParser extends ParsleyParser {
     }
 }
 
-// ============================================================
 // LiveTelemetryParser — binary frame from the live-telemetry radio link
 // Layout: [0x02][len][sid:4 (top 3 bits masked)][...payload...][crc8]
-// ============================================================
 
 export class LiveTelemetryParser extends ParsleyParser {
     override parse(frame: Uint8Array): ParseResult {
@@ -87,7 +85,6 @@ export class LiveTelemetryParser extends ParsleyParser {
     }
 }
 
-// ============================================================
 // LoggerParser — 4096-byte page, yields multiple messages
 //
 // Page layout (little-endian unless noted):
@@ -99,7 +96,6 @@ export class LiveTelemetryParser extends ParsleyParser {
 //                  byte  8   : DLC (uint8, 0..8)
 //                  bytes 9.. : DLC bytes of payload
 //   record loop stops when (SID & 0xE000_0000) != 0 (sentinel/padding)
-// ============================================================
 
 export class LoggerParser extends ParsleyParser {
     static readonly PAGE_SIZE = 4096
@@ -120,7 +116,7 @@ export class LoggerParser extends ParsleyParser {
 
         let offset = 4
         const view = new DataView(buf.buffer, buf.byteOffset, buf.byteLength)
-        while (LoggerParser.PAGE_SIZE - offset > LoggerParser.HEADER_LEN) {
+        while (LoggerParser.PAGE_SIZE - offset >= LoggerParser.HEADER_LEN) {
             const sidU32 = view.getUint32(offset, true)
             // view.getUint32(offset + 4, true) // timestamp, unused
             const dlc = view.getUint8(offset + 8)
@@ -137,9 +133,7 @@ export class LoggerParser extends ParsleyParser {
     }
 }
 
-// ============================================================
 // BitstringParser — pops SID then remainder, delegates to parseToObject
-// ============================================================
 
 export class BitstringParser extends ParsleyParser {
     override parse(bitStr: BitString): ParseResult {

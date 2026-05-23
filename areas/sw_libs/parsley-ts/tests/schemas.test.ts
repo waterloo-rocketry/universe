@@ -43,8 +43,15 @@ describe('ParsleyErrorSchema', () => {
         }
     })
 
-    it('should reject an error missing required fields', () => {
-        const result = ParsleyErrorSchema.safeParse({ error: 'something broke' })
+    it('should reject an error missing msg_prio', () => {
+        const result = ParsleyErrorSchema.safeParse({
+            board_type_id: 'INJECTOR',
+            board_inst_id: 'ROCKET',
+            msg_type: 'ACTUATOR_CMD',
+            msg_metadata: 0,
+            msg_data: '0xABCD',
+            error: 'Parse failed',
+        })
         expect(result.success).toBe(false)
     })
 })

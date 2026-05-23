@@ -1,8 +1,6 @@
 import { z } from 'zod'
 
-// ============================================================
 // Parsley Error — emitted when parseToObject fails to decode a message
-// ============================================================
 
 export const ParsleyErrorSchema = z.object({
     msg_prio: z.string(),

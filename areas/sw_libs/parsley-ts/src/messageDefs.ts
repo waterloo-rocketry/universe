@@ -27,9 +27,7 @@ import {
     MsgType,
 } from './messageTypes.js'
 
-// ============================================================
 // SID-level field constants (shared, not per-msg-type)
-// ============================================================
 
 export const MESSAGE_PRIO     = new Enum('msg_prio', 2, MsgPrio)
 export const MESSAGE_TYPE     = new Enum('msg_type', 7, MsgType)
@@ -46,9 +44,7 @@ export const MESSAGE_SID_LEN =
 // Shared payload field: 16-bit millisecond timestamp, scaled to seconds.
 export const TIMESTAMP_2 = new Numeric('time', 16, 1 / 1000, false, true, 's')
 
-// ============================================================
 // Base class — owns the generic decoder
-// ============================================================
 
 export class ParsleyDataPayload {
     static fields: Field[] = []
@@ -70,9 +66,7 @@ export class ParsleyDataPayload {
     }
 }
 
-// ============================================================
 // One class per msg_type (24 total: UNDEFINED + 23 real types)
-// ============================================================
 
 export class UNDEFINED extends ParsleyDataPayload {
     static override fields: Field[] = []
@@ -314,9 +308,7 @@ export class LEDS_OFF extends ParsleyDataPayload {
     static override fields: Field[] = []
 }
 
-// ============================================================
 // Registry — exhaustive coverage of MsgType enforced by `satisfies`
-// ============================================================
 
 export const MESSAGE_DEFS = {
     UNDEFINED,
@@ -347,9 +339,7 @@ export const MESSAGE_DEFS = {
 
 export type MessageDefKey = keyof typeof MESSAGE_DEFS
 
-// ============================================================
 // Discriminated union — `data` is a class instance, `msg_metadata` is loose (string | number)
-// ============================================================
 
 type ParsleyMessageEntry<K extends MessageDefKey> = {
     msg_prio: keyof typeof MsgPrio | string

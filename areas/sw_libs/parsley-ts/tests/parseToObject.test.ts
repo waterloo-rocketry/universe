@@ -59,7 +59,7 @@ describe('parseToObject', () => {
         expect(result.msg_metadata).toBe(0)
         expect(result.data).toBeInstanceOf(GENERAL_BOARD_STATUS)
         const payload = result.data as GENERAL_BOARD_STATUS
-        expect(payload.time).toBeCloseTo(1.234, FLOAT_TOLERANCE)
+        expect(Math.abs(payload.time - 1.234)).toBeLessThan(FLOAT_TOLERANCE)
         expect(payload.board_error_bitfield).toBe('E_5V_OVER_VOLTAGE|E_5V_EFUSE_FAULT')
     })
 
@@ -80,7 +80,7 @@ describe('parseToObject', () => {
         expect(result.msg_metadata).toBe(0)
         expect(result.data).not.toBeNull()
         const payload = result.data as { time: number; string: string }
-        expect(payload.time).toBeCloseTo(0.133, FLOAT_TOLERANCE)
+        expect(Math.abs(payload.time - 0.133)).toBeLessThan(FLOAT_TOLERANCE)
         expect(payload.string).toBe('zZz')
     })
 
@@ -104,7 +104,7 @@ describe('parseToObject', () => {
         expect(result.msg_type).toBe('SENSOR_ANALOG16')
         expect(result.msg_metadata).toBe('SENSOR_5V_VOLT')
         const payload = result.data as { time: number; value: number }
-        expect(payload.time).toBeCloseTo(12.345, FLOAT_TOLERANCE)
+        expect(Math.abs(payload.time - 12.345)).toBeLessThan(FLOAT_TOLERANCE)
         expect(payload.value).toBe(3300)
     })
 

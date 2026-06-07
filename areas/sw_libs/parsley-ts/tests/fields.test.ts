@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { ASCII, Enum, Numeric, Floating, Switch, Bitfield } from '../src/fields.js'
-import { BoardTypeId, BoardErrorBitfieldOffset } from '../src/messageTypes.js'
+import { board_type_id, board_error_bitfield_offset } from '../src/messageTypes.js'
 
 // Adapted from waterloo-rocketry/parsley tests/test_fields.py.
 
@@ -67,7 +67,7 @@ describe('ASCII', () => {
 
 describe('Enum', () => {
     it('encodes and decodes against a real map', () => {
-        const e = new Enum('enum', 8, BoardTypeId)
+        const e = new Enum('enum', 8, board_type_id)
         const [data, length] = e.encode('INJECTOR')
         expect(data).toBe(0x01n)
         expect(length).toBe(8)
@@ -264,7 +264,7 @@ describe('Switch', () => {
 
 describe('Bitfield', () => {
     const make = () =>
-        new Bitfield('general_board_status', 16, 'E_NOMINAL', BoardErrorBitfieldOffset)
+        new Bitfield('general_board_status', 32, 'E_NOMINAL', board_error_bitfield_offset)
 
     // [bigint value, hex display, expected flag]
     const singleBitCases: [bigint, string, string][] = [
@@ -316,7 +316,7 @@ describe('Bitfield', () => {
     it.each(encodeCases)('encode %s', (value, expected) => {
         const [data, length] = make().encode(value)
         expect(data).toBe(expected)
-        expect(length).toBe(16)
+        expect(length).toBe(32)
     })
 
     it('encode/decode round-trip', () => {

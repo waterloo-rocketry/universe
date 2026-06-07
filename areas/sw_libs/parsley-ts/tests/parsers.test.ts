@@ -25,7 +25,7 @@ import {
     BitstringParser,
 } from '../src/parsers.js'
 import { crc8 } from '../src/crc8.js'
-import { ActuatorId, ActuatorState, AnalogSensorId } from '../src/messageTypes.js'
+import { actuator_id, actuator_state, analog_sensor_id } from '../src/messageTypes.js'
 import { bigintToBytes, createMsgSid, encodeFields, splitFormatLine } from './utils.js'
 
 function isError<T>(r: T | { error: string }): r is { error: string } & T {
@@ -93,7 +93,7 @@ describe('formatLine', () => {
             'SENSOR_PT_CHANNEL_1',
             'LOGGER',
             'ROCKET',
-            new Enum('msg_metadata', 8, AnalogSensorId),
+            new Enum('msg_metadata', 8, analog_sensor_id),
         )
         const data = encodeFields([
             [TIMESTAMP_2, 22.473],
@@ -111,11 +111,11 @@ describe('formatLine', () => {
             'ACTUATOR_OX_INJECTOR_VALVE',
             'INJECTOR',
             'ROCKET',
-            new Enum('msg_metadata', 8, ActuatorId),
+            new Enum('msg_metadata', 8, actuator_id),
         )
         const data = encodeFields([
             [TIMESTAMP_2, 1.0],
-            [new Enum('cmd_state', 8, ActuatorState), 'ACT_STATE_ON'],
+            [new Enum('cmd_state', 8, actuator_state), 'ACT_STATE_ON'],
         ])
         const r = parseToObject(sid, data)
         if (isError(r)) throw new Error(r.error)
@@ -432,5 +432,5 @@ describe('BitstringParser', () => {
 
 // Suppress unused-import warning for tooling — these symbols are used implicitly via TS resolution.
 void Enum
-void ActuatorId
-void ActuatorState
+void actuator_id
+void actuator_state

@@ -23,14 +23,14 @@ import {
 } from '../src/messageDefs.js'
 import { parseToObject } from '../src/parseToObject.js'
 import {
-    ActuatorId,
-    ActuatorState,
-    AltArmState,
-    AltimeterId,
-    AnalogSensorId,
-    BoardErrorBitfieldOffset,
-    DemSensor2DId,
-    DemSensor3DId,
+    actuator_id,
+    actuator_state,
+    alt_arm_state,
+    altimeter_id,
+    analog_sensor_id,
+    board_error_bitfield_offset,
+    dem_2d_sensor_id,
+    dem_3d_sensor_id,
 } from '../src/messageTypes.js'
 import { createMsgSid, encodeFields, bigintToBytes, FLOAT_TOLERANCE } from './utils.js'
 
@@ -44,7 +44,7 @@ describe('parseToObject', () => {
         const data = encodeFields([
             [TIMESTAMP_2, 1.234],
             [
-                new Bitfield('board_error_bitfield', 32, 'E_NOMINAL', BoardErrorBitfieldOffset),
+                new Bitfield('board_error_bitfield', 32, 'E_NOMINAL', board_error_bitfield_offset),
                 'E_5V_OVER_VOLTAGE|E_5V_EFUSE_FAULT',
             ],
         ])
@@ -91,7 +91,7 @@ describe('parseToObject', () => {
             'SENSOR_5V_VOLT',
             'PAYLOAD',
             'ANY',
-            new Enum('msg_metadata', 8, AnalogSensorId),
+            new Enum('msg_metadata', 8, analog_sensor_id),
         )
         const data = encodeFields([
             [TIMESTAMP_2, 12.345],
@@ -129,11 +129,11 @@ describe('parseToObject', () => {
             'ACTUATOR_FUEL_INJECTOR_VALVE',
             'INJECTOR',
             'ROCKET',
-            new Enum('msg_metadata', 8, ActuatorId),
+            new Enum('msg_metadata', 8, actuator_id),
         )
         const data = encodeFields([
             [TIMESTAMP_2, 2.0],
-            [new Enum('cmd_state', 8, ActuatorState), 'ACT_STATE_ON'],
+            [new Enum('cmd_state', 8, actuator_state), 'ACT_STATE_ON'],
         ])
 
         const result = parseToObject(sid, data)
@@ -152,7 +152,7 @@ describe('parseToObject', () => {
             'SENSOR_5V_CURR',
             'POWER',
             'ROCKET',
-            new Enum('msg_metadata', 8, AnalogSensorId),
+            new Enum('msg_metadata', 8, analog_sensor_id),
         )
         const data = encodeFields([
             [TIMESTAMP_2, 5.0],
@@ -174,11 +174,11 @@ describe('parseToObject', () => {
             'ALTIMETER_STRATOLOGGER',
             'ALTIMETER',
             'ROCKET',
-            new Enum('msg_metadata', 8, AltimeterId),
+            new Enum('msg_metadata', 8, altimeter_id),
         )
         const data = encodeFields([
             [TIMESTAMP_2, 1.0],
-            [new Enum('alt_arm_state', 8, AltArmState), 'ALT_ARM_STATE_ARMED'],
+            [new Enum('alt_arm_state', 8, alt_arm_state), 'ALT_ARM_STATE_ARMED'],
         ])
 
         const result = parseToObject(sid, data)
@@ -211,7 +211,7 @@ describe('parseToObject', () => {
             'DEM_2D_SENSOR_CANARD_MS5611_BARO_TEMP',
             'CANARD',
             'ROCKET',
-            new Enum('msg_metadata', 8, DemSensor2DId),
+            new Enum('msg_metadata', 8, dem_2d_sensor_id),
         )
         const data = encodeFields([
             [TIMESTAMP_2, 1.5],
@@ -235,7 +235,7 @@ describe('parseToObject', () => {
             'DEM_3D_SENSOR_CANARD_LSM6DSV32X_ACCEL',
             'CANARD',
             'ROCKET',
-            new Enum('msg_metadata', 8, DemSensor3DId),
+            new Enum('msg_metadata', 8, dem_3d_sensor_id),
         )
         const data = encodeFields([
             [TIMESTAMP_2, 1.5],
@@ -255,7 +255,7 @@ describe('parseToObject', () => {
     })
 
     it('falls back to numeric metadata when enum decode fails', () => {
-        // Construct SID with metadata=0xFF — not in ActuatorId, so ACTUATOR_CMD's
+        // Construct SID with metadata=0xFF — not in actuator_id, so ACTUATOR_CMD's
         // metadataField throws and we fall back to numeric 255.
         const bs = new BitString()
         const [prioBits, prioLen] = MESSAGE_PRIO.encode('HIGH')
@@ -271,7 +271,7 @@ describe('parseToObject', () => {
 
         const data = encodeFields([
             [TIMESTAMP_2, 1.0],
-            [new Enum('cmd_state', 8, ActuatorState), 'ACT_STATE_ON'],
+            [new Enum('cmd_state', 8, actuator_state), 'ACT_STATE_ON'],
         ])
 
         const result = parseToObject(sid, data)
@@ -335,7 +335,7 @@ describe('parseToObject', () => {
             'ALTIMETER_RAVEN',
             'ALTIMETER',
             'ANY',
-            new Enum('msg_metadata', 8, AltimeterId),
+            new Enum('msg_metadata', 8, altimeter_id),
         )
         // ALT_ARM_STATUS expects time(16) + alt_arm_state(8) + drogue_v(16) + main_v(16) = 56 bits = 7 bytes
         // Provide only 3 bytes.
@@ -404,11 +404,11 @@ describe('parseToObject', () => {
             'ACTUATOR_OX_INJECTOR_VALVE',
             'INJECTOR',
             'ROCKET',
-            new Enum('msg_metadata', 8, ActuatorId),
+            new Enum('msg_metadata', 8, actuator_id),
         )
         const data = encodeFields([
             [TIMESTAMP_2, 1.0],
-            [new Enum('cmd_state', 8, ActuatorState), 'ACT_STATE_OFF'],
+            [new Enum('cmd_state', 8, actuator_state), 'ACT_STATE_OFF'],
         ])
 
         const result = parseToObject(sid, data)

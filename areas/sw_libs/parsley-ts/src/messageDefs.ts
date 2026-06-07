@@ -13,26 +13,26 @@ import { BitString } from './bitString.js'
 import { ASCII, Bitfield, Enum, Numeric } from './fields.js'
 import type { Field } from './fields.js'
 import {
-    ActuatorId,
-    ActuatorState,
-    AltArmState,
-    AltimeterId,
-    AnalogSensorId,
-    BoardErrorBitfieldOffset,
-    BoardInstId,
-    BoardTypeId,
-    DemSensor2DId,
-    DemSensor3DId,
-    MsgPrio,
-    MsgType,
+    actuator_id,
+    actuator_state,
+    alt_arm_state,
+    altimeter_id,
+    analog_sensor_id,
+    board_error_bitfield_offset,
+    board_inst_id,
+    board_type_id,
+    dem_2d_sensor_id,
+    dem_3d_sensor_id,
+    msg_prio,
+    msg_type,
 } from './messageTypes.js'
 
 // SID-level field constants (shared, not per-msg-type)
 
-export const MESSAGE_PRIO     = new Enum('msg_prio', 2, MsgPrio)
-export const MESSAGE_TYPE     = new Enum('msg_type', 7, MsgType)
-export const BOARD_TYPE_ID    = new Enum('board_type_id', 6, BoardTypeId)
-export const BOARD_INST_ID    = new Enum('board_inst_id', 6, BoardInstId)
+export const MESSAGE_PRIO     = new Enum('msg_prio', 2, msg_prio)
+export const MESSAGE_TYPE     = new Enum('msg_type', 7, msg_type)
+export const BOARD_TYPE_ID    = new Enum('board_type_id', 6, board_type_id)
+export const BOARD_INST_ID    = new Enum('board_inst_id', 6, board_inst_id)
 export const MESSAGE_METADATA = new Numeric('msg_metadata', 8)
 export const MESSAGE_SID_LEN =
     MESSAGE_PRIO.length +
@@ -75,7 +75,7 @@ export class UNDEFINED extends ParsleyDataPayload {
 export class GENERAL_BOARD_STATUS extends ParsleyDataPayload {
     static override fields: Field[] = [
         TIMESTAMP_2,
-        new Bitfield('board_error_bitfield', 32, 'E_NOMINAL', BoardErrorBitfieldOffset),
+        new Bitfield('board_error_bitfield', 32, 'E_NOMINAL', board_error_bitfield_offset),
     ]
     declare time: number
     declare board_error_bitfield: string
@@ -84,12 +84,12 @@ export class GENERAL_BOARD_STATUS extends ParsleyDataPayload {
 export class RESET_CMD extends ParsleyDataPayload {
     static override fields: Field[] = [
         TIMESTAMP_2,
-        new Enum('board_type_id', 8, BoardTypeId),
-        new Enum('board_inst_id', 8, BoardInstId),
+        new Enum('board_type_id', 8, board_type_id),
+        new Enum('board_inst_id', 8, board_inst_id),
     ]
     declare time: number
-    declare board_type_id: keyof typeof BoardTypeId
-    declare board_inst_id: keyof typeof BoardInstId
+    declare board_type_id: keyof typeof board_type_id
+    declare board_inst_id: keyof typeof board_inst_id
 }
 
 export class DEBUG_RAW extends ParsleyDataPayload {
@@ -101,14 +101,14 @@ export class DEBUG_RAW extends ParsleyDataPayload {
 export class CONFIG_SET extends ParsleyDataPayload {
     static override fields: Field[] = [
         TIMESTAMP_2,
-        new Enum('board_type_id', 8, BoardTypeId),
-        new Enum('board_inst_id', 8, BoardInstId),
+        new Enum('board_type_id', 8, board_type_id),
+        new Enum('board_inst_id', 8, board_inst_id),
         new Numeric('config_id', 16),
         new Numeric('config_value', 16),
     ]
     declare time: number
-    declare board_type_id: keyof typeof BoardTypeId
-    declare board_inst_id: keyof typeof BoardInstId
+    declare board_type_id: keyof typeof board_type_id
+    declare board_inst_id: keyof typeof board_inst_id
     declare config_id: number
     declare config_value: number
 }
@@ -127,59 +127,59 @@ export class CONFIG_STATUS extends ParsleyDataPayload {
 export class ACTUATOR_CMD extends ParsleyDataPayload {
     static override fields: Field[] = [
         TIMESTAMP_2,
-        new Enum('cmd_state', 8, ActuatorState),
+        new Enum('cmd_state', 8, actuator_state),
     ]
-    static override metadataField: Field = new Enum('msg_metadata', 8, ActuatorId)
+    static override metadataField: Field = new Enum('msg_metadata', 8, actuator_id)
     declare time: number
-    declare cmd_state: keyof typeof ActuatorState
+    declare cmd_state: keyof typeof actuator_state
 }
 
 export class ACTUATOR_STATUS extends ParsleyDataPayload {
     static override fields: Field[] = [
         TIMESTAMP_2,
-        new Enum('cmd_state', 8, ActuatorState),
-        new Enum('curr_state', 8, ActuatorState),
+        new Enum('cmd_state', 8, actuator_state),
+        new Enum('curr_state', 8, actuator_state),
     ]
-    static override metadataField: Field = new Enum('msg_metadata', 8, ActuatorId)
+    static override metadataField: Field = new Enum('msg_metadata', 8, actuator_id)
     declare time: number
-    declare cmd_state: keyof typeof ActuatorState
-    declare curr_state: keyof typeof ActuatorState
+    declare cmd_state: keyof typeof actuator_state
+    declare curr_state: keyof typeof actuator_state
 }
 
 export class ALT_ARM_CMD extends ParsleyDataPayload {
     static override fields: Field[] = [
         TIMESTAMP_2,
-        new Enum('alt_arm_state', 8, AltArmState),
+        new Enum('alt_arm_state', 8, alt_arm_state),
     ]
-    static override metadataField: Field = new Enum('msg_metadata', 8, AltimeterId)
+    static override metadataField: Field = new Enum('msg_metadata', 8, altimeter_id)
     declare time: number
-    declare alt_arm_state: keyof typeof AltArmState
+    declare alt_arm_state: keyof typeof alt_arm_state
 }
 
 export class ALT_ARM_STATUS extends ParsleyDataPayload {
     static override fields: Field[] = [
         TIMESTAMP_2,
-        new Enum('alt_arm_state', 8, AltArmState),
+        new Enum('alt_arm_state', 8, alt_arm_state),
         new Numeric('drogue_v', 16),
         new Numeric('main_v', 16),
     ]
-    static override metadataField: Field = new Enum('msg_metadata', 8, AltimeterId)
+    static override metadataField: Field = new Enum('msg_metadata', 8, altimeter_id)
     declare time: number
-    declare alt_arm_state: keyof typeof AltArmState
+    declare alt_arm_state: keyof typeof alt_arm_state
     declare drogue_v: number
     declare main_v: number
 }
 
 export class SENSOR_ANALOG16 extends ParsleyDataPayload {
     static override fields: Field[] = [TIMESTAMP_2, new Numeric('value', 16)]
-    static override metadataField: Field = new Enum('msg_metadata', 8, AnalogSensorId)
+    static override metadataField: Field = new Enum('msg_metadata', 8, analog_sensor_id)
     declare time: number
     declare value: number
 }
 
 export class SENSOR_ANALOG32 extends ParsleyDataPayload {
     static override fields: Field[] = [TIMESTAMP_2, new Numeric('value', 32)]
-    static override metadataField: Field = new Enum('msg_metadata', 8, AnalogSensorId)
+    static override metadataField: Field = new Enum('msg_metadata', 8, analog_sensor_id)
     declare time: number
     declare value: number
 }
@@ -190,7 +190,7 @@ export class SENSOR_2D_ANALOG24 extends ParsleyDataPayload {
         new Numeric('value_x', 24),
         new Numeric('value_y', 24),
     ]
-    static override metadataField: Field = new Enum('msg_metadata', 8, DemSensor2DId)
+    static override metadataField: Field = new Enum('msg_metadata', 8, dem_2d_sensor_id)
     declare time: number
     declare value_x: number
     declare value_y: number
@@ -203,7 +203,7 @@ export class SENSOR_3D_ANALOG16 extends ParsleyDataPayload {
         new Numeric('value_y', 16),
         new Numeric('value_z', 16),
     ]
-    static override metadataField: Field = new Enum('msg_metadata', 8, DemSensor3DId)
+    static override metadataField: Field = new Enum('msg_metadata', 8, dem_3d_sensor_id)
     declare time: number
     declare value_x: number
     declare value_y: number
@@ -300,6 +300,28 @@ export class STREAM_RETRY extends ParsleyDataPayload {
     declare time: number
 }
 
+export class TELEMETRY_INFO extends ParsleyDataPayload {
+    static override fields: Field[] = [
+        TIMESTAMP_2,
+        new Numeric('lqi', 8),
+        new Numeric('rssi', 8),
+    ]
+    declare time: number
+    declare lqi: number
+    declare rssi: number
+}
+
+export class CANARD_FIRMWARE_ERROR extends ParsleyDataPayload {
+    static override fields: Field[] = [
+        TIMESTAMP_2,
+        new Numeric('error_code', 32),
+        new Numeric('severity', 8),
+    ]
+    declare time: number
+    declare error_code: number
+    declare severity: number
+}
+
 export class LEDS_ON extends ParsleyDataPayload {
     static override fields: Field[] = []
 }
@@ -308,7 +330,7 @@ export class LEDS_OFF extends ParsleyDataPayload {
     static override fields: Field[] = []
 }
 
-// Registry — exhaustive coverage of MsgType enforced by `satisfies`
+// Registry — exhaustive coverage of msg_type enforced by `satisfies`
 
 export const MESSAGE_DEFS = {
     UNDEFINED,
@@ -333,19 +355,21 @@ export const MESSAGE_DEFS = {
     STREAM_STATUS,
     STREAM_DATA,
     STREAM_RETRY,
+    TELEMETRY_INFO,
+    CANARD_FIRMWARE_ERROR,
     LEDS_ON,
     LEDS_OFF,
-} satisfies Record<keyof typeof MsgType, typeof ParsleyDataPayload>
+} satisfies Record<keyof typeof msg_type, typeof ParsleyDataPayload>
 
 export type MessageDefKey = keyof typeof MESSAGE_DEFS
 
 // Discriminated union — `data` is a class instance, `msg_metadata` is loose (string | number)
 
 type ParsleyMessageEntry<K extends MessageDefKey> = {
-    msg_prio: keyof typeof MsgPrio | string
+    msg_prio: keyof typeof msg_prio | string
     msg_type: K
-    board_type_id: keyof typeof BoardTypeId | string
-    board_inst_id: keyof typeof BoardInstId | string
+    board_type_id: keyof typeof board_type_id | string
+    board_inst_id: keyof typeof board_inst_id | string
     msg_metadata: string | number
     data: InstanceType<(typeof MESSAGE_DEFS)[K]> | null
 }

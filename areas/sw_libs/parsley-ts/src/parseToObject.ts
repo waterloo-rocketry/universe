@@ -23,7 +23,7 @@ import {
 } from './messageDefs.js'
 import type { MessageDefKey, ParsleyMessage } from './messageDefs.js'
 import type { ParsleyError } from './schemas.js'
-import type { MsgType, MsgPrio, BoardTypeId, BoardInstId } from './messageTypes.js'
+import type { msg_prio, board_type_id, board_inst_id } from './messageTypes.js'
 
 // SID is exactly 29 bits, transported in 4 bytes (3 leading pad bits).
 export const MESSAGE_SID_BYTES = Math.ceil(MESSAGE_SID_LEN / 8)
@@ -151,10 +151,10 @@ export function parseToObject(
     // Numeric metadata is the default fallback shown when msg_type decode fails too.
     const metadataNumeric = Number(metaRaw)
 
-    let msg_type: keyof typeof MsgType
+    let msg_type: MessageDefKey
     let cls: typeof ParsleyDataPayload
     try {
-        msg_type = MESSAGE_TYPE.decode(typeRaw) as keyof typeof MsgType
+        msg_type = MESSAGE_TYPE.decode(typeRaw) as MessageDefKey
         cls = MESSAGE_DEFS[msg_type as MessageDefKey]
         if (!cls) throw new Error(`Unknown msg_type ${String(msg_type)}`)
     } catch (err) {
@@ -258,10 +258,10 @@ export function formatLine(parsed: ParsleyMessage): string {
 // encodeData — reverse direction: parsed object -> (sid, msgData)
 
 export interface ParsedMessageLike {
-    msg_prio: keyof typeof MsgPrio | string
-    msg_type: keyof typeof MsgType
-    board_type_id: keyof typeof BoardTypeId | string
-    board_inst_id: keyof typeof BoardInstId | string
+    msg_prio: keyof typeof msg_prio | string
+    msg_type: MessageDefKey
+    board_type_id: keyof typeof board_type_id | string
+    board_inst_id: keyof typeof board_inst_id | string
     msg_metadata: string | number
     data: Record<string, unknown> | null
 }

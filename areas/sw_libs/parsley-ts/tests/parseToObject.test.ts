@@ -31,7 +31,7 @@ import {
     board_error_bitfield_offset,
     dem_2d_sensor_id,
     dem_3d_sensor_id,
-} from '../src/messageTypes.js'
+} from '../src/message_types.js'
 import { createMsgSid, encodeFields, bigintToBytes, FLOAT_TOLERANCE } from './utils.js'
 
 function isError(r: ReturnType<typeof parseToObject>): r is Extract<typeof r, { error: string }> {

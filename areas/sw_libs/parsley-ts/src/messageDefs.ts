@@ -25,7 +25,7 @@ import {
     dem_3d_sensor_id,
     msg_prio,
     msg_type,
-} from './messageTypes.js'
+} from './message_types.js'
 
 // SID-level field constants (shared, not per-msg-type)
 
@@ -311,6 +311,12 @@ export class TELEMETRY_INFO extends ParsleyDataPayload {
     declare rssi: number
 }
 
+export class TELEMETRY_STATE_SWITCH extends ParsleyDataPayload {
+    static override fields: Field[] = [TIMESTAMP_2]
+    static override metadataField: Field = new Enum('msg_metadata', 8, board_inst_id)
+    declare time: number
+}
+
 export class CANARD_FIRMWARE_ERROR extends ParsleyDataPayload {
     static override fields: Field[] = [
         TIMESTAMP_2,
@@ -356,6 +362,7 @@ export const MESSAGE_DEFS = {
     STREAM_DATA,
     STREAM_RETRY,
     TELEMETRY_INFO,
+    TELEMETRY_STATE_SWITCH,
     CANARD_FIRMWARE_ERROR,
     LEDS_ON,
     LEDS_OFF,

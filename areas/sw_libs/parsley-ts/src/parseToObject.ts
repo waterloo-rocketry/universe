@@ -23,7 +23,7 @@ import {
 } from './messageDefs.js'
 import type { MessageDefKey, ParsleyMessage } from './messageDefs.js'
 import type { ParsleyError } from './schemas.js'
-import type { msg_prio, board_type_id, board_inst_id } from './messageTypes.js'
+import type { msg_prio, board_type_id, board_inst_id } from './message_types.js'
 
 // SID is exactly 29 bits, transported in 4 bytes (3 leading pad bits).
 export const MESSAGE_SID_BYTES = Math.ceil(MESSAGE_SID_LEN / 8)

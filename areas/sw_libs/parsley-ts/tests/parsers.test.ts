@@ -25,7 +25,7 @@ import {
     BitstringParser,
 } from '../src/parsers.js'
 import { crc8 } from '../src/crc8.js'
-import { actuator_id, actuator_state, analog_sensor_id } from '../src/messageTypes.js'
+import { actuator_id, actuator_state, analog_sensor_id } from '../src/message_types.js'
 import { bigintToBytes, createMsgSid, encodeFields, splitFormatLine } from './utils.js'
 
 function isError<T>(r: T | { error: string }): r is { error: string } & T {

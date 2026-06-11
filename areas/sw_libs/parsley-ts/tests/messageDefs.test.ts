@@ -18,7 +18,7 @@ import {
     STREAM_RETRY,
     ParsleyDataPayload,
 } from '../src/messageDefs.js'
-import { msg_type } from '../src/messageTypes.js'
+import { msg_type } from '../src/message_types.js'
 import { Enum, Numeric } from '../src/fields.js'
 
 describe('MESSAGE_DEFS registry', () => {
@@ -26,7 +26,7 @@ describe('MESSAGE_DEFS registry', () => {
         const msgTypeKeys = Object.keys(msg_type).sort()
         const registryKeys = Object.keys(MESSAGE_DEFS).sort()
         expect(registryKeys).toEqual(msgTypeKeys)
-        expect(registryKeys).toHaveLength(26)
+        expect(registryKeys).toHaveLength(27)
     })
 
     it('each entry extends ParsleyDataPayload', () => {

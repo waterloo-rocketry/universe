@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { ASCII, Enum, Numeric, Floating, Switch, Bitfield } from '../src/fields.js'
-import { board_type_id, board_error_bitfield_offset } from '../src/messageTypes.js'
+import { board_type_id, board_error_bitfield_offset } from '../src/message_types.js'
 
 // Adapted from waterloo-rocketry/parsley tests/test_fields.py.
 

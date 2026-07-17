@@ -286,10 +286,63 @@ export const dem_3d_sensor_id = {
     DEM_3D_SENSOR_CANARD_MTI630_EST_ANGLE_VEL: 0x0A,
     DEM_3D_SENSOR_CANARD_MTI630_EST_VEL: 0x0B,
     DEM_3D_SENSOR_CANARD_ADXL380_ACCEL: 0x0C,
+    DEM_3D_SENSOR_PAYLOAD_ACCEL_0: 0x0D,
+    DEM_3D_SENSOR_PAYLOAD_ACCEL_1: 0x0E,
+    DEM_3D_SENSOR_PAYLOAD_ACCEL_2: 0x0F,
+    DEM_3D_SENSOR_PAYLOAD_ACCEL_3: 0x10,
+    DEM_3D_SENSOR_PAYLOAD_ACCEL_4: 0x11,
+    DEM_3D_SENSOR_PAYLOAD_ACCEL_5: 0x12,
+    DEM_3D_SENSOR_PAYLOAD_ACCEL_6: 0x13,
+    DEM_3D_SENSOR_PAYLOAD_ACCEL_7: 0x14,
 } as const
 
 export const dem_3d_sensor_id_schema = z.nativeEnum(dem_3d_sensor_id)
 export type dem_3d_sensor_id = z.infer<typeof dem_3d_sensor_id_schema>
+
+// ============================================================
+// Canards Health Severity
+// ============================================================
+
+export const canards_health_severity = {
+    CANARDS_HEALTH_SEVERITY_HEALTH_OK: 0x00,
+    CANARDS_HEALTH_SEVERITY_HEALTH_ERROR: 0x01,
+    CANARDS_HEALTH_SEVERITY_HEALTH_FATAL: 0x02,
+} as const
+
+export const canards_health_severity_schema = z.nativeEnum(canards_health_severity)
+export type canards_health_severity = z.infer<typeof canards_health_severity_schema>
+
+// ============================================================
+// Canards Module Id
+// ============================================================
+
+export const canards_module_id = {
+    CANARDS_MODULE_ID_ADC: 0x00,
+    CANARDS_MODULE_ID_ADXL380: 0x01,
+    CANARDS_MODULE_ID_ADXRS649: 0x02,
+    CANARDS_MODULE_ID_AK45: 0x03,
+    CANARDS_MODULE_ID_CAN_HANDLER: 0x04,
+    CANARDS_MODULE_ID_CONTROLLER: 0x05,
+    CANARDS_MODULE_ID_FLIGHT_PHASE: 0x06,
+    CANARDS_MODULE_ID_FSM: 0x07,
+    CANARDS_MODULE_ID_GPIO: 0x08,
+    CANARDS_MODULE_ID_I2C: 0x09,
+    CANARDS_MODULE_ID_IIS2MDC: 0x0A,
+    CANARDS_MODULE_ID_LOGGER: 0x0B,
+    CANARDS_MODULE_ID_LSM6DSV32X: 0x0C,
+    CANARDS_MODULE_ID_MOVELLA: 0x0D,
+    CANARDS_MODULE_ID_MS5611: 0x0E,
+    CANARDS_MODULE_ID_NAVIGATOR: 0x0F,
+    CANARDS_MODULE_ID_POWER_HANDLER: 0x10,
+    CANARDS_MODULE_ID_SD_CARD: 0x11,
+    CANARDS_MODULE_ID_SENSOR_HANDLER: 0x12,
+    CANARDS_MODULE_ID_TELEMETRY: 0x13,
+    CANARDS_MODULE_ID_TIMER: 0x14,
+    CANARDS_MODULE_ID_UART: 0x15,
+} as const
+
+export const canards_module_id_schema = z.nativeEnum(canards_module_id)
+export type canards_module_id = z.infer<typeof canards_module_id_schema>
 
 // ============================================================
 // Board Error Bitfield Offset (bitfield positions)
@@ -320,4 +373,39 @@ export const board_error_bitfield_offset = {
 
 export const board_error_bitfield_offset_schema = z.nativeEnum(board_error_bitfield_offset)
 export type board_error_bitfield_offset = z.infer<typeof board_error_bitfield_offset_schema>
+
+// ============================================================
+// Canards Module Error Bitfield Offset (bitfield positions)
+// ============================================================
+
+export const canards_module_error_bitfield_offset = {
+    CANARDS_MODULE_E_BAT1_FAULT: 0x00,
+    CANARDS_MODULE_E_BAT2_FAULT: 0x01,
+    CANARDS_MODULE_E_DEVICE_FAULT: 0x02,
+    CANARDS_MODULE_E_FILE_SYSTEM: 0x03,
+    CANARDS_MODULE_E_HARDWARE_FAIL: 0x04,
+    CANARDS_MODULE_E_LOW_POWER_MODE_WITH_EXT_5V_ON: 0x05,
+    CANARDS_MODULE_E_COMM_FAILURE: 0x06,
+    CANARDS_MODULE_E_CRC_FAILED: 0x07,
+    CANARDS_MODULE_E_NO_DATA: 0x08,
+    CANARDS_MODULE_E_RX_FAILURE: 0x09,
+    CANARDS_MODULE_E_TIMEOUT: 0x0A,
+    CANARDS_MODULE_E_TX_FAILURE: 0x0B,
+    CANARDS_MODULE_E_ERROR_STATE: 0x0C,
+    CANARDS_MODULE_E_FAILED_CALIBRATION: 0x0D,
+    CANARDS_MODULE_E_NOT_CALIBRATED: 0x0E,
+    CANARDS_MODULE_E_LOOP_TIMING: 0x0F,
+    CANARDS_MODULE_E_NOT_INIT: 0x10,
+    CANARDS_MODULE_E_OS: 0x11,
+    CANARDS_MODULE_E_CODEGEN: 0x12,
+    CANARDS_MODULE_E_UNEXPECTED_EVENT: 0x13,
+    CANARDS_MODULE_E_INVALID_PARAM: 0x14,
+    CANARDS_MODULE_E_MATH: 0x15,
+    CANARDS_MODULE_E_OUT_OF_BOUNDS: 0x16,
+    CANARDS_MODULE_E_OVERFLOW: 0x17,
+    CANARDS_MODULE_E_INTERNAL: 0x18,
+} as const
+
+export const canards_module_error_bitfield_offset_schema = z.nativeEnum(canards_module_error_bitfield_offset)
+export type canards_module_error_bitfield_offset = z.infer<typeof canards_module_error_bitfield_offset_schema>
 

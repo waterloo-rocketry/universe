@@ -107,8 +107,8 @@ export const actuator_id = {
     ACTUATOR_OX_INJECTOR_VALVE: 0x00,
     ACTUATOR_FUEL_INJECTOR_VALVE: 0x01,
     ACTUATOR_IGNITION: 0x02,
-    ACTUATOR_ROCKET_CHARGE_ENABLE: 0x03,
-    ACTUATOR_PAYLOAD_CHARGE_ENABLE: 0x04,
+    ACTUATOR_ROCKET_UPPER_CHARGE_ENABLE: 0x03,
+    ACTUATOR_ROCKET_INJECTOR_CHARGE_ENABLE: 0x04,
     ACTUATOR_5V_RAIL_ROCKET: 0x05,
     ACTUATOR_12V_RAIL_ROCKET: 0x06,
     ACTUATOR_TELEMETRY: 0x07,
@@ -129,10 +129,11 @@ export const actuator_id = {
     ACTUATOR_INJECTOR_BOARD_ACTUATOR_2: 0x16,
     ACTUATOR_RLCS_RELAY_POWER: 0x17,
     ACTUATOR_RLCS_RELAY_SELECT: 0x18,
-    ACTUATOR_PAYLOAD_LASER: 0x19,
+    ACTUATOR_PAYLOAD_ACCEL_ARM: 0x19,
     ACTUATOR_PAYLOAD_PZT_ARM: 0x1A,
     ACTUATOR_LOGGER_FLASH_ERASE: 0x1B,
     ACTUATOR_CANARD_FLASH_ERASE: 0x1C,
+    ACTUATOR_CANARD_MOTOR_CALIBRATION: 0x1D,
 } as const
 
 export const actuator_id_schema = z.nativeEnum(actuator_id)
@@ -194,7 +195,7 @@ export const analog_sensor_id = {
     SENSOR_RADIO_CURR: 0x09,
     SENSOR_GPS_CURR: 0x0A,
     SENSOR_CAMERA_CURR: 0x0B,
-    SENSOR_LOCAL_CURR: 0x0C,
+    SENSOR_LOCAL_RAIL_CURR: 0x0C,
     SENSOR_PT_CHANNEL_1: 0x0D,
     SENSOR_PT_CHANNEL_2: 0x0E,
     SENSOR_PT_CHANNEL_3: 0x0F,
@@ -260,6 +261,8 @@ export const dem_2d_sensor_id = {
     DEM_2D_SENSOR_CANARD_NAV_VEL_ANGLE_VEL_Y: 0x01,
     DEM_2D_SENSOR_CANARD_NAV_VEL_ANGLE_VEL_Z: 0x02,
     DEM_2D_SENSOR_CANARD_MS5611_BARO_TEMP: 0x03,
+    DEM_2D_SENSOR_CANARD_MTI630_EST_ORI_QW_QX: 0x04,
+    DEM_2D_SENSOR_CANARD_MTI630_EST_ORI_QY_QZ: 0x05,
 } as const
 
 export const dem_2d_sensor_id_schema = z.nativeEnum(dem_2d_sensor_id)
@@ -270,8 +273,8 @@ export type dem_2d_sensor_id = z.infer<typeof dem_2d_sensor_id_schema>
 // ============================================================
 
 export const dem_3d_sensor_id = {
-    DEM_3D_SENSOR_CANARD_NAV_ORIENTATION_QUAT_QX_QY_QZ: 0x00,
-    DEM_3D_SENSOR_CANARD_NAV_ORIENTATION_QUAT_QW_ALT_VARNORM: 0x01,
+    DEM_3D_SENSOR_CANARD_NAV_ORI_QX_QY_QZ: 0x00,
+    DEM_3D_SENSOR_CANARD_NAV_ORI_QW_ALT_VARNORM: 0x01,
     DEM_3D_SENSOR_CANARD_LSM6DSV32X_ACCEL: 0x02,
     DEM_3D_SENSOR_CANARD_LSM6DSV32X_GYRO: 0x03,
     DEM_3D_SENSOR_CANARD_IIS2MDC_ACCEL: 0x04,
@@ -279,7 +282,7 @@ export const dem_3d_sensor_id = {
     DEM_3D_SENSOR_CANARD_MTI630_ACCEL: 0x06,
     DEM_3D_SENSOR_CANARD_MTI630_GYRO: 0x07,
     DEM_3D_SENSOR_CANARD_MTI630_MAG: 0x08,
-    DEM_3D_SENSOR_CANARD_MTI630_EST_ORIENTATION: 0x09,
+    DEM_3D_SENSOR_RESERVED_0: 0x09,
     DEM_3D_SENSOR_CANARD_MTI630_EST_ANGLE_VEL: 0x0A,
     DEM_3D_SENSOR_CANARD_MTI630_EST_VEL: 0x0B,
     DEM_3D_SENSOR_CANARD_ADXL380_ACCEL: 0x0C,
@@ -293,16 +296,16 @@ export type dem_3d_sensor_id = z.infer<typeof dem_3d_sensor_id_schema>
 // ============================================================
 
 export const board_error_bitfield_offset = {
-    E_5V_OVER_CURRENT: 0x00,
-    E_5V_OVER_VOLTAGE: 0x01,
-    E_5V_UNDER_VOLTAGE: 0x02,
-    E_12V_OVER_CURRENT: 0x03,
-    E_12V_OVER_VOLTAGE: 0x04,
-    E_12V_UNDER_VOLTAGE: 0x05,
-    E_BATT_OVER_CURRENT: 0x06,
-    E_BATT_OVER_VOLTAGE: 0x07,
-    E_BATT_UNDER_VOLTAGE: 0x08,
-    E_MOTOR_OVER_CURRENT: 0x09,
+    E_5V_OVER_CURR: 0x00,
+    E_5V_OVER_VOLT: 0x01,
+    E_5V_UNDER_VOLT: 0x02,
+    E_12V_OVER_CURR: 0x03,
+    E_12V_OVER_VOLT: 0x04,
+    E_12V_UNDER_VOLT: 0x05,
+    E_BATT_OVER_CURR: 0x06,
+    E_BATT_OVER_VOLT: 0x07,
+    E_BATT_UNDER_VOLT: 0x08,
+    E_MOTOR_OVER_CURR: 0x09,
     E_IO_ERROR: 0x0A,
     E_FS_ERROR: 0x0B,
     E_WATCHDOG_TIMEOUT: 0x0C,
@@ -310,6 +313,9 @@ export const board_error_bitfield_offset = {
     E_5V_EFUSE_FAULT: 0x0E,
     E_PT_OUT_OF_RANGE: 0x0F,
     E_CANARD_MODULE_FAILURE: 0x10,
+    E_LOCAL_RAIL_OVER_CURR: 0x11,
+    E_CHARGE_RAIL_OVER_VOLT: 0x12,
+    E_CHARGE_RAIL_OVER_CURR: 0x13,
 } as const
 
 export const board_error_bitfield_offset_schema = z.nativeEnum(board_error_bitfield_offset)

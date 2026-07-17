@@ -134,6 +134,9 @@ export const actuator_id = {
     ACTUATOR_LOGGER_FLASH_ERASE: 0x1B,
     ACTUATOR_CANARD_FLASH_ERASE: 0x1C,
     ACTUATOR_CANARD_MOTOR_CALIBRATION: 0x1D,
+    ACTUATOR_LOGGER_SD_CLEAR: 0x1E,
+    ACTUATOR_CANARD_SD_CLEAR: 0x1F,
+    ACTUATOR_PAYLOAD_SD_CLEAR: 0x20,
 } as const
 
 export const actuator_id_schema = z.nativeEnum(actuator_id)
@@ -247,6 +250,7 @@ export const analog_sensor_id = {
     SENSOR_CANARD_SERVO_TEMP: 0x3D,
     SENSOR_PAYLOAD_SENSOR_CURR_READING: 0x3E,
     SENSOR_ALTITUDE: 0x3F,
+    SENSOR_PAYLOAD_TEMP: 0x40,
 } as const
 
 export const analog_sensor_id_schema = z.nativeEnum(analog_sensor_id)

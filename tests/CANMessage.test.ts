@@ -98,10 +98,14 @@ describe('Parsley CAN message schemas', () => {
         })
     })
 
-    it('preserves snake case keys in non-CAN data records', () => {
+    it('preserves non-CAN data record keys exactly', () => {
         const wirePayload = {
             timestamp: 1,
-            data: { sensor_value: [800] },
+            data: {
+                Fake1: [1, 2, 3, 5],
+                sensor_value: [800],
+                alreadyCamel: [900],
+            },
             relative_timestamps: [0],
             sample_rate: 100,
             message_format_version: 3,
@@ -109,7 +113,11 @@ describe('Parsley CAN message schemas', () => {
 
         const payload = snakeCaseParser(DAQMessageSchema).parse(wirePayload)
 
-        expect(payload.data).toStrictEqual({ sensor_value: [800] })
+        expect(payload.data).toStrictEqual({
+            Fake1: [1, 2, 3, 5],
+            sensor_value: [800],
+            alreadyCamel: [900],
+        })
         expect(toSnakeCase(payload)).toStrictEqual(wirePayload)
     })
 })

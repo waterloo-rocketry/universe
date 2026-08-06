@@ -14,11 +14,11 @@ export const snakeCaseParser = (targetSchema: z.ZodObject | z.ZodRecord) => {
 
             if (!isRecord(data)) return output
 
-            const normalizedData = toSnakeCase(data)
-            const canMsg = normalizedData['can_msg']
-            if (!isRecord(canMsg)) {
-                return { ...output, data: normalizedData }
-            }
+            const canMsg = data['can_msg']
+            if (!isRecord(canMsg)) return output
+
+            const normalizedData = { ...data }
+            delete normalizedData['can_msg']
 
             return {
                 ...output,

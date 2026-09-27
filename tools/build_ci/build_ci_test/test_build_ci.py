@@ -59,36 +59,38 @@ def test_find_area_workflows_ignores_hidden_dirs_other_than_github(repo: Path):
     assert found[0].area_parts == ("apps",)
 
 
-def test_link_name_mirrors_area_path(repo: Path):
+def test_copy_name_mirrors_area_path(repo: Path):
     wf = build_ci.AreaWorkflow(Path("ci.yml"), ("apps", "omnibus"))
-    assert wf.link_name == "ci-areas-apps-omnibus.yml"
+    assert wf.copy_name == "ci-areas-apps-omnibus.yml"
 
 
-def test_create_link_creates_relative_symlink(repo: Path):
+def test_create_copy_duplicates_file_contents(repo: Path):
     areas_root = build_ci.AREAS_ROOT
     source = write_workflow(areas_root, ("apps", "omnibus"), "ci.yml")
     wf = build_ci.AreaWorkflow(source, ("apps", "omnibus"))
 
-    link = build_ci.create_link(wf)
+    copy = build_ci.create_copy(wf)
 
-    assert link.is_symlink()
-    assert link.resolve() == source.resolve()
-    assert build_ci.is_correctly_linked(wf)
+    assert copy.is_file()
+    assert not copy.is_symlink()
+    assert copy.read_bytes() == source.read_bytes()
+    assert build_ci.copy_status(wf) == "ok"
 
 
-def test_run_creates_missing_symlinks(repo: Path):
+def test_run_creates_missing_copies(repo: Path):
     areas_root = build_ci.AREAS_ROOT
     write_workflow(areas_root, ("apps", "omnibus"), "ci.yml")
 
     exit_code = build_ci.run(validate=False)
 
     assert exit_code == 0
-    linked = list(build_ci.ROOT_WORKFLOWS_DIR.iterdir())
-    assert len(linked) == 1
-    assert linked[0].name == "ci-areas-apps-omnibus.yml"
+    copied = list(build_ci.ROOT_WORKFLOWS_DIR.iterdir())
+    assert len(copied) == 1
+    assert copied[0].name == "ci-areas-apps-omnibus.yml"
+    assert not copied[0].is_symlink()
 
 
-def test_validate_fails_when_symlink_missing(repo: Path):
+def test_validate_fails_when_copy_missing(repo: Path):
     areas_root = build_ci.AREAS_ROOT
     write_workflow(areas_root, ("apps", "omnibus"), "ci.yml")
 
@@ -102,6 +104,42 @@ def test_validate_passes_after_run(repo: Path):
     build_ci.run(validate=False)
 
     assert build_ci.run(validate=True) == 0
+
+
+def test_copy_status_detects_drift(repo: Path):
+    areas_root = build_ci.AREAS_ROOT
+    source = write_workflow(areas_root, ("apps", "omnibus"), "ci.yml")
+    wf = build_ci.AreaWorkflow(source, ("apps", "omnibus"))
+    build_ci.create_copy(wf)
+
+    build_ci.expected_copy_path(wf).write_text("on: push\njobs: {}\n# hand-edited\n")
+
+    assert build_ci.copy_status(wf) == "drifted"
+
+
+def test_validate_fails_when_copy_has_drifted(repo: Path):
+    areas_root = build_ci.AREAS_ROOT
+    source = write_workflow(areas_root, ("apps", "omnibus"), "ci.yml")
+    build_ci.run(validate=False)
+
+    build_ci.ROOT_WORKFLOWS_DIR.joinpath("ci-areas-apps-omnibus.yml").write_text(
+        "on:\n  push:\n    paths:\n      - 'areas/apps/omnibus/**'\njobs: {}\n# drifted\n"
+    )
+
+    assert build_ci.run(validate=True) == 1
+
+
+def test_run_recopies_drifted_file(repo: Path):
+    areas_root = build_ci.AREAS_ROOT
+    source = write_workflow(areas_root, ("apps", "omnibus"), "ci.yml")
+    build_ci.run(validate=False)
+
+    copy_path = build_ci.ROOT_WORKFLOWS_DIR / "ci-areas-apps-omnibus.yml"
+    copy_path.write_text("on: push\njobs: {}\n# drifted\n")
+
+    build_ci.run(validate=False)
+
+    assert copy_path.read_bytes() == source.read_bytes()
 
 
 def test_check_scoping_flags_missing_paths_filter(repo: Path):
@@ -161,17 +199,23 @@ def test_validate_fails_on_scoping_issue_even_when_linked(repo: Path):
     assert build_ci.run(validate=True) == 1
 
 
-def test_find_orphaned_links_detects_dangling_symlink(repo: Path):
-    areas_root = build_ci.AREAS_ROOT
+def test_find_orphaned_copies_detects_stale_copy(repo: Path):
     workflows_dir = build_ci.ROOT_WORKFLOWS_DIR
     workflows_dir.mkdir(parents=True)
-    ghost_source = areas_root / "apps" / ".github" / "workflows" / "gone.yml"
-    ghost_source.parent.mkdir(parents=True)
-    ghost_source.write_text("on: push\njobs: {}\n")
-    link = workflows_dir / "gone-areas-apps.yml"
-    link.symlink_to(ghost_source)
-    ghost_source.unlink()
+    stale_copy = workflows_dir / "gone-areas-apps.yml"
+    stale_copy.write_text("on: push\njobs: {}\n")
 
-    orphans = build_ci.find_orphaned_links([])
+    orphans = build_ci.find_orphaned_copies([])
 
-    assert link in orphans
+    assert stale_copy in orphans
+
+
+def test_find_orphaned_copies_ignores_hand_authored_root_workflows(repo: Path):
+    workflows_dir = build_ci.ROOT_WORKFLOWS_DIR
+    workflows_dir.mkdir(parents=True)
+    hand_authored = workflows_dir / "validate-ci.yml"
+    hand_authored.write_text("on: push\njobs: {}\n")
+
+    orphans = build_ci.find_orphaned_copies([])
+
+    assert hand_authored not in orphans

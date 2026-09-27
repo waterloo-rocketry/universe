@@ -1,17 +1,21 @@
-"""Symlink nested GitHub Actions workflows from areas/ into .github/workflows/.
+"""Copy nested GitHub Actions workflows from areas/ into .github/workflows/.
 
 GitHub only discovers workflow files under the repo-root ``.github/workflows``
 directory, but this monorepo keeps each workflow next to the code it builds,
 at ``areas/<up to 3 path segments>/.github/workflows/<name>.yml``. This tool
-creates (and validates) symlinks from the root workflows directory back to
-those files, and checks that each workflow's ``on:`` triggers are scoped to
-its own area via a ``paths:`` filter.
+copies (and validates) each of those files into the root workflows directory
+(symlinks don't work for this — GitHub Actions doesn't follow them), and
+checks that each workflow's ``on:`` triggers are scoped to its own area via a
+``paths:`` filter.
 """
 
 from __future__ import annotations
 
 import argparse
+import filecmp
 import os
+import re
+import shutil
 import sys
 from dataclasses import dataclass
 from pathlib import Path
@@ -21,6 +25,7 @@ import yaml
 MAX_DEPTH = 3  # max path segments from areas/ through and including .github/
 WORKFLOW_EXTENSIONS = (".yml", ".yaml")
 PATH_SCOPED_EVENTS = ("push", "pull_request", "pull_request_target")
+MANAGED_COPY_PATTERN = re.compile(r"-areas-[^/]+\.ya?ml$")
 
 
 def _find_repo_root(start: Path | None = None) -> Path:
@@ -54,7 +59,7 @@ class AreaWorkflow:
     area_parts: tuple[str, ...]
 
     @property
-    def link_name(self) -> str:
+    def copy_name(self) -> str:
         tag = "-".join(("areas", *self.area_parts))
         return f"{self.source.stem}-{tag}{self.source.suffix}"
 
@@ -104,50 +109,42 @@ def find_area_workflows(areas_root: Path | None = None) -> list[AreaWorkflow]:
     return workflows
 
 
-def expected_link_path(workflow: AreaWorkflow) -> Path:
-    return ROOT_WORKFLOWS_DIR / workflow.link_name
+def expected_copy_path(workflow: AreaWorkflow) -> Path:
+    return ROOT_WORKFLOWS_DIR / workflow.copy_name
 
 
-def is_correctly_linked(workflow: AreaWorkflow) -> bool:
-    link = expected_link_path(workflow)
-    if not link.is_symlink():
-        return False
-    try:
-        return link.resolve() == workflow.source.resolve()
-    except OSError:
-        return False
+def copy_status(workflow: AreaWorkflow) -> str:
+    """"ok", "missing", or "drifted" (exists but no longer matches source)."""
+    copy = expected_copy_path(workflow)
+    if not copy.is_file() or copy.is_symlink():
+        return "missing"
+    if filecmp.cmp(copy, workflow.source, shallow=False):
+        return "ok"
+    return "drifted"
 
 
-def create_link(workflow: AreaWorkflow) -> Path:
-    link = expected_link_path(workflow)
-    link.parent.mkdir(parents=True, exist_ok=True)
-    if link.is_symlink() or link.exists():
-        link.unlink()
-    relative_target = os.path.relpath(workflow.source, start=link.parent)
-    link.symlink_to(relative_target)
-    return link
+def create_copy(workflow: AreaWorkflow) -> Path:
+    copy = expected_copy_path(workflow)
+    copy.parent.mkdir(parents=True, exist_ok=True)
+    if copy.is_symlink() or copy.exists():
+        copy.unlink()
+    shutil.copy2(workflow.source, copy)
+    return copy
 
 
-def find_orphaned_links(workflows: list[AreaWorkflow]) -> list[Path]:
-    """Symlinks in .github/workflows/ that point into areas/ but no longer
-    correspond to a discovered area workflow (dangling or stale)."""
+def find_orphaned_copies(workflows: list[AreaWorkflow]) -> list[Path]:
+    """Files in .github/workflows/ that look build_ci-managed (named after the
+    `<name>-areas-<path>.yml` convention) but no longer correspond to a
+    discovered area workflow — left behind by a rename/removal upstream."""
     if not ROOT_WORKFLOWS_DIR.is_dir():
         return []
-    expected = {expected_link_path(wf) for wf in workflows}
+    expected = {expected_copy_path(wf) for wf in workflows}
     orphans = []
     for entry in os.scandir(ROOT_WORKFLOWS_DIR):
         path = Path(entry.path)
-        if not path.is_symlink():
+        if path in expected:
             continue
-        try:
-            target = path.resolve()
-        except OSError:
-            target = None
-        points_into_areas = target is not None and str(target).startswith(
-            str(AREAS_ROOT.resolve()) + os.sep
-        )
-        dangling = not path.exists()
-        if path not in expected and (points_into_areas or dangling):
+        if MANAGED_COPY_PATTERN.search(path.name):
             orphans.append(path)
     return orphans
 
@@ -215,30 +212,33 @@ def check_scoping(workflow: AreaWorkflow) -> list[str]:
 
 def run(validate: bool) -> int:
     workflows = find_area_workflows()
-    missing: list[AreaWorkflow] = []
+    out_of_date: list[tuple[AreaWorkflow, str]] = []
     scoping_issues: list[tuple[AreaWorkflow, list[str]]] = []
 
     for workflow in workflows:
-        if not is_correctly_linked(workflow):
-            missing.append(workflow)
+        status = copy_status(workflow)
+        if status != "ok":
+            out_of_date.append((workflow, status))
         issues = check_scoping(workflow)
         if issues:
             scoping_issues.append((workflow, issues))
 
-    orphans = find_orphaned_links(workflows)
+    orphans = find_orphaned_copies(workflows)
 
     if validate:
         ok = True
-        for workflow in missing:
+        for workflow, status in out_of_date:
+            verb = "is missing from" if status == "missing" else "has drifted from"
             print(
-                f"ERROR: {workflow.source.relative_to(REPO_ROOT)} is not symlinked "
-                f"as .github/workflows/{workflow.link_name}",
+                f"ERROR: {workflow.source.relative_to(REPO_ROOT)} {verb} "
+                f".github/workflows/{workflow.copy_name}",
                 file=sys.stderr,
             )
             ok = False
         for path in orphans:
             print(
-                f"ERROR: stale/dangling symlink .github/workflows/{path.name}",
+                f"ERROR: stale copy .github/workflows/{path.name} has no matching "
+                "area workflow",
                 file=sys.stderr,
             )
             ok = False
@@ -250,32 +250,33 @@ def run(validate: bool) -> int:
                 )
                 ok = False
         if ok:
-            print(f"OK: {len(workflows)} workflow(s) linked and scoped correctly.")
+            print(f"OK: {len(workflows)} workflow(s) copied and scoped correctly.")
         return 0 if ok else 1
 
-    for workflow in missing:
-        link = create_link(workflow)
-        print(f"linked {workflow.source.relative_to(REPO_ROOT)} -> {link.relative_to(REPO_ROOT)}")
+    for workflow, status in out_of_date:
+        copy = create_copy(workflow)
+        verb = "copied" if status == "missing" else "re-copied (was drifted)"
+        print(f"{verb} {workflow.source.relative_to(REPO_ROOT)} -> {copy.relative_to(REPO_ROOT)}")
     for path in orphans:
-        print(f"WARNING: stale/dangling symlink .github/workflows/{path.name}")
+        print(f"WARNING: stale copy .github/workflows/{path.name} has no matching area workflow")
     for workflow, issues in scoping_issues:
         for issue in issues:
             print(f"WARNING: {workflow.source.relative_to(REPO_ROOT)}: {issue}")
-    if not missing and not orphans and not scoping_issues:
-        print(f"Up to date: {len(workflows)} workflow(s) linked and scoped correctly.")
+    if not out_of_date and not orphans and not scoping_issues:
+        print(f"Up to date: {len(workflows)} workflow(s) copied and scoped correctly.")
     return 0
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         prog="build_ci",
-        description="Symlink areas/**/.github/workflows/* into .github/workflows/",
+        description="Copy areas/**/.github/workflows/* into .github/workflows/",
     )
     parser.add_argument(
         "--validate",
         action="store_true",
         help="Check without modifying the filesystem; exit non-zero on any "
-        "missing symlink or improperly scoped `on:` trigger.",
+        "missing/drifted copy or improperly scoped `on:` trigger.",
     )
     args = parser.parse_args(argv)
     return run(validate=args.validate)

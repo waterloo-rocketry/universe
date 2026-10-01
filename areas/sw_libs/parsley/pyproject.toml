@@ -49,6 +49,6 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/waterloo-rocketry/parsley"
-Repository = "https://github.com/waterloo-rocketry/parsley"
+Homepage = "https://github.com/waterloo-rocketry/universe/tree/main/areas/sw_libs/parsley"
+Repository = "https://github.com/waterloo-rocketry/universe"
 

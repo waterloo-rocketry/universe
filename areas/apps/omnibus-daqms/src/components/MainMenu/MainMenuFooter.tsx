@@ -1,4 +1,4 @@
-const REPO_URL = 'https://github.com/waterloo-rocketry/omnibus-DAQms'
+const REPO_URL = 'https://github.com/waterloo-rocketry/universe'
 
 export function MainMenuFooter() {
     const hash = import.meta.env.VITE_COMMIT_HASH ?? 'unknown'

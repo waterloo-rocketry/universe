@@ -6,7 +6,7 @@ I changed X and Y to accomplish Z.
 
 <!-- Replace "XXX" with the relevant GH Issue number -->
 <!-- If this PR is not related to an issue, replace the entire line with "N/A" -->
-This PR closes #XXX.
+This PR closes waterloo-rocketry/2026-2027-software-issues#XXX.
 
 
 ## Developer Testing

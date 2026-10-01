@@ -52,7 +52,7 @@ describe('MainMenu', () => {
         expect(link).toHaveAttribute(
             'href',
             expect.stringContaining(
-                'github.com/waterloo-rocketry/omnibus-DAQms/commit/'
+                'github.com/waterloo-rocketry/universe/commit/'
             )
         )
         expect(link).toHaveAttribute('target', '_blank')

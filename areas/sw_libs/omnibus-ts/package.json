@@ -10,7 +10,8 @@
     "types": "./dist/types/index.d.ts",
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/waterloo-rocketry/omnibus-ts.git"
+        "url": "git+https://github.com/waterloo-rocketry/universe.git",
+        "directory": "areas/sw_libs/omnibus-ts"
     },
     "scripts": {
         "test": "vitest",

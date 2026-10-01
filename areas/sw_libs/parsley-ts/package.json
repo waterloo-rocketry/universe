@@ -3,6 +3,11 @@
     "public": true,
     "version": "0.1.0",
     "description": "Parsley but in TypeScript",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/waterloo-rocketry/universe.git",
+        "directory": "areas/sw_libs/parsley-ts"
+    },
     "license": "MIT",
     "author": "Waterloo Rocketry",
     "type": "module",

@@ -9,6 +9,10 @@ node_modules/
 dist/
 coverage/
 
+# Editor and IDE settings are personal; keep them out of the repo
+.idea/
+.vscode/
+
 # General
 .DS_Store
 .localized

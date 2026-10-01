@@ -1,4 +1,4 @@
-"""Import an existing repository into areas/ as a single snapshot commit.
+"""Migrate an existing repository into areas/ as a single snapshot commit.
 
 History is deliberately not carried over: each repository lands as one commit
 whose message links back to the exact upstream commit (where the full history
@@ -203,7 +203,7 @@ def render_message(
     trailers = [f"Co-authored-by: {c.name} <{c.email}>" for c in contributors]
     return "\n".join(
         [
-            f"Import {project} into {dest}",
+            f"Migrate {project} into {dest}",
             "",
             f"Snapshot of {web_url} at {sha[:12]} ({branch}, {date}).",
             "History was not carried over. The full commit history is in the",

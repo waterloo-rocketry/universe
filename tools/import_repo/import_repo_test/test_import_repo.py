@@ -65,7 +65,7 @@ def test_render_message_links_upstream_and_adds_trailers():
         contributors=[person],
     )
 
-    assert message.startswith("Import parsley into areas/sw_libs/parsley\n\n")
+    assert message.startswith("Migrate parsley into areas/sw_libs/parsley\n\n")
     assert "https://github.com/org/parsley/commits/abcdef1234567890" in message
     assert message.rstrip().endswith("Co-authored-by: Ada <ada@x.com>")
 

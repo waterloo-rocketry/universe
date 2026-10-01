@@ -18,7 +18,7 @@ file.
 | `areas/infra/daq-raspi-deploy/` | Ansible deployment of the DAQ Raspberry Pi (pins Omnibus images by digest) |
 | `tools/build_ci/` | Copies per-project workflows to the root `.github/workflows/` and validates them |
 | `tools/ci/` | Scripts used by repo-wide CI (`wait_for_checks.sh` backs the `required` check) |
-| `tools/import_repo/` | Imports an existing repo into `areas/` as one attributed snapshot commit |
+| `tools/import_repo/` | Migrates an existing repo into `areas/` as one attributed snapshot commit |
 
 `areas/apis/rocketcan` is a git submodule of the separate `rocketcan` repo
 (CAN message definitions), which the firmware team owns. Change it in that
@@ -76,7 +76,7 @@ One setup per language, at the repo root:
 
 ## Adding an existing repository
 
-Each imported repository is exactly one commit: a snapshot (no history) that
+Each migrated repository is exactly one commit: a snapshot (no history) that
 links to the upstream commit and credits every upstream author with
 `Co-authored-by:` trailers.
 

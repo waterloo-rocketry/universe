@@ -10,6 +10,15 @@ dependencies = [
 [tool.uv]
 package = false
 
+# Every Python project in the monorepo shares one interpreter (.python-version),
+# one lockfile (uv.lock) and one .venv. Add new Python projects here.
+[tool.uv.workspace]
+members = [
+    "areas/sw_libs/parsley",
+    "areas/apps/omnibus",
+    "areas/infra/daq-raspi-deploy",
+]
+
 [dependency-groups]
 dev = [
     "pytest>=8.0",

@@ -1,0 +1,54 @@
+# pyproject.toml
+[build-system]
+requires = ["uv_build>=0.8.22,<0.9.0"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "parsley"
+
+[tool.basedpyright]
+failOnWarnings = false
+include = ["src/**"]
+strict = ["src/**"]
+
+[project]
+name = "parsley"
+version = "2026.5"
+description = "Library to transcode CAN messages and human-readable text"
+readme = "README.md"
+license = "MIT"
+authors = [
+    { name = "Waterloo Rocketry", email = "contact@waterloorocketry.com" }
+]
+requires-python = ">=3.11"
+dependencies = [
+    "crc8>=0.2.1",
+    "deprecated>=1.2.18",
+    "pydantic>=2.12.3",
+]
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Operating System :: OS Independent",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: MacOS :: MacOS X",
+    "Operating System :: Microsoft :: Windows :: Windows 10",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.11",
+    "Intended Audience :: Developers",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+[dependency-groups]
+dev = [
+    "autopep8",
+    "basedpyright",
+    "flake8",
+    "pycodestyle",
+    "pytest",
+    "pytest-cov>=7.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/waterloo-rocketry/parsley"
+Repository = "https://github.com/waterloo-rocketry/parsley"
+

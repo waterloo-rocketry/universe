@@ -2,6 +2,13 @@
 
 Waterloo Rocketry's software monorepo.
 
+**Issues and task tracking:** [2026-2027-software-issues](https://github.com/waterloo-rocketry/2026-2027-software-issues)
+
+`areas/apis/rocketcan` is a git submodule linking the separate
+[rocketcan](https://github.com/waterloo-rocketry/rocketcan) repo (CAN message
+definitions). Clone with `git clone --recurse-submodules`, or run
+`git submodule update --init` in an existing clone.
+
 ## Requirements
 
 **You must have the `uv` Python package manager and builder installed. Visit https://docs.astral.sh/uv/getting-started/installation/ to get started. If you don't know otherwise, choose the "Standalone Installer".**
@@ -44,6 +51,12 @@ What it does by default:
 - Warns if a workflow's `on:` triggers aren't scoped to its own area via a
   `paths:` filter (e.g. `paths: ["areas/apps/omnibus/**"]`) — an unscoped
   workflow runs on every push to the repo, not just changes to its own area.
+- Warns if that filter misses the area's in-repo dependencies or the shared
+  root files it builds from (e.g. omnibus must also list
+  `areas/sw_libs/parsley/**`, `pyproject.toml`, `uv.lock` and
+  `.python-version`), so a change to a library or a lockfile re-tests
+  everything that uses it. Dependencies are read from the uv and npm workspace
+  manifests.
 
 `--validate` turns both of those checks into hard failures (exit code 1),
 for use in CI: an area added or changed a workflow without running the tool

@@ -1,0 +1,36 @@
+name: omnibus
+
+on:
+  push:
+    branches: [main]
+    paths: ["areas/apps/omnibus/**", "areas/sw_libs/parsley/**", ".python-version", "pyproject.toml", "uv.lock"]
+  pull_request:
+    paths: ["areas/apps/omnibus/**", "areas/sw_libs/parsley/**", ".python-version", "pyproject.toml", "uv.lock"]
+
+# Runs from the project dir; uv resolves against the root workspace and uv.lock.
+defaults:
+  run:
+    working-directory: areas/apps/omnibus
+    shell: bash
+
+jobs:
+  lint:
+    name: Lint (autopep8, flake8, basedpyright)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v7
+      - run: uv sync --locked --all-packages --dev
+      - run: uv run --no-sync autopep8 -d -r src *.py --exit-code
+      - run: uv run --no-sync flake8
+      - run: uv run --no-sync basedpyright src
+
+  test:
+    # Operators run Omnibus on Windows laptops, so tests run there.
+    name: Tests (Windows)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v7
+      - run: uv sync --locked --all-packages --dev
+      - run: uv run --no-sync pytest

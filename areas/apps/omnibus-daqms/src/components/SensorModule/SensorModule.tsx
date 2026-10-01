@@ -1,0 +1,381 @@
+import { memo, useMemo, useRef, useEffect, useCallback, useState } from 'react'
+import { Card, CardContent } from '@/components/ui/card'
+import D3Chart from './D3Chart'
+import EditGraphDropDown from './EditGraphDropDown'
+import type { DataPoint } from '@/types/omnibus'
+import type { GraphConfigEditable } from '@/store/dashboardStore/types'
+import {
+    useLastDatapointStore,
+    type LatestDataPoint,
+} from '@/store/omnibusStore'
+import { useGraphDataStore } from '@/store/graphDataStore'
+import { cn } from '@/lib/utils'
+
+interface SensorModuleProps {
+    // Identity & config (from GraphConfig)
+    channelName: string
+    title: string
+    titleColor: string
+    offset: number
+    graphType: string
+    displayedHistory: string
+    id: string
+
+    // Data to display (accumulated into graphDataStore, passed in from the dashboard)
+    data: DataPoint[]
+
+    // Chart display props
+    maxDataPoints?: number
+    timeWindowSeconds?: number
+    minUpdateIntervalMs?: number
+    strokeColor?: string
+    strokeWidth?: number
+    rangeTickCount?: number
+    fixedDomain?: [number, number]
+    domainTickCount?: number
+
+    // Callbacks
+    onDelete: (id: string) => void
+    onEdit: (id: string, changes: Partial<GraphConfigEditable>) => void
+}
+
+const DEFAULT_MIN_UPDATE_INTERVAL_MS = 100 // 10 Hz max
+const RATE_SLOPE_HISTORY_SIZE = 10
+
+const HISTORY_SECONDS: Record<string, number> = {
+    '30s': 30,
+    '1min': 60,
+    '5min': 300,
+    '10min': 600,
+    '30min': 1800,
+}
+
+function parseDisplayedHistory(history: string): number {
+    return HISTORY_SECONDS[history] ?? 30
+}
+
+// Utility: Format value to max 6 chars with 2 decimals
+function formatValue(value: number): string {
+    if (!Number.isFinite(value)) return '---'
+
+    // For values that fit in 6 chars with 2 decimals, use fixed notation
+    const fixed = value.toFixed(2)
+    if (fixed.length <= 6) return fixed
+
+    // For large/small values, use compact notation
+    const abs = Math.abs(value)
+    if (abs >= 1e6 || (abs < 0.01 && abs > 0)) {
+        return value.toExponential(1)
+    }
+
+    // For medium values, show as many decimals as fit
+    const intPart = Math.trunc(value).toString()
+    if (intPart.length >= 6) return intPart.substring(0, 7)
+    const decimals = Math.max(0, 6 - intPart.length - 1)
+    return value.toFixed(decimals)
+}
+
+// Utility: Calculate the least-squares slope through all points in the plot.
+function calculateBestFitSlope(data: DataPoint[]): number | null {
+    if (data.length < 2) return null
+
+    const firstTimestamp = data[0].timestamp
+    const meanTimeSeconds =
+        data.reduce(
+            (total, point) => total + (point.timestamp - firstTimestamp) / 1000,
+            0
+        ) / data.length
+    const meanValue =
+        data.reduce((total, point) => total + point.value, 0) / data.length
+
+    const { covariance, timeVariance } = data.reduce(
+        (totals, point) => {
+            const timeDelta =
+                (point.timestamp - firstTimestamp) / 1000 - meanTimeSeconds
+            const valueDelta = point.value - meanValue
+            return {
+                covariance: totals.covariance + timeDelta * valueDelta,
+                timeVariance: totals.timeVariance + timeDelta * timeDelta,
+            }
+        },
+        { covariance: 0, timeVariance: 0 }
+    )
+    if (timeVariance === 0) return null
+
+    const slope = covariance / timeVariance
+    return Number.isFinite(slope) ? slope : null
+}
+
+// Utility: Remove stale data points outside time window
+function filterStaleData(data: DataPoint[], cutoffTime: number): DataPoint[] {
+    if (data.length === 0 || data[0].timestamp > cutoffTime) {
+        return data
+    }
+
+    let firstValidIdx = 0
+    while (
+        firstValidIdx < data.length &&
+        data[firstValidIdx].timestamp <= cutoffTime
+    ) {
+        firstValidIdx++
+    }
+
+    return data.slice(firstValidIdx)
+}
+
+// Utility: Check if new point should be added based on time interval
+function shouldAddPoint(
+    newTimestamp: number,
+    lastTimestamp: number | null,
+    minInterval: number
+): boolean {
+    if (lastTimestamp === null) return true
+    return newTimestamp - lastTimestamp >= minInterval
+}
+
+export const SensorModule = memo(function SensorModule({
+    channelName,
+    title,
+    titleColor = 'text-teal-500',
+    offset = 0,
+    graphType = 'Graph',
+    displayedHistory = '30s',
+    id,
+    data,
+    maxDataPoints = 100,
+    timeWindowSeconds: timeWindowSecondsOverride,
+    minUpdateIntervalMs = DEFAULT_MIN_UPDATE_INTERVAL_MS,
+    strokeColor = 'var(--chart-1)',
+    strokeWidth = 2,
+    rangeTickCount = 4,
+    fixedDomain,
+    domainTickCount = 4,
+    onDelete,
+    onEdit,
+}: SensorModuleProps) {
+    const prevChannelRef = useRef(channelName)
+    const lastTimestampRef = useRef<number | null>(null)
+    const rateStateRef = useRef({
+        lastTimestamp: null as number | null,
+        slopes: [] as number[],
+    })
+    const [rate, setRate] = useState<number | null>(null)
+    const timeWindowSeconds =
+        timeWindowSecondsOverride ?? parseDisplayedHistory(displayedHistory)
+
+    useEffect(() => {
+        if (prevChannelRef.current !== channelName) {
+            useGraphDataStore.getState().setData(id, [])
+            lastTimestampRef.current = null
+        }
+        prevChannelRef.current = channelName
+
+        const unsubscribe = useLastDatapointStore.subscribe(
+            (state) => state.series[channelName],
+            (newDataPoint: LatestDataPoint | undefined) => {
+                if (newDataPoint === undefined) return
+
+                if (
+                    !shouldAddPoint(
+                        newDataPoint.timestamp,
+                        lastTimestampRef.current,
+                        minUpdateIntervalMs
+                    )
+                ) {
+                    return
+                }
+                lastTimestampRef.current = newDataPoint.timestamp
+
+                const cutoffTime =
+                    newDataPoint.timestamp - timeWindowSeconds * 1000
+                const prev = useGraphDataStore.getState().data[id] ?? []
+                const newData = [
+                    ...filterStaleData(prev, cutoffTime),
+                    {
+                        timestamp: newDataPoint.timestamp,
+                        value: newDataPoint.value,
+                    },
+                ].slice(-maxDataPoints)
+                useGraphDataStore.getState().setData(id, newData)
+            }
+        )
+        return unsubscribe
+    }, [id, channelName, timeWindowSeconds, maxDataPoints, minUpdateIntervalMs])
+
+    const dataWithOffset = useMemo(() => {
+        if (offset === 0) return data
+        return data.map((point) => ({
+            ...point,
+            value: point.value + offset,
+        }))
+    }, [data, offset])
+
+    const currentValue = useMemo(() => {
+        if (data.length === 0) return null
+        return data[data.length - 1].value + offset
+    }, [data, offset])
+
+    useEffect(() => {
+        if (data.length === 0) {
+            rateStateRef.current = {
+                lastTimestamp: null,
+                slopes: [],
+            }
+            setRate(null)
+            return
+        }
+
+        const latestTimestamp = data[data.length - 1].timestamp
+        const rateState = rateStateRef.current
+
+        if (rateState.lastTimestamp === null) {
+            rateState.slopes = []
+        } else if (latestTimestamp < rateState.lastTimestamp) {
+            rateState.slopes = []
+        } else if (latestTimestamp === rateState.lastTimestamp) {
+            return
+        }
+
+        rateState.lastTimestamp = latestTimestamp
+        const slope = calculateBestFitSlope(data)
+        if (slope === null) {
+            rateState.slopes = []
+            setRate(null)
+            return
+        }
+
+        rateState.slopes = [...rateState.slopes, slope].slice(
+            -RATE_SLOPE_HISTORY_SIZE
+        )
+        setRate(
+            rateState.slopes.reduce((total, value) => total + value, 0) /
+                rateState.slopes.length
+        )
+    }, [data])
+
+    const displayTitle = title || channelName
+
+    const handleDelete = useCallback(() => {
+        onDelete(id)
+    }, [onDelete, id])
+
+    const handleSetZeroPoint = () => {
+        const avg = useGraphDataStore.getState().getGraphAverage(id)
+        if (avg === null) return
+        onEdit(id, { offset: parseFloat((-avg).toFixed(2)) })
+    }
+
+    const isNumber = graphType === 'Number'
+
+    return (
+        <Card className={isNumber ? 'self-start w-full' : 'h-full'}>
+            {
+                isNumber ?
+                    // Compact horizontal strip: title top-left, number centred, dropdown bottom
+                    <CardContent className="flex flex-col py-1 px-4 gap-2">
+                        <h3
+                            className={cn(
+                                'font-semibold text-base leading-tight line-clamp-2',
+                                titleColor
+                            )}
+                            title={displayTitle}
+                        >
+                            {displayTitle}
+                        </h3>
+                        <div
+                            className="text-5xl font-bold tabular-nums text-foreground text-center w-full"
+                            title={
+                                currentValue !== null ?
+                                    currentValue.toString()
+                                :   'No data'
+                            }
+                        >
+                            {currentValue !== null ?
+                                formatValue(currentValue)
+                            :   '--'}
+                        </div>
+                        <EditGraphDropDown
+                            id={id}
+                            title={title}
+                            titleColor={titleColor}
+                            offset={offset}
+                            graphType={graphType}
+                            displayedHistory={displayedHistory}
+                            onEdit={onEdit}
+                            onDelete={handleDelete}
+                            onSetZeroPoint={handleSetZeroPoint}
+                        />
+                    </CardContent>
+                    // Full graph layout: title + value + rate + chart
+                :   <CardContent className="grid grid-rows-[auto_auto_1fr_auto] h-full p-4 gap-2">
+                        {/* Header: Title and Value on same row */}
+                        <div className="grid grid-cols-[2fr_1fr] gap-4 items-start">
+                            <h3
+                                className={cn(
+                                    'font-semibold text-base leading-tight line-clamp-2',
+                                    titleColor
+                                )}
+                                title={displayTitle}
+                            >
+                                {displayTitle}
+                            </h3>
+
+                            <div className="grid grid-rows-[auto] gap-0.5 justify-end text-right">
+                                <div
+                                    className="text-4xl font-bold tabular-nums text-foreground"
+                                    title={
+                                        currentValue !== null ?
+                                            currentValue.toString()
+                                        :   'No data'
+                                    }
+                                >
+                                    {currentValue !== null ?
+                                        formatValue(currentValue)
+                                    :   '--'}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Rate indicator */}
+                        <div className="min-h-[28px] flex items-center">
+                            <div className="bg-background/80 px-2 py-1 rounded text-xs font-mono border w-fit">
+                                {rate === null ?
+                                    '--'
+                                :   <>
+                                        {rate >= 0 ? '+' : ''}
+                                        {rate.toFixed(3)}/s
+                                    </>
+                                }
+                            </div>
+                        </div>
+
+                        {/* Chart area */}
+                        <div className="min-h-[150px]">
+                            <D3Chart
+                                data={dataWithOffset}
+                                strokeColor={strokeColor}
+                                strokeWidth={strokeWidth}
+                                rangeTickCount={rangeTickCount}
+                                fixedDomain={fixedDomain}
+                                domainTickCount={domainTickCount}
+                            />
+                        </div>
+
+                        {/* EditGraphDropDown in bottom-right corner */}
+                        <EditGraphDropDown
+                            id={id}
+                            title={title}
+                            titleColor={titleColor}
+                            offset={offset}
+                            graphType={graphType}
+                            displayedHistory={displayedHistory}
+                            onEdit={onEdit}
+                            onDelete={handleDelete}
+                            onSetZeroPoint={handleSetZeroPoint}
+                        />
+                    </CardContent>
+
+            }
+        </Card>
+    )
+})

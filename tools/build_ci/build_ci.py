@@ -13,11 +13,13 @@ from __future__ import annotations
 
 import argparse
 import filecmp
+import json
 import os
 import re
 import shutil
 import sys
-from dataclasses import dataclass
+import tomllib
+from dataclasses import dataclass, field
 from pathlib import Path
 
 import yaml
@@ -26,6 +28,11 @@ MAX_DEPTH = 3  # max path segments from areas/ through and including .github/
 WORKFLOW_EXTENSIONS = (".yml", ".yaml")
 PATH_SCOPED_EVENTS = ("push", "pull_request", "pull_request_target")
 MANAGED_COPY_PATTERN = re.compile(r"-areas-[^/]+\.ya?ml$")
+# Root files every member of the shared uv / npm workspace builds from. A change
+# to one of them (a dependency bump, a new interpreter) must re-run that
+# language's project workflows.
+PYTHON_ROOT_FILES = ("pyproject.toml", "uv.lock", ".python-version")
+NODE_ROOT_FILES = ("package.json", "package-lock.json", ".nvmrc")
 
 
 def _find_repo_root(start: Path | None = None) -> Path:
@@ -102,6 +109,11 @@ def find_area_workflows(areas_root: Path | None = None) -> list[AreaWorkflow]:
                 continue
             if name.startswith("."):
                 continue
+            # A git submodule (e.g. areas/apis/rocketcan) is another repository
+            # with its own CI. CI checkouts don't fetch submodules, so copying
+            # its workflows here would show up as drift there.
+            if (Path(entry.path) / ".git").exists():
+                continue
             if len(parts) + 1 < MAX_DEPTH:
                 scan(Path(entry.path), parts + (name,))
 
@@ -156,9 +168,118 @@ def _on_triggers(doc: dict) -> object:
     return doc.get("on")
 
 
-def check_scoping(workflow: AreaWorkflow) -> list[str]:
-    """Return a list of human-readable warnings if `on:` isn't scoped to this
-    workflow's own area path via a `paths:` filter."""
+@dataclass(frozen=True)
+class WorkspaceMember:
+    """A project in the root uv or npm workspace."""
+
+    path: str  # repo-relative, e.g. "areas/sw_libs/parsley"
+    root_files: tuple[str, ...]  # shared root files it builds from
+    deps: frozenset[str] = field(default_factory=frozenset)  # names of in-repo deps
+
+
+def _expand_members(patterns: list[str]) -> list[Path]:
+    dirs: list[Path] = []
+    for pattern in patterns:
+        dirs.extend(sorted(p for p in REPO_ROOT.glob(pattern) if p.is_dir()))
+    return dirs
+
+
+def load_workspace_members() -> dict[str, WorkspaceMember]:
+    """Every root-workspace project, keyed by package name, with the names of
+    the other workspace projects it depends on (read from the manifests:
+    `{ workspace = true }` uv sources, and npm dependencies naming a workspace
+    package)."""
+    members: dict[str, WorkspaceMember] = {}
+
+    root_pyproject = REPO_ROOT / "pyproject.toml"
+    if root_pyproject.is_file():
+        root = tomllib.loads(root_pyproject.read_text())
+        patterns = root.get("tool", {}).get("uv", {}).get("workspace", {}).get("members", [])
+        for member_dir in _expand_members(patterns):
+            manifest = member_dir / "pyproject.toml"
+            if not manifest.is_file():
+                continue
+            data = tomllib.loads(manifest.read_text())
+            sources = data.get("tool", {}).get("uv", {}).get("sources", {})
+            deps = {
+                name
+                for name, source in sources.items()
+                if isinstance(source, dict) and source.get("workspace")
+            }
+            members[data["project"]["name"]] = WorkspaceMember(
+                member_dir.relative_to(REPO_ROOT).as_posix(), PYTHON_ROOT_FILES, frozenset(deps)
+            )
+
+    root_package = REPO_ROOT / "package.json"
+    if root_package.is_file():
+        root = json.loads(root_package.read_text())
+        packages: dict[str, tuple[Path, set[str]]] = {}
+        for member_dir in _expand_members(root.get("workspaces", [])):
+            manifest = member_dir / "package.json"
+            if not manifest.is_file():
+                continue
+            data = json.loads(manifest.read_text())
+            names: set[str] = set()
+            for section in ("dependencies", "devDependencies", "peerDependencies"):
+                names.update(data.get(section, {}))
+            packages[data["name"]] = (member_dir, names)
+        for name, (member_dir, names) in packages.items():
+            members[name] = WorkspaceMember(
+                member_dir.relative_to(REPO_ROOT).as_posix(),
+                NODE_ROOT_FILES,
+                frozenset(names & packages.keys()),
+            )
+    return members
+
+
+@dataclass(frozen=True)
+class TriggerRequirements:
+    """What a workflow's `paths:` must cover besides its own area."""
+
+    dep_areas: frozenset[str] = frozenset()  # e.g. "areas/sw_libs/parsley"
+    root_files: frozenset[str] = frozenset()  # e.g. "uv.lock"
+
+
+def trigger_requirements(
+    workflow: AreaWorkflow, members: dict[str, WorkspaceMember]
+) -> TriggerRequirements:
+    """In-repo dependencies (transitively) and shared root files of the
+    workspace projects inside this workflow's area."""
+    own = [
+        name
+        for name, m in members.items()
+        if m.path == workflow.area_path or m.path.startswith(f"{workflow.area_path}/")
+    ]
+    root_files = {f for name in own for f in members[name].root_files}
+    seen: set[str] = set(own)
+    pending = [dep for name in own for dep in members[name].deps]
+    while pending:
+        name = pending.pop()
+        if name in seen or name not in members:
+            continue
+        seen.add(name)
+        pending.extend(members[name].deps)
+    dep_areas = {
+        members[name].path
+        for name in seen - set(own)
+        if not members[name].path.startswith(f"{workflow.area_path}/")
+    }
+    return TriggerRequirements(frozenset(dep_areas), frozenset(root_files))
+
+
+def _normalize(pattern: str) -> str:
+    return pattern.removeprefix("./")
+
+
+def check_scoping(
+    workflow: AreaWorkflow, requirements: TriggerRequirements | None = None
+) -> list[str]:
+    """Return a list of human-readable warnings if `on:` isn't scoped by a
+    `paths:` filter to this workflow's own area, or if that filter misses the
+    in-repo dependencies or shared root files the area builds from (so a change
+    to them would not re-test it). Paths outside those are rejected."""
+    if requirements is None:
+        requirements = trigger_requirements(workflow, load_workspace_members())
     try:
         doc = yaml.safe_load(workflow.source.read_text())
     except (OSError, yaml.YAMLError) as exc:
@@ -201,11 +322,30 @@ def check_scoping(workflow: AreaWorkflow) -> list[str]:
                 f"`on.{event}` has no `paths:` filter scoping it to {expected_prefix}"
             )
             continue
+        allowed_prefixes = (expected_prefix, *(f"{a}/" for a in requirements.dep_areas))
         for pattern in paths:
-            normalized = pattern.lstrip("./")
-            if not normalized.startswith(expected_prefix):
+            # A `!` pattern only narrows the filter, so it is checked like the
+            # path it excludes.
+            normalized = _normalize(pattern.removeprefix("!"))
+            if normalized in requirements.root_files:
+                continue
+            if not normalized.startswith(allowed_prefixes):
                 warnings.append(
                     f"`on.{event}.paths` entry {pattern!r} is not scoped to {expected_prefix}"
+                    + (" or its dependencies" if requirements.dep_areas else "")
+                )
+        positive = [_normalize(p) for p in paths if not p.startswith("!")]
+        for area in sorted(requirements.dep_areas):
+            if not any(p.startswith(f"{area}/") for p in positive):
+                warnings.append(
+                    f"`on.{event}.paths` is missing '{area}/**': {workflow.area_path} depends "
+                    "on it, so changes there must re-run this workflow"
+                )
+        for root_file in sorted(requirements.root_files):
+            if root_file not in positive:
+                warnings.append(
+                    f"`on.{event}.paths` is missing '{root_file}': {workflow.area_path} "
+                    "builds from this shared root file"
                 )
     return warnings
 
@@ -215,11 +355,12 @@ def run(validate: bool) -> int:
     out_of_date: list[tuple[AreaWorkflow, str]] = []
     scoping_issues: list[tuple[AreaWorkflow, list[str]]] = []
 
+    members = load_workspace_members()
     for workflow in workflows:
         status = copy_status(workflow)
         if status != "ok":
             out_of_date.append((workflow, status))
-        issues = check_scoping(workflow)
+        issues = check_scoping(workflow, trigger_requirements(workflow, members))
         if issues:
             scoping_issues.append((workflow, issues))
 

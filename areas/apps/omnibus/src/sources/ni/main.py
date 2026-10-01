@@ -1,0 +1,176 @@
+import time
+import sys
+import msgpack
+import nidaqmx
+
+from omnibus import Sender
+import calibration
+
+from typing import cast, NoReturn, TypedDict
+
+if sys.platform == "win32":
+    import win_precise_time as wpt # pyright: ignore[reportMissingImports]
+
+    def get_host_time() -> float:
+        return wpt.time()
+
+else:
+
+    def get_host_time() -> float:
+        return time.time()
+
+try:
+    import config  # pyright: ignore[reportMissingImports]
+except ImportError as e:
+    print(
+        f"""Error: Importing config failed! Is config.py in the same folder as NI Source? 
+See 'config.py.example' for more info.\n"""
+        + str(e.msg),
+        file=sys.stderr,
+    )
+    sys.exit(1)
+
+
+try:
+    config.setup()  # pyright: ignore[reportAttributeAccessIssue]  # initialize the sensors
+except KeyError as e:
+    print(f"Error: {''.join(e.args)}.", file=sys.stderr)
+    sys.exit(1)
+
+calibration.Sensor.print()  # print out sensors and their ai channels
+
+system = nidaqmx.system.System.local()  # pyright: ignore[reportAttributeAccessIssue]
+if len(system.devices) == 0:
+    print("Error: No device detected.")
+    sys.exit(1)
+if len(system.devices) > 1:
+    print("Error: Multiple devices detected. Please only connect one device.")
+    sys.exit(1)
+print(f"Found device {system.devices[0].product_type}.")
+
+sender = Sender()  # omnibus channel
+CHANNEL = "DAQ/ni"
+# Increment whenever data format change, so that new incompatible tools don't
+# attempt to read old logs / messages
+MESSAGE_FORMAT_VERSION = 3  # Backwards compatible with original version
+
+class DAQ_SEND_MESSAGE_TYPE(TypedDict):
+    timestamp: float
+    data: dict[str, list[float]]
+    """    
+    Each sensor groups a certain number of readings, the bulk read rate of the DAQ.
+    The length of that list corresponds to the length of relative_timestamps below.
+    The floating point numbers are arbitrary values depending on the unit of the sensor configured when it was recorded.
+    """
+    # Example: {
+    #     "NPT-201: Nitrogen Fill PT (psi)": [1.3, 2.3, 4.3],
+    #     "OPT-201: Ox Fill PT (psi)": [2.3, 4.5, 7.2],
+    #     ...
+    # }
+    # 1.3 and 2.3 are the readings for each sensor at t0, 2.3 and 4.5 for t1, etc.
+
+    relative_timestamps: list[float]
+    """
+    Corresponding timestamps for each reading of every sensors, calculated from the task's
+    actual sample rate (dt = 1 / task.timing.samp_clk_rate) from a host start time.
+    Unit is seconds
+    """
+    # Example: [19, 22, 25] <- 1.3 and 2.3 from above was read at t0 = 19
+
+    # Configured rate at which the messages were read, in Hz.
+    sample_rate: int
+
+    # Arbitrary constant that validates that the received message format is compatible
+    # Increment MESSAGE_FORMAT_VERSION both here and in the NI source whenever the structure changes
+    message_format_version: int
+
+
+def read_data(ai: nidaqmx.Task) -> NoReturn:
+    configured_sample_rate = int(config.RATE)  # pyright: ignore[reportAttributeAccessIssue]
+    if configured_sample_rate <= 0:
+        raise ValueError("config.RATE must cast to a positive integer")
+
+    actual_sample_rate = ai.timing.samp_clk_rate
+    if actual_sample_rate <= 0:
+        raise ValueError("task.timing.samp_clk_rate must be positive")
+
+    read_period_seconds = 1 / actual_sample_rate
+
+    rates = []
+
+    # Starting point for deriving timestamps from the cumulative sample count.
+    initial_host_start_time = get_host_time()
+    total_samples_read = 0
+
+    now = time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime())  # 2021-07-12_22-35-08
+    with open(f"log_{now}.dat", "wb") as log:
+        while True:
+            # use a list of 50 timestamps to keep track of the sample rate
+            rates.append(time.time())
+            if len(rates) > 50:
+                rates.pop(0)
+
+            # read data config.READ_BULK at a time
+            # ai.read returns a single array if there is only one sensor and a nested array otherwise
+            data: list[float | int] | list[list[float | int]] = cast(
+                list[float | int] | list[list[float | int]],
+                ai.read(number_of_samples_per_channel=config.READ_BULK, timeout=5),  # pyright: ignore[reportAttributeAccessIssue]
+            )
+            assert type(data) is list  # Ensure the above behaviour is enforced
+
+            # make sure the data is a nested list to ensure consistency
+            if data and not isinstance(data[0], list):
+                data = cast(list[list[float | int]], [data])
+            
+            # Ensure that list is either empty or nested
+            assert (not data) or (type(data[0]) is list)
+            data = cast(list[list[float | int]], data)
+
+            num_of_messages_read = 0 if not data else len(data[0])
+
+            relative_timestamps = [
+                initial_host_start_time
+                + (total_samples_read + sample_index) * read_period_seconds
+                for sample_index in range(num_of_messages_read)
+            ]
+
+            data_parsed: DAQ_SEND_MESSAGE_TYPE = {
+                "timestamp": get_host_time(),
+                "data": calibration.Sensor.parse(data),  # apply calibration
+                "relative_timestamps": relative_timestamps,
+                "sample_rate": configured_sample_rate,
+                "message_format_version": MESSAGE_FORMAT_VERSION,
+            }
+
+            # Reset the timestamp baseline if there were problems reading.
+            if not data or num_of_messages_read < config.READ_BULK:  # pyright: ignore[reportAttributeAccessIssue]
+                initial_host_start_time = get_host_time()
+                total_samples_read = 0
+            else:
+                total_samples_read += num_of_messages_read
+
+            # we can concatenate msgpack outputs as a backup logging option
+            log.write(msgpack.packb(data_parsed))
+
+            sender.send(CHANNEL, data_parsed)  # send data to omnibus
+
+            print(
+                f"\rRate: {config.READ_BULK*len(rates)/(time.time() - rates[0]): >6.0f}  ",  # pyright: ignore[reportAttributeAccessIssue]
+                end="",
+            )
+
+
+with nidaqmx.Task() as ai:
+    calibration.Sensor.setup(ai)
+
+    # continuously sample at config.RATE samps/sec
+    ai.timing.cfg_samp_clk_timing(
+        rate=config.RATE,  # pyright: ignore[reportAttributeAccessIssue]
+        sample_mode=nidaqmx.constants.AcquisitionType.CONTINUOUS,  # pyright: ignore[reportAttributeAccessIssue]
+    )
+    ai.start()
+
+    try:
+        read_data(ai)
+    except KeyboardInterrupt:
+        pass

@@ -1,0 +1,44 @@
+# Docker images are built with the repo root as context, so they can copy in
+# in-repo dependencies (omnibus images copy areas/sw_libs/parsley). This file
+# serves the Python (omnibus) images; omnibus-daqms has its own
+# Dockerfile.dockerignore.
+
+# VCS, environments, caches, build output
+.git
+**/.venv
+**/venv
+**/node_modules
+**/__pycache__
+**/*.py[cod]
+**/build
+**/dist
+**/*.egg-info
+**/.pytest_cache
+**/.coverage
+**/coverage.xml
+**/htmlcov
+**/.DS_Store
+**/.idea
+**/.vscode
+
+# Not needed by Python images
+areas/apis
+areas/apps/omnibus-daqms
+areas/apps/omnibus-telem
+areas/apps/omnibus-avionics-testing-app
+areas/sw_libs/parsley-ts
+areas/sw_libs/omnibus-ts
+package.json
+package-lock.json
+
+# Omnibus data and logs (from the former omnibus/.dockerignore)
+**/log_*.dat
+**/logs
+**/*.log
+**/*.csv
+**/*.png
+**/*.jpg
+**/*_manifest.txt
+**/all_messages_*.txt
+**/.mbtiles
+areas/apps/omnibus/tools/ni_source_log_processing/test_inputs

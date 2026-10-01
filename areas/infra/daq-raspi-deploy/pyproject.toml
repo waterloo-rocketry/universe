@@ -1,0 +1,7 @@
+[project]
+name = "daq-provisionning-ansible"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = ["ansible>=2.19.3"]

@@ -1,0 +1,16 @@
+[project]
+name = "parsley-source"
+version = "0.1.0"
+description = "Data source from CAN messages parsed using parsley"
+requires-python = ">=3.11"
+dependencies = [
+    "crc8>=0.2.1",
+    "omnibus",
+    "parsley",
+    "pyserial",
+    "win-precise-time>=1.4.2 ; sys_platform == 'win32'",
+]
+
+[tool.uv.sources]
+omnibus = {workspace = true}
+parsley = { path = "../../../../../sw_libs/parsley", editable = true }

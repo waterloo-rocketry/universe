@@ -1,0 +1,59 @@
+
+- name: Install initial packages
+  become: true
+  apt:
+    update_cache: true
+    cache_valid_time: 3600
+    pkg:
+      - ca-certificates
+      - curl
+      - gnupg
+      - python3-debian
+
+- name: Install docker repo to apt
+  become: true
+  ansible.builtin.deb822_repository:
+    name: docker
+    types: [deb]
+    uris: "https://download.docker.com/linux/debian"
+    suites: "{{ ansible_distribution_release }}"
+    components: [stable]
+    signed_by: "https://download.docker.com/linux/ubuntu/gpg"
+    architectures: arm64
+    state: present
+
+- name: Install docker packages
+  become: true
+  apt:
+    update_cache: true
+    pkg:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-buildx-plugin
+      - docker-compose-plugin
+  register: docker_packages
+
+- name: Enable docker.service
+  become: true
+  service:
+    name: docker
+    state: started 
+    enabled: yes
+    
+- name: Create "docker" group
+  become: true
+  group:
+    name: docker
+    state: present
+
+- name: Add user to "docker" group
+  become: true
+  user:
+    name: "{{ ansible_user }}"
+    groups: docker
+    append: yes
+
+- name: Reboot the machine to make the docker.service start # see: https://bbs.archlinux.org/viewtopic.php?id=267694
+  become: true
+  reboot:

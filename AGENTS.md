@@ -18,7 +18,6 @@ file.
 | `areas/infra/daq-raspi-deploy/` | Ansible deployment of the DAQ Raspberry Pi (pins Omnibus images by digest) |
 | `tools/build_ci/` | Copies per-project workflows to the root `.github/workflows/` and validates them |
 | `tools/ci/` | Scripts used by repo-wide CI (`wait_for_checks.sh` backs the `required` check) |
-| `tools/import_repo/` | Migrates an existing repo into `areas/` as one attributed snapshot commit |
 
 `areas/apis/rocketcan` is a git submodule of the separate `rocketcan` repo
 (CAN message definitions), which the firmware team owns. Change it in that
@@ -74,18 +73,13 @@ One setup per language, at the repo root:
 - Releases are GitHub releases with project-prefixed tags (`omnibus-v1.2.0`,
   `omnibus-daqms-v…`, `omnibus-ts-v…`); release workflows check the prefix.
 
-## Adding an existing repository
+## Migrating another repository
 
 Each migrated repository is exactly one commit: a snapshot (no history) that
 links to the upstream commit and credits every upstream author with
-`Co-authored-by:` trailers.
-
-```sh
-uv run tools/import_repo https://github.com/waterloo-rocketry/<repo> areas/<kind>/<name> \
-    --message-out /tmp/<name>.txt
-# integrate it (workspace membership, CI, Dockerfiles), note the changes in the message, then:
-git add areas/<kind>/<name> && git commit -F /tmp/<name>.txt
-```
+`Co-authored-by:` trailers. The tool that wrote those commits was removed once
+the migration finished; to reuse it, restore it from the commit titled "Add
+tools/import_repo for one-commit-per-repo migrations".
 
 ## Checks
 

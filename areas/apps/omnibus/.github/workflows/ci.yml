@@ -3,11 +3,11 @@ name: omnibus
 on:
   push:
     branches: [main]
-    paths: ["areas/apps/omnibus/**", "areas/sw_libs/parsley/**", ".python-version", "pyproject.toml", "uv.lock"]
+    paths: ["areas/apps/omnibus/**", "areas/sw_libs/parsley/**"]
   pull_request:
-    paths: ["areas/apps/omnibus/**", "areas/sw_libs/parsley/**", ".python-version", "pyproject.toml", "uv.lock"]
+    paths: ["areas/apps/omnibus/**", "areas/sw_libs/parsley/**"]
 
-# Runs from the project dir; uv resolves against the root workspace and uv.lock.
+# Runs from the project dir, with the project's own uv.lock and .python-version.
 defaults:
   run:
     working-directory: areas/apps/omnibus

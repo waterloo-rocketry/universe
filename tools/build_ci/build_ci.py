@@ -240,11 +240,61 @@ class TriggerRequirements:
     root_files: frozenset[str] = frozenset()  # e.g. "uv.lock"
 
 
+def _area_of(path: Path) -> str | None:
+    """`areas/<kind>/<project>` containing `path`, if it is inside areas/."""
+    try:
+        parts = path.resolve().relative_to(REPO_ROOT).parts
+    except ValueError:
+        return None
+    return "/".join(parts[:3]) if len(parts) >= 3 and parts[0] == "areas" else None
+
+
+def load_path_dependencies() -> dict[str, frozenset[str]]:
+    """Area -> other areas it depends on through uv `path` sources.
+
+    Python projects that keep their own lockfile and interpreter (outside the
+    root workspace) consume in-repo libraries this way, e.g. omnibus has
+    `parsley = { path = "../../sw_libs/parsley" }`. Every pyproject.toml under
+    areas/ counts, including nested sub-projects of a project's own workspace.
+    """
+    edges: dict[str, set[str]] = {}
+    for dirpath, dirnames, filenames in os.walk(AREAS_ROOT):
+        here = Path(dirpath)
+        # Skip environments, dependencies, hidden dirs and git submodules.
+        dirnames[:] = [
+            d
+            for d in dirnames
+            if not d.startswith(".")
+            and d != "node_modules"
+            and not (here / d / ".git").exists()
+        ]
+        if "pyproject.toml" not in filenames:
+            continue
+        source_area = _area_of(here)
+        try:
+            data = tomllib.loads((here / "pyproject.toml").read_text())
+        except (OSError, tomllib.TOMLDecodeError):
+            continue
+        sources = data.get("tool", {}).get("uv", {}).get("sources", {})
+        for source in sources.values():
+            if not isinstance(source, dict) or "path" not in source:
+                continue
+            target_area = _area_of(here / source["path"])
+            if source_area and target_area and target_area != source_area:
+                edges.setdefault(source_area, set()).add(target_area)
+    return {area: frozenset(deps) for area, deps in edges.items()}
+
+
 def trigger_requirements(
-    workflow: AreaWorkflow, members: dict[str, WorkspaceMember]
+    workflow: AreaWorkflow,
+    members: dict[str, WorkspaceMember],
+    path_deps: dict[str, frozenset[str]] | None = None,
 ) -> TriggerRequirements:
     """In-repo dependencies (transitively) and shared root files of the
-    workspace projects inside this workflow's area."""
+    projects inside this workflow's area: root-workspace dependencies plus
+    uv `path` sources into other areas (`load_path_dependencies`)."""
+    if path_deps is None:
+        path_deps = load_path_dependencies()
     own = [
         name
         for name, m in members.items()
@@ -264,7 +314,17 @@ def trigger_requirements(
         for name in seen - set(own)
         if not members[name].path.startswith(f"{workflow.area_path}/")
     }
-    return TriggerRequirements(frozenset(dep_areas), frozenset(root_files))
+    # Follow path dependencies transitively, from this area and from every
+    # workspace dependency found above.
+    pending_areas = [*dep_areas, *path_deps.get(workflow.area_path, ())]
+    all_dep_areas: set[str] = set()
+    while pending_areas:
+        area = pending_areas.pop()
+        if area in all_dep_areas or area == workflow.area_path:
+            continue
+        all_dep_areas.add(area)
+        pending_areas.extend(path_deps.get(area, ()))
+    return TriggerRequirements(frozenset(all_dep_areas), frozenset(root_files))
 
 
 def _normalize(pattern: str) -> str:
@@ -356,11 +416,12 @@ def run(validate: bool) -> int:
     scoping_issues: list[tuple[AreaWorkflow, list[str]]] = []
 
     members = load_workspace_members()
+    path_deps = load_path_dependencies()
     for workflow in workflows:
         status = copy_status(workflow)
         if status != "ok":
             out_of_date.append((workflow, status))
-        issues = check_scoping(workflow, trigger_requirements(workflow, members))
+        issues = check_scoping(workflow, trigger_requirements(workflow, members, path_deps))
         if issues:
             scoping_issues.append((workflow, issues))
 

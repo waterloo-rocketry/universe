@@ -1,4 +1,4 @@
-FROM ghcr.io/astral-sh/uv:python3.14-alpine
+FROM ghcr.io/astral-sh/uv:python3.11-alpine
 
 # Authors
 LABEL authors="Waterloo Rocketry <contact@waterloorocketry.com>"
@@ -6,15 +6,14 @@ LABEL authors="Waterloo Rocketry <contact@waterloorocketry.com>"
 # Install git.
 RUN apk add --no-cache git
 
-# Copy the monorepo into the image (build context is the repo root, which
-# holds the shared uv workspace and uv.lock).
-COPY . /app
-WORKDIR /app
-
-# Install omnibus plus only this component's dependency group, asserting the
-# lockfile is up to date.
-RUN uv sync --locked --no-editable --no-default-groups --package omnibus --group source-parsley
+# Copy omnibus and the in-repo parsley it depends on, keeping their relative
+# layout (the build context is the monorepo root).
+COPY areas/apps/omnibus /app/areas/apps/omnibus
+COPY areas/sw_libs/parsley /app/areas/sw_libs/parsley
 WORKDIR /app/areas/apps/omnibus
+
+# Sync the project into the new environment, asserting the lockfile is up to date.
+RUN uv sync --no-dev --no-editable --locked --package parsley-source
 
 # Set default Omnibus server
 ENV OMNIBUS_SERVER_HOST="localhost"

@@ -9,10 +9,10 @@ name: omnibus images
 on:
   push:
     branches: [main]
-    paths: ["areas/apps/omnibus/**", "areas/sw_libs/parsley/**", ".python-version", "pyproject.toml", "uv.lock"]
+    paths: ["areas/apps/omnibus/**", "areas/sw_libs/parsley/**"]
   pull_request:
     branches: [main]
-    paths: ["areas/apps/omnibus/**", "areas/sw_libs/parsley/**", ".python-version", "pyproject.toml", "uv.lock"]
+    paths: ["areas/apps/omnibus/**", "areas/sw_libs/parsley/**"]
   release:
     types: [published]
 

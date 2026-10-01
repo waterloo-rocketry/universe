@@ -330,3 +330,41 @@ def test_check_scoping_rejects_paths_outside_area_and_dependencies(repo: Path):
 
     assert any("'areas/apps/other/**' is not scoped" in i for i in issues)
     assert any("'../areas/apps/omnibus/x' is not scoped" in i for i in issues)
+
+
+def test_path_sources_make_dependencies_including_nested_sub_projects(repo: Path):
+    # A standalone uv project (own lockfile) consuming an in-repo library by
+    # path, from its root and from a nested sub-project of its own workspace.
+    (repo / "areas/sw_libs/parsley").mkdir(parents=True)
+    (repo / "areas/sw_libs/parsley/pyproject.toml").write_text('[project]\nname = "parsley"\n')
+    (repo / "areas/sw_libs/core").mkdir(parents=True)
+    (repo / "areas/sw_libs/core/pyproject.toml").write_text('[project]\nname = "core"\n')
+    omnibus = repo / "areas/apps/omnibus"
+    (omnibus / "src/sources/parsley").mkdir(parents=True)
+    (omnibus / "pyproject.toml").write_text(
+        '[project]\nname = "omnibus"\n[tool.uv.sources]\nparsley = { path = "../../sw_libs/parsley" }\n'
+    )
+    (omnibus / "src/sources/parsley/pyproject.toml").write_text(
+        '[project]\nname = "parsley-source"\n'
+        '[tool.uv.sources]\ncore = { path = "../../../../../sw_libs/core", editable = true }\n'
+    )
+
+    assert build_ci.load_path_dependencies() == {
+        "areas/apps/omnibus": frozenset({"areas/sw_libs/parsley", "areas/sw_libs/core"})
+    }
+    wf = build_ci.AreaWorkflow(Path("ci.yml"), ("apps", "omnibus"))
+    req = build_ci.trigger_requirements(wf, build_ci.load_workspace_members())
+    assert req.dep_areas == {"areas/sw_libs/parsley", "areas/sw_libs/core"}
+    assert req.root_files == set()  # its lockfile and Python pin live in its own area
+
+
+def test_path_dependencies_are_followed_transitively(repo: Path):
+    for path, dep in [("areas/apps/a", "../../sw_libs/b"), ("areas/sw_libs/b", "../c"), ("areas/sw_libs/c", None)]:
+        (repo / path).mkdir(parents=True)
+        sources = f'[tool.uv.sources]\nx = {{ path = "{dep}" }}\n' if dep else ""
+        (repo / path / "pyproject.toml").write_text(f'[project]\nname = "{path}"\n{sources}')
+    wf = build_ci.AreaWorkflow(Path("ci.yml"), ("apps", "a"))
+
+    req = build_ci.trigger_requirements(wf, {})
+
+    assert req.dep_areas == {"areas/sw_libs/b", "areas/sw_libs/c"}

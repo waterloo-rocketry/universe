@@ -53,10 +53,10 @@ What it does by default:
   workflow runs on every push to the repo, not just changes to its own area.
 - Warns if that filter misses the area's in-repo dependencies or the shared
   root files it builds from (e.g. omnibus must also list
-  `areas/sw_libs/parsley/**`, `pyproject.toml`, `uv.lock` and
-  `.python-version`), so a change to a library or a lockfile re-tests
-  everything that uses it. Dependencies are read from the uv and npm workspace
-  manifests.
+  `areas/sw_libs/parsley/**`, and npm workspace projects the root
+  `package-lock.json`), so a change to a library or a lockfile re-tests
+  everything that uses it. Dependencies are read from the manifests (uv `path`
+  sources, npm workspace packages).
 
 `--validate` turns both of those checks into hard failures (exit code 1),
 for use in CI: an area added or changed a workflow without running the tool

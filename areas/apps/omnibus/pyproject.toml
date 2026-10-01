@@ -33,7 +33,7 @@ authors = [
     {name = "Waterloo Rocketry", email = "contact@waterloorocketry.com"}
 ]
 
-requires-python = ">=3.11"
+requires-python = "~=3.11.0"
 
 dependencies = [
     "msgpack>=1.2.1",
@@ -56,108 +56,29 @@ dev = [
     "pytest-cov>=7.0.0",
 ]
 
-# Each component under src/ and tools/ declares its dependencies as a group
-# here (they used to be separate virtual uv projects, one pyproject.toml each).
-# A nested pyproject.toml would stop uv from finding the monorepo workspace, so
-# `uv run src/<component>/main.py` would build a private venv instead of using
-# the shared one. All groups are installed by default (tool.uv.default-groups);
-# Docker images install only their own, e.g. `--no-default-groups --group bridge`.
-# src/bridge/
-bridge = [
-    "msgpack>=1.2.1",
-    "pyzmq>=27.1.0",
-    "python-socketio[client]>=5.11",
-]
-
-# src/dashboard/
-dashboard = [
-    "numpy",
-    "PySide6<=6.7.2",
-    "pyqtgraph",
-    "pyopengl",
-]
-
-# src/globallog/
-globallog = [
-    "msgpack>=1.2.1",
-]
-
-# src/sinks/interamap/
-interamap = [
-    "geocoder",
-    "folium",
-    "fastkml",
-    "PySide6",
-    "offline_folium",
-    "lxml",
-    "qrcode",
-    "pillow",
-    "branca",
-    "docker",
-]
-
-# src/sources/fakeni/ (no dependencies beyond omnibus)
-source-fakeni = []
-
-# src/sources/ljm/
-source-ljm = [
-    "labjack-ljm",
-    "win-precise-time>=1.4.2 ; sys_platform == 'win32'",
-]
-
-# src/sources/ni/
-source-ni = [
-    "nidaqmx",
-    "win-precise-time>=1.4.2 ; sys_platform == 'win32'",
-]
-
-# src/sources/parsley/
-source-parsley = [
-    "crc8>=0.2.1",
-    "parsley",
-    "pyserial",
-    "win-precise-time>=1.4.2 ; sys_platform == 'win32'",
-]
-
-# src/sources/rlcsv3/ (no dependencies beyond omnibus)
-source-rlcsv3 = []
-
-# src/websocket_server/
-websocket-server = [
-    "msgpack>=1.2.1",
-    "pyzmq>=27.1.0",
-    "flask-socketio>=5.3",
-    "flask>=3.0",
-    "gevent>=26.5.0",
-    "gunicorn>=26.0.0",
-    "gevent-websocket>=0.10.1",
-]
-
-# tools/data_processing/
-data-processing = [
-    "matplotlib>=3.10.0",
-]
-
-# tools/data_processing_v2_beta/
-data-processing-v2 = [
-    "msgpack>=1.2.1",
-    "crc8>=0.2.1",
-    "parsley",
-    "pyserial",
-    "win-precise-time>=1.4.2 ; sys_platform == 'win32'",
-]
-
 [project.scripts]
 omnibus-server = "omnibus.server:server"
 omnibus-ws-server = "main:main"
 omnibus-ws-bridge = "bridge.relay:main"
 
-[tool.uv]
-default-groups = "all"
-
 [tool.uv.sources]
-parsley = { workspace = true }
+parsley = { path = "../../sw_libs/parsley", editable = true }
 
+[tool.uv.workspace]
+members = [
+    "src/sources/fakeni",
+    "src/sources/ni",
+    "src/sources/ljm",
+    "src/sources/parsley",
+    "src/sources/rlcsv3",
+    "src/dashboard",
+    "src/globallog",
+    "src/sinks/interamap",
+    "src/bridge",
+    "src/websocket_server",
+    "tools/data_processing",
+    "tools/data_processing_v2_beta",
+]
 
 [tool.basedpyright]
 failOnWarnings = false

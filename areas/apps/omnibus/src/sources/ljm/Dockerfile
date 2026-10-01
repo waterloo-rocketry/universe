@@ -24,7 +24,7 @@ RUN if [ "$(uname -m)" = "x86_64" ]; then \
     fi
 
 # Stage 2: Build the runtime image
-FROM ghcr.io/astral-sh/uv:python3.14-trixie-slim
+FROM ghcr.io/astral-sh/uv:python3.11-trixie-slim
 
 # Authors
 LABEL authors="Waterloo Rocketry <contact@waterloorocketry.com>"
@@ -42,15 +42,15 @@ RUN --mount=type=bind,from=downloader,source=/ljm,target=/ljm \
     /ljm/labjack_ljm_installer.run -- --without-kipling --no-restart-device-rules || [ $? -eq 2 ]
 
 ## OMNIBUS SETUP
-# Copy the monorepo into the image (build context is the repo root, which
-# holds the shared uv workspace and uv.lock).
-COPY . /app
-
-# Install omnibus plus only this component's dependency group, asserting the
-# lockfile is up to date.
-WORKDIR /app
-RUN uv sync --locked --no-editable --no-default-groups --package omnibus --group source-ljm
+# Copy the project into the image.
+# Copy omnibus and the in-repo parsley it depends on, keeping their relative
+# layout (the build context is the monorepo root).
+COPY areas/apps/omnibus /app/areas/apps/omnibus
+COPY areas/sw_libs/parsley /app/areas/sw_libs/parsley
 WORKDIR /app/areas/apps/omnibus
+
+# Sync the project into the new environment, asserting the lockfile is up to date.
+RUN uv sync --locked --no-editable --no-dev --package ljm-source
 
 ENV OMNIBUS_SERVER_HOST="localhost"
 

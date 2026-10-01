@@ -1,7 +1,7 @@
 # Omnibus
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Python Version](https://img.shields.io/badge/python-3.14-blue.svg)](https://www.python.org/downloads/)
+[![Python Version](https://img.shields.io/badge/python-3.11-blue.svg)](https://www.python.org/downloads/release/python-3110/)
 
 ## Omni-what?
 
@@ -20,9 +20,9 @@ Omnibus is a unified data bus which manages the connection of various data sourc
 3. In a terminal, run `uv python install`
 4. Run `uv sync --locked --all-packages`
 
-Omnibus shares the monorepo's Python version, `uv.lock` and `.venv` (all at the
-`universe` root) with the other Python projects, so `uv sync` works from any
-folder inside the repo.
+Omnibus keeps its own Python version (`.python-version`), `uv.lock` and `.venv`
+in this folder, so run `uv` commands from `areas/apps/omnibus`. It uses the
+monorepo's copy of parsley (`areas/sw_libs/parsley`), not a git download.
 
 ### Update
 

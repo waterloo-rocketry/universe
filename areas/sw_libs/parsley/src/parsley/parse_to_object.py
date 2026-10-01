@@ -289,9 +289,7 @@ class LoggerParser(ParsleyParser):
             data_list: list[int] = list(buf[offset: offset + dlc])
             offset += dlc
 
-            # parse_to_object accepts an integer SID and list of data bytes at
-            # runtime (see its isinstance(msg_sid, int) branch); its annotation is narrower.
-            yield _ParsleyParseInternal.parse_to_object(sid, data_list)  # pyright: ignore[reportArgumentType]
+            yield _ParsleyParseInternal.parse_to_object(sid, data_list)
             
 class BitstringParser(ParsleyParser):
     ''' Parse BitString objects '''

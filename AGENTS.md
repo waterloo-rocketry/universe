@@ -27,26 +27,24 @@ https://github.com/waterloo-rocketry/2026-2027-software-issues.
 
 Each project keeps its own `README.md`; read it before changing the project.
 
-## Shared toolchains
+## Toolchains
 
-One setup per language, at the repo root:
-
-- **Python:** one uv workspace (`pyproject.toml` members), one `uv.lock`, one
-  `.venv`, one interpreter (`.python-version`, 3.14). `uv sync --all-packages`
-  from anywhere installs everything. Projects consume each other with
-  `{ workspace = true }` sources, never git URLs.
-- **Never put a `pyproject.toml` inside another project's directory.** uv stops
-  looking for the workspace at the nearest enclosing project, so nested scripts
-  get a private venv with the wrong Python. That is why Omnibus components
-  (`src/*`, `tools/*`) are dependency groups in `areas/apps/omnibus/pyproject.toml`
-  rather than their own projects.
-- **Node:** one npm workspace (`package.json` `workspaces`, one
+- **Python:** each project keeps its own `.python-version`, `uv.lock` and
+  `.venv`, and runs `uv` from its own directory: Omnibus and parsley on 3.11,
+  daq-raspi-deploy on 3.13. Some Omnibus components don't fully work on newer
+  Python, so versions move per project, not repo-wide. Omnibus is its own uv
+  workspace (its `src/*` and `tools/*` components are members). Projects
+  consume in-repo libraries with editable `path` sources, never git URLs, e.g.
+  Omnibus has `parsley = { path = "../../sw_libs/parsley", editable = true }`.
+  The root `pyproject.toml` / `uv.lock` (Python 3.14) are only for `tools/`.
+- **Node:** one npm workspace at the root (`package.json` `workspaces`, one
   `package-lock.json`), Node from `.nvmrc`. Libraries build to `dist/`, so run
   `npm run build:libs` before typechecking or testing a dependent app. The
   Electron apps are standalone npm projects (own lockfile): their template
   packages are all named `@app/*` and clash in a shared workspace.
-- **Docker:** images build with the repo root as context (they need the root
-  lockfiles), e.g. `docker build -f areas/apps/omnibus-daqms/Dockerfile .`.
+- **Docker:** images build with the repo root as context (they copy in-repo
+  dependencies and the root npm lockfile), e.g.
+  `docker build -f areas/apps/omnibus-daqms/Dockerfile .`.
   The root `.dockerignore` serves the Python images; DAQms has its own
   `Dockerfile.dockerignore`.
 
@@ -55,12 +53,12 @@ One setup per language, at the repo root:
 - A project's workflows live at `areas/<kind>/<project>/.github/workflows/*.yml`,
   with every `push`/`pull_request` trigger scoped by `paths:` to that project's
   own area, and `working-directory` set where needed (copies run from the repo root).
-- `paths:` must also list every in-repo dependency (`areas/.../**`) and that
-  language's shared root files (`pyproject.toml`, `uv.lock`, `.python-version`
-  or `package.json`, `package-lock.json`, `.nvmrc`), so a change to shared code
-  or a lockfile re-tests its dependents. `build_ci` works out the dependencies
-  from the manifests (`{ workspace = true }` uv sources, npm workspace
-  packages) and `--validate` names anything missing. Add a dependency in the
+- `paths:` must also list every in-repo dependency (`areas/.../**`) and, for
+  npm workspace projects, the shared root files (`package.json`,
+  `package-lock.json`, `.nvmrc`), so a change to shared code or a lockfile
+  re-tests its dependents. `build_ci` works out the dependencies from the
+  manifests (uv `path` sources, npm workspace packages) and `--validate` names
+  anything missing. Add a dependency in the
   manifest and the validator tells you which workflows to update.
 - After adding, editing, renaming or removing one, run `uv run tools/build_ci`
   and commit the regenerated `.github/workflows/<name>-areas-<kind>-<project>.yml`.

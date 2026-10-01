@@ -1,6 +1,7 @@
-# Docker images are built with the repo root as context, so they can see the
-# shared uv workspace (pyproject.toml, uv.lock). This file serves the Python
-# (omnibus) images; omnibus-daqms has its own Dockerfile.dockerignore.
+# Docker images are built with the repo root as context, so they can copy in
+# in-repo dependencies (omnibus images copy areas/sw_libs/parsley). This file
+# serves the Python (omnibus) images; omnibus-daqms has its own
+# Dockerfile.dockerignore.
 
 # VCS, environments, caches, build output
 .git

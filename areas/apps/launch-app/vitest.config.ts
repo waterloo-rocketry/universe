@@ -6,6 +6,9 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     setupFiles: ['src/renderer/test/setup.ts'],
-    include: ['src/renderer/**/*.test.{ts,tsx}'],
+    include: [
+      'src/renderer/**/*.test.{ts,tsx}',
+      'src/mock-server/**/*.test.ts',
+    ],
   },
 });

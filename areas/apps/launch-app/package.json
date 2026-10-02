@@ -9,13 +9,14 @@
   },
   "scripts": {
     "dev": "node scripts/dev.mjs",
+    "mock:server": "node scripts/mock-server.mjs",
     "build": "npm run typecheck && node scripts/build.mjs",
     "start": "electron .",
     "test": "vitest run",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "typecheck": "tsc -p tsconfig.main.json && tsc -p tsconfig.renderer.json && tsc -p tsconfig.tools.json"
+    "typecheck": "tsc -p tsconfig.main.json && tsc -p tsconfig.renderer.json && tsc -p tsconfig.tools.json && tsc -p tsconfig.mock.json"
   },
   "dependencies": {
     "react": "^19.2.8",

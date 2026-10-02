@@ -9,7 +9,13 @@ export default [
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
-    files: ['scripts/**/*.mjs', '*.js', '*.ts', 'src/main/**/*.ts'],
+    files: [
+      'scripts/**/*.mjs',
+      '*.js',
+      '*.ts',
+      'src/main/**/*.ts',
+      'src/mock-server/**/*.ts',
+    ],
     languageOptions: { globals: globals.node },
   },
   {

@@ -1,7 +1,8 @@
 # Launch App
 
 Minimal React + TypeScript + Electron foundation. The dashboard is a placeholder;
-there is no telemetry or Omnibus integration.
+there is no backend telemetry or Omnibus integration. Local fake data sources are
+available for component development and tests; see [mock data](docs/mock-data.md).
 
 ## Setup
 
@@ -13,6 +14,22 @@ Run all commands from `areas/apps/launch-app`:
 npm install
 npm run dev
 ```
+
+To connect to the separate fake data server, run two terminals in this directory:
+
+```sh
+# Terminal 1: leave the mock server running
+npm run mock:server
+
+# Terminal 2: open the Electron dashboard
+npm run dev
+```
+
+The development UI shows **connected to mock** after receiving a valid JSON
+frame. If the server stops it shows **disconnected from mock** and reconnects
+when the server comes back. The server binds to `127.0.0.1:6768` and runs
+independently of Electron. Production builds do not connect to the mock.
+See [mock server options and protocol](docs/mock-data.md#standalone-mock-server).
 
 Development starts Vite, builds the Electron entry points, then opens Electron
 with the actual Vite server URL supplied through `VITE_DEV_SERVER_URL`.

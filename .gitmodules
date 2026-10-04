@@ -1,0 +1,3 @@
+[submodule "areas/apis/rocketcan"]
+	path = areas/apis/rocketcan
+	url = https://github.com/waterloo-rocketry/rocketcan.git

@@ -1,0 +1,20 @@
+{
+  "name": "universe",
+  "private": true,
+  "description": "Waterloo Rocketry monorepo: shared npm workspace (one lockfile, one node_modules).",
+  "engines": {
+    "node": ">=24"
+  },
+  "workspaces": [
+    "areas/sw_libs/parsley-ts",
+    "areas/sw_libs/omnibus-ts",
+    "areas/apps/daqms"
+  ],
+  "scripts": {
+    "build:libs": "npm run build -w @waterloorocketry/parsley-ts -w @waterloorocketry/omnibus-ts",
+    "build": "npm run build:libs && npm run build -w omnibus-daqms",
+    "test": "npm run build:libs && npm run test --workspaces -- --run",
+    "typecheck": "npm run build:libs && npm run typecheck --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present"
+  }
+}

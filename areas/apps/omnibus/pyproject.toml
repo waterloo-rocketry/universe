@@ -1,0 +1,98 @@
+# pyproject.toml
+[build-system]
+requires = ["uv_build>=0.8.22,<0.9.0"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "omnibus"
+
+[project]
+name = "omnibus"
+version = "1.1.1"
+description = "A unified data bus"
+readme = "README.md"
+license = "MIT"
+classifiers = [
+    'Development Status :: 2 - Pre-Alpha',
+
+    'Operating System :: OS Independent',
+    'Operating System :: POSIX :: Linux',
+    'Operating System :: MacOS :: MacOS X',
+    'Operating System :: Microsoft :: Windows :: Windows 10',
+
+    'Programming Language :: Python :: 3',
+    'Programming Language :: Python :: 3 :: Only',
+
+    'Intended Audience :: Developers',
+    'Intended Audience :: Science/Research',
+    'Topic :: Software Development :: Libraries :: Python Modules',
+    'Topic :: Scientific/Engineering',
+]
+
+authors = [
+    {name = "Waterloo Rocketry", email = "contact@waterloorocketry.com"}
+]
+
+requires-python = "~=3.11.0"
+
+dependencies = [
+    "msgpack>=1.2.1",
+    "msgpack-types>=0.5.0",
+    "pyzmq>=27.1.0",
+    "gitpython>=3.1.54",
+    "parsley>=2026.5",
+    "flask-socketio>=5.4",
+    "python-socketio[client]>=5.11",
+    "python-engineio>=4.8",
+    "flask>=3.0",
+]
+
+[dependency-groups]
+dev = [
+    "autopep8",
+    "basedpyright>=1.39.10",
+    "flake8",
+    "pytest",
+    "pytest-cov>=7.0.0",
+]
+
+[project.scripts]
+omnibus-server = "omnibus.server:server"
+omnibus-ws-server = "main:main"
+omnibus-ws-bridge = "bridge.relay:main"
+
+[tool.uv.sources]
+parsley = { path = "../../sw_libs/parsley", editable = true }
+
+[tool.uv.workspace]
+members = [
+    "src/sources/fakeni",
+    "src/sources/ni",
+    "src/sources/ljm",
+    "src/sources/parsley",
+    "src/sources/rlcsv3",
+    "src/dashboard",
+    "src/globallog",
+    "src/sinks/interamap",
+    "src/bridge",
+    "src/websocket_server",
+    "tools/data_processing",
+    "tools/data_processing_v2_beta",
+]
+
+[tool.basedpyright]
+failOnWarnings = false
+include = ["src/**"]
+exclude = ["**/__pycache__", "**/node_modules", "**/__init__.py"]
+# strict = ["src/**"] # Eventually omnibus library should do strict type checking
+extraPaths = [
+    "src/bridge",
+    "src/dashboard",
+    "src/sources/ni",
+    "src/sources/ljm",
+    "src/sources/replay_log",
+    "src/sources/rlcsv3",
+    "src/sinks/interamap",
+    "src/websocket_server",
+    "src/omnibus",
+]

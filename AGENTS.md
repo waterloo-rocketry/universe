@@ -11,7 +11,7 @@ file.
 | `areas/sw_libs/parsley-ts/` | TypeScript port of parsley, published to npm |
 | `areas/sw_libs/omnibus-ts/` | TypeScript client for Omnibus, published to npm |
 | `areas/apps/omnibus/` | Omnibus data bus: server, PyQt dashboard, sources (`src/sources/`), sinks, globallog, WebSocket server/bridge, data tools. Publishes Docker images to GHCR |
-| `areas/apps/omnibus-daqms/` | React sensor dashboard (Docker image served by nginx) |
+| `areas/apps/daqms/` | React sensor dashboard (Docker image served by nginx) |
 | `areas/apps/omnibus-telem/` | Telemetry monitoring Electron app (still the unmodified vite-electron-builder template) |
 | `areas/apps/omnibus-avionics-testing-app/` | Avionics board testing Electron app |
 | `areas/apis/rocketcan/` | Git submodule: the separate `rocketcan` repo (`rocketcan.yaml`, the CAN message source of truth) |
@@ -44,7 +44,7 @@ Each project keeps its own `README.md`; read it before changing the project.
   packages are all named `@app/*` and clash in a shared workspace.
 - **Docker:** images build with the repo root as context (they copy in-repo
   dependencies and the root npm lockfile), e.g.
-  `docker build -f areas/apps/omnibus-daqms/Dockerfile .`.
+  `docker build -f areas/apps/daqms/Dockerfile .`.
   The root `.dockerignore` serves the Python images; DAQms has its own
   `Dockerfile.dockerignore`.
 

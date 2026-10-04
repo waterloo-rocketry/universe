@@ -23,7 +23,7 @@
 
 # Not needed by Python images
 areas/apis
-areas/apps/omnibus-daqms
+areas/apps/daqms
 areas/apps/omnibus-telem
 areas/apps/omnibus-avionics-testing-app
 areas/sw_libs/parsley-ts

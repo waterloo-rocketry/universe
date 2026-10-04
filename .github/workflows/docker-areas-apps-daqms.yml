@@ -8,7 +8,7 @@ on:
         branches: [main]
         paths:
             [
-                'areas/apps/omnibus-daqms/**',
+                'areas/apps/daqms/**',
                 'areas/sw_libs/omnibus-ts/**',
                 '.nvmrc',
                 'package-lock.json',
@@ -65,7 +65,7 @@ jobs:
               with:
                   # Repo root: the image builds from the shared npm workspace.
                   context: .
-                  file: areas/apps/omnibus-daqms/Dockerfile
+                  file: areas/apps/daqms/Dockerfile
                   platforms: linux/amd64,linux/arm64
                   push: true
                   tags: ${{ steps.meta.outputs.tags }}

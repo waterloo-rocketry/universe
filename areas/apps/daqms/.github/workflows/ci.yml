@@ -5,7 +5,7 @@ on:
         branches: [main]
         paths:
             [
-                'areas/apps/omnibus-daqms/**',
+                'areas/apps/daqms/**',
                 'areas/sw_libs/omnibus-ts/**',
                 '.nvmrc',
                 'package-lock.json',
@@ -14,7 +14,7 @@ on:
     pull_request:
         paths:
             [
-                'areas/apps/omnibus-daqms/**',
+                'areas/apps/daqms/**',
                 'areas/sw_libs/omnibus-ts/**',
                 '.nvmrc',
                 'package-lock.json',

@@ -1,6 +1,6 @@
 # Build context: the repository root, so the shared npm workspace lockfile and
 # the in-repo @waterloorocketry/omnibus-ts are available:
-#   docker build -f areas/apps/omnibus-daqms/Dockerfile .
+#   docker build -f areas/apps/daqms/Dockerfile .
 
 # Stage 1: Build the React application
 FROM node:24-alpine AS builder
@@ -12,13 +12,13 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 COPY areas/sw_libs/omnibus-ts/package.json areas/sw_libs/omnibus-ts/
 COPY areas/sw_libs/parsley-ts/package.json areas/sw_libs/parsley-ts/
-COPY areas/apps/omnibus-daqms/package.json areas/apps/omnibus-daqms/
+COPY areas/apps/daqms/package.json areas/apps/daqms/
 
 RUN npm ci
 
 # Copy source files
 COPY areas/sw_libs/omnibus-ts areas/sw_libs/omnibus-ts
-COPY areas/apps/omnibus-daqms areas/apps/omnibus-daqms
+COPY areas/apps/daqms areas/apps/daqms
 
 # Accept commit hash as build argument
 ARG VITE_COMMIT_HASH=unknown
@@ -33,10 +33,10 @@ FROM nginx:stable-alpine
 RUN rm /etc/nginx/conf.d/default.conf
 
 # Copy custom nginx config
-COPY areas/apps/omnibus-daqms/nginx.conf /etc/nginx/conf.d/default.conf
+COPY areas/apps/daqms/nginx.conf /etc/nginx/conf.d/default.conf
 
 # Copy built assets from builder stage
-COPY --from=builder /app/areas/apps/omnibus-daqms/dist /usr/share/nginx/html
+COPY --from=builder /app/areas/apps/daqms/dist /usr/share/nginx/html
 
 EXPOSE 8080
 

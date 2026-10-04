@@ -81,7 +81,7 @@ export class ASCII extends Field {
         const bytes = Buffer.from(value, "ascii");
 
         // Detect non-ASCII
-        if (!/^[\x00-\x7F]*$/.test(value)) {
+        if ([...value].some((c) => c.charCodeAt(0) > 0x7f)) {
             throw new Error(`${value} contains non-ascii character(s)`);
         }
         if (this.length < 8 * bytes.length) {

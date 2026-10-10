@@ -44,6 +44,12 @@ What it does by default:
 - Warns if a workflow's `on:` triggers aren't scoped to its own area via a
   `paths:` filter (e.g. `paths: ["areas/apps/omnibus/**"]`) — an unscoped
   workflow runs on every push to the repo, not just changes to its own area.
+- Warns if that filter misses the area's in-repo dependencies or the shared
+  root files it builds from (e.g. a project using `areas/sw_libs/parsley` via a
+  uv `path` source must also list `areas/sw_libs/parsley/**`, and npm workspace
+  projects the root `package-lock.json`), so a change to a library or a
+  lockfile re-tests everything that uses it. Dependencies are read from the
+  manifests (uv `path` sources, npm workspace packages).
 
 `--validate` turns both of those checks into hard failures (exit code 1),
 for use in CI: an area added or changed a workflow without running the tool

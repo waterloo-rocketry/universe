@@ -2,6 +2,11 @@
 
 Waterloo Rocketry's software monorepo.
 
+`areas/apis/rocketcan` is a git submodule linking the separate
+[rocketcan](https://github.com/waterloo-rocketry/rocketcan) repo (CAN message
+definitions). Clone with `git clone --recurse-submodules`, or run
+`git submodule update --init` in an existing clone.
+
 ## Requirements
 
 **You must have the `uv` Python package manager and builder installed. Visit https://docs.astral.sh/uv/getting-started/installation/ to get started. If you don't know otherwise, choose the "Standalone Installer".**

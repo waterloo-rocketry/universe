@@ -1,5 +1,7 @@
-name: Validate CI symlinks
+name: Validate CI
 
+# Repo-wide checks that always run: the monorepo tooling's tests, and that
+# every area workflow's root copy is present, up to date and path-scoped.
 on:
   push:
     branches: [main]
@@ -13,4 +15,5 @@ jobs:
       - uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4
         with:
           python-version: "3.14"
+      - run: uv run pytest tools
       - run: uv run tools/build_ci --validate

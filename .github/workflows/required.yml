@@ -1,0 +1,30 @@
+name: required
+
+# The one check `main` requires. Per-project workflows only run when their area
+# changes, so none of them can be required directly (a required check that
+# never starts blocks the merge forever). This always runs, waits for every
+# other check on the PR's commit, and fails if any of them failed.
+# If you re-run a failed check and it passes, re-run this one too.
+on:
+  pull_request:
+
+permissions:
+  checks: read
+  contents: read
+
+jobs:
+  required:
+    name: required
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: tools/ci
+      - name: Wait for all other checks
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          SHA: ${{ github.event.pull_request.head.sha }}
+          SELF: required
+        run: tools/ci/wait_for_checks.sh

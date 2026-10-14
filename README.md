@@ -44,12 +44,14 @@ What it does by default:
 - Warns if a workflow's `on:` triggers aren't scoped to its own area via a
   `paths:` filter (e.g. `paths: ["areas/apps/omnibus/**"]`) — an unscoped
   workflow runs on every push to the repo, not just changes to its own area.
-- Warns if that filter misses the area's in-repo dependencies or the shared
-  root files it builds from (e.g. a project using `areas/sw_libs/parsley` via a
-  uv `path` source must also list `areas/sw_libs/parsley/**`, and npm workspace
-  projects the root `package-lock.json`), so a change to a library or a
-  lockfile re-tests everything that uses it. Dependencies are read from the
-  manifests (uv `path` sources, npm workspace packages).
+- Lets that filter also list the other projects and shared root files the
+  area depends on, so a change there re-runs its CI. Dependencies are listed
+  by hand, e.g. a project using parsley adds `areas/sw_libs/parsley/**` (and
+  `uv.lock` if it builds from the root lockfile). Anything else (an unknown
+  project, a `../` path, a broad glob like `areas/**`) is flagged.
+- To reuse another project's CI steps, call its root copy as a reusable
+  workflow (`on: workflow_call` in the source), e.g.
+  `uses: ./.github/workflows/ci-areas-sw_libs-parsley.yml`.
 
 `--validate` turns both of those checks into hard failures (exit code 1),
 for use in CI: an area added or changed a workflow without running the tool

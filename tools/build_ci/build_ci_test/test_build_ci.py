@@ -233,21 +233,7 @@ def test_find_area_workflows_skips_git_submodules(repo: Path):
     assert [wf.area_parts for wf in found] == [("apps", "omnibus")]
 
 
-# --- dependency-aware scoping -------------------------------------------------
-
-
-def write_uv_workspace(root: Path, projects: dict[str, tuple[str, list[str]]]) -> None:
-    """projects: path -> (package name, names of workspace deps)."""
-    members = ", ".join(f'"{path}"' for path in projects)
-    (root / "pyproject.toml").write_text(
-        f'[project]\nname = "root"\nversion = "0"\n[tool.uv.workspace]\nmembers = [{members}]\n'
-    )
-    for path, (name, deps) in projects.items():
-        (root / path).mkdir(parents=True, exist_ok=True)
-        sources = "".join(f"{d} = {{ workspace = true }}\n" for d in deps)
-        (root / path / "pyproject.toml").write_text(
-            f'[project]\nname = "{name}"\nversion = "0"\n[tool.uv.sources]\n{sources}'
-        )
+# --- hand-listed dependencies -------------------------------------------------
 
 
 def scoped_body(*paths: str) -> str:
@@ -255,116 +241,51 @@ def scoped_body(*paths: str) -> str:
     return f"on:\n  pull_request:\n    paths:\n{listed}jobs: {{{{}}}}\n"  # format()-escaped
 
 
-def test_trigger_requirements_follow_uv_workspace_deps_transitively(repo: Path):
-    write_uv_workspace(
-        repo,
-        {
-            "areas/sw_libs/core": ("core", []),
-            "areas/sw_libs/parsley": ("parsley", ["core"]),
-            "areas/apps/omnibus": ("omnibus", ["parsley"]),
-        },
-    )
-    wf = build_ci.AreaWorkflow(Path("ci.yml"), ("apps", "omnibus"))
-
-    req = build_ci.trigger_requirements(wf, build_ci.load_workspace_members())
-
-    assert req.dep_areas == {"areas/sw_libs/parsley", "areas/sw_libs/core"}
-    assert req.root_files == set(build_ci.PYTHON_ROOT_FILES)
-
-
-def test_trigger_requirements_follow_npm_workspace_deps(repo: Path):
-    import json
-
-    (repo / "package.json").write_text(
-        json.dumps({"workspaces": ["areas/sw_libs/client", "areas/apps/dash"]})
-    )
-    for path, data in {
-        "areas/sw_libs/client": {"name": "@org/client"},
-        "areas/apps/dash": {"name": "dash", "dependencies": {"@org/client": "^1", "react": "^19"}},
-    }.items():
-        (repo / path).mkdir(parents=True)
-        (repo / path / "package.json").write_text(json.dumps(data))
-    wf = build_ci.AreaWorkflow(Path("ci.yml"), ("apps", "dash"))
-
-    req = build_ci.trigger_requirements(wf, build_ci.load_workspace_members())
-
-    assert req.dep_areas == {"areas/sw_libs/client"}  # react is not in the repo
-    assert req.root_files == set(build_ci.NODE_ROOT_FILES)
-
-
-def test_check_scoping_requires_dependencies_and_root_files(repo: Path):
-    write_uv_workspace(
-        repo,
-        {"areas/sw_libs/parsley": ("parsley", []), "areas/apps/omnibus": ("omnibus", ["parsley"])},
-    )
-    source = write_workflow(
-        build_ci.AREAS_ROOT, ("apps", "omnibus"), "ci.yml", body=scoped_body("{scope}/**")
-    )
-    issues = build_ci.check_scoping(build_ci.AreaWorkflow(source, ("apps", "omnibus")))
-
-    assert any("missing 'areas/sw_libs/parsley/**'" in i for i in issues)
-    assert any("missing 'uv.lock'" in i for i in issues)
-
-
-def test_check_scoping_accepts_dependencies_and_root_files(repo: Path):
-    write_uv_workspace(
-        repo,
-        {"areas/sw_libs/parsley": ("parsley", []), "areas/apps/omnibus": ("omnibus", ["parsley"])},
-    )
-    body = scoped_body(
-        "{scope}/**", "areas/sw_libs/parsley/**", *build_ci.PYTHON_ROOT_FILES, "!{scope}/docs/**"
-    )
+def test_check_scoping_accepts_listed_dependencies_and_root_files(repo: Path):
+    (repo / "areas/sw_libs/parsley").mkdir(parents=True)
+    (repo / "uv.lock").write_text("")
+    body = scoped_body("{scope}/**", "areas/sw_libs/parsley/**", "uv.lock", "!{scope}/docs/**")
     source = write_workflow(build_ci.AREAS_ROOT, ("apps", "omnibus"), "ci.yml", body=body)
 
     assert build_ci.check_scoping(build_ci.AreaWorkflow(source, ("apps", "omnibus"))) == []
 
 
-def test_check_scoping_rejects_paths_outside_area_and_dependencies(repo: Path):
-    write_uv_workspace(repo, {"areas/apps/omnibus": ("omnibus", [])})
+def test_check_scoping_rejects_unknown_or_escaping_paths(repo: Path):
     body = scoped_body(
-        "{scope}/**", *build_ci.PYTHON_ROOT_FILES, "areas/apps/other/**", "../{scope}/x"
+        "{scope}/**", "areas/sw_libs/missing/**", "areas/**", "src/**", "*.lock", "../{scope}/x",
+        "{scope}/../other/**",
     )
     source = write_workflow(build_ci.AREAS_ROOT, ("apps", "omnibus"), "ci.yml", body=body)
 
     issues = build_ci.check_scoping(build_ci.AreaWorkflow(source, ("apps", "omnibus")))
 
-    assert any("'areas/apps/other/**' is not scoped" in i for i in issues)
-    assert any("'../areas/apps/omnibus/x' is not scoped" in i for i in issues)
+    for bad in ["areas/sw_libs/missing/**", "areas/**", "src/**", "*.lock", "../areas/apps/omnibus/x",
+                "areas/apps/omnibus/../other/**"]:
+        assert any(f"{bad!r} is not scoped" in i for i in issues), bad
+    assert len(issues) == 6
 
 
-def test_path_sources_make_dependencies_including_nested_sub_projects(repo: Path):
-    # A standalone uv project (own lockfile) consuming an in-repo library by
-    # path, from its root and from a nested sub-project of its own workspace.
+def test_check_scoping_checks_exclusions_like_the_path_they_exclude(repo: Path):
+    body = scoped_body("{scope}/**", "!areas/apps/other/**")
+    source = write_workflow(build_ci.AREAS_ROOT, ("apps", "omnibus"), "ci.yml", body=body)
+
+    issues = build_ci.check_scoping(build_ci.AreaWorkflow(source, ("apps", "omnibus")))
+
+    assert len(issues) == 1 and "'!areas/apps/other/**' is not scoped" in issues[0]
+
+
+def test_check_scoping_requires_an_entry_for_the_own_area(repo: Path):
     (repo / "areas/sw_libs/parsley").mkdir(parents=True)
-    (repo / "areas/sw_libs/parsley/pyproject.toml").write_text('[project]\nname = "parsley"\n')
-    (repo / "areas/sw_libs/core").mkdir(parents=True)
-    (repo / "areas/sw_libs/core/pyproject.toml").write_text('[project]\nname = "core"\n')
-    omnibus = repo / "areas/apps/omnibus"
-    (omnibus / "src/sources/parsley").mkdir(parents=True)
-    (omnibus / "pyproject.toml").write_text(
-        '[project]\nname = "omnibus"\n[tool.uv.sources]\nparsley = { path = "../../sw_libs/parsley" }\n'
-    )
-    (omnibus / "src/sources/parsley/pyproject.toml").write_text(
-        '[project]\nname = "parsley-source"\n'
-        '[tool.uv.sources]\ncore = { path = "../../../../../sw_libs/core", editable = true }\n'
-    )
+    body = scoped_body("areas/sw_libs/parsley/**")
+    source = write_workflow(build_ci.AREAS_ROOT, ("apps", "omnibus"), "ci.yml", body=body)
 
-    assert build_ci.load_path_dependencies() == {
-        "areas/apps/omnibus": frozenset({"areas/sw_libs/parsley", "areas/sw_libs/core"})
-    }
-    wf = build_ci.AreaWorkflow(Path("ci.yml"), ("apps", "omnibus"))
-    req = build_ci.trigger_requirements(wf, build_ci.load_workspace_members())
-    assert req.dep_areas == {"areas/sw_libs/parsley", "areas/sw_libs/core"}
-    assert req.root_files == set()  # its lockfile and Python pin live in its own area
+    issues = build_ci.check_scoping(build_ci.AreaWorkflow(source, ("apps", "omnibus")))
+
+    assert len(issues) == 1 and "no entry for areas/apps/omnibus/" in issues[0]
 
 
-def test_path_dependencies_are_followed_transitively(repo: Path):
-    for path, dep in [("areas/apps/a", "../../sw_libs/b"), ("areas/sw_libs/b", "../c"), ("areas/sw_libs/c", None)]:
-        (repo / path).mkdir(parents=True)
-        sources = f'[tool.uv.sources]\nx = {{ path = "{dep}" }}\n' if dep else ""
-        (repo / path / "pyproject.toml").write_text(f'[project]\nname = "{path}"\n{sources}')
-    wf = build_ci.AreaWorkflow(Path("ci.yml"), ("apps", "a"))
+def test_check_scoping_ignores_workflow_call_only_workflows(repo: Path):
+    body = "on:\n  workflow_call:\njobs: {{}}\n"
+    source = write_workflow(build_ci.AREAS_ROOT, ("sw_libs", "parsley"), "ci.yml", body=body)
 
-    req = build_ci.trigger_requirements(wf, {})
-
-    assert req.dep_areas == {"areas/sw_libs/b", "areas/sw_libs/c"}
+    assert build_ci.check_scoping(build_ci.AreaWorkflow(source, ("sw_libs", "parsley"))) == []

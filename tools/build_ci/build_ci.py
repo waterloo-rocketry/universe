@@ -26,6 +26,7 @@ MAX_DEPTH = 3  # max path segments from areas/ through and including .github/
 WORKFLOW_EXTENSIONS = (".yml", ".yaml")
 PATH_SCOPED_EVENTS = ("push", "pull_request", "pull_request_target")
 MANAGED_COPY_PATTERN = re.compile(r"-areas-[^/]+\.ya?ml$")
+GLOB_CHARS = re.compile(r"[*?\[{]")
 
 
 def _find_repo_root(start: Path | None = None) -> Path:
@@ -102,6 +103,11 @@ def find_area_workflows(areas_root: Path | None = None) -> list[AreaWorkflow]:
                 continue
             if name.startswith("."):
                 continue
+            # A git submodule (e.g. areas/apis/rocketcan) is another repository
+            # with its own CI. CI checkouts don't fetch submodules, so copying
+            # its workflows here would show up as drift there.
+            if (Path(entry.path) / ".git").exists():
+                continue
             if len(parts) + 1 < MAX_DEPTH:
                 scan(Path(entry.path), parts + (name,))
 
@@ -156,9 +162,40 @@ def _on_triggers(doc: dict) -> object:
     return doc.get("on")
 
 
+def _normalize(pattern: str) -> str:
+    return pattern.removeprefix("./")
+
+
+def _literal_prefix(pattern: str) -> str:
+    """The leading directories of a `paths:` pattern before any glob, e.g.
+    "areas/sw_libs/parsley" for "areas/sw_libs/parsley/**"."""
+    parts = []
+    for part in pattern.split("/"):
+        if GLOB_CHARS.search(part):
+            break
+        parts.append(part)
+    return "/".join(parts)
+
+
+def _is_dependency_path(pattern: str) -> bool:
+    """A path into another existing project under areas/, or an existing file at
+    the repo root (e.g. uv.lock), which a project may list so that a change
+    there re-runs its CI. Dependencies are listed by hand, so this stays
+    language-agnostic."""
+    if "/" not in pattern:
+        return not GLOB_CHARS.search(pattern) and (REPO_ROOT / pattern).is_file()
+    prefix = _literal_prefix(pattern)
+    parts = prefix.split("/")
+    if ".." in parts or len(parts) < 3 or parts[0] != "areas":
+        return False
+    return (REPO_ROOT / Path(*parts[:3])).is_dir()
+
+
 def check_scoping(workflow: AreaWorkflow) -> list[str]:
-    """Return a list of human-readable warnings if `on:` isn't scoped to this
-    workflow's own area path via a `paths:` filter."""
+    """Return a list of human-readable warnings if `on:` isn't scoped by a
+    `paths:` filter to this workflow's own area. Besides its own area, a filter
+    may list the other projects and root files it depends on; anything else is
+    rejected."""
     try:
         doc = yaml.safe_load(workflow.source.read_text())
     except (OSError, yaml.YAMLError) as exc:
@@ -202,11 +239,22 @@ def check_scoping(workflow: AreaWorkflow) -> list[str]:
             )
             continue
         for pattern in paths:
-            normalized = pattern.lstrip("./")
-            if not normalized.startswith(expected_prefix):
+            # A `!` pattern only narrows the filter, so it is checked like the
+            # path it excludes.
+            normalized = _normalize(pattern.removeprefix("!"))
+            if normalized.startswith(expected_prefix) and ".." not in normalized.split("/"):
+                continue
+            if not _is_dependency_path(normalized):
                 warnings.append(
-                    f"`on.{event}.paths` entry {pattern!r} is not scoped to {expected_prefix}"
+                    f"`on.{event}.paths` entry {pattern!r} is not scoped to {expected_prefix} "
+                    "or to another project or root file it depends on"
                 )
+        positive = [_normalize(p) for p in paths if not p.startswith("!")]
+        if not any(p.startswith(expected_prefix) for p in positive):
+            warnings.append(
+                f"`on.{event}.paths` has no entry for {expected_prefix}, so changes to "
+                "the area itself would not run this workflow"
+            )
     return warnings
 
 

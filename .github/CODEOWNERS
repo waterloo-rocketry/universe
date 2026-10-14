@@ -1,0 +1,3 @@
+# Reviewers requested automatically on every PR. GitHub only reads this root
+# file, so per-project owners get added here as each project moves in.
+* @waterloo-rocketry/default-reviewers

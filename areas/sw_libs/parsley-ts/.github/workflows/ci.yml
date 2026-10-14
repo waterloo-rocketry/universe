@@ -1,0 +1,23 @@
+name: parsley-ts
+
+on:
+  push:
+    branches: [main]
+    paths: ["areas/sw_libs/parsley-ts/**", ".nvmrc", "package-lock.json", "package.json"]
+  pull_request:
+    paths: ["areas/sw_libs/parsley-ts/**", ".nvmrc", "package-lock.json", "package.json"]
+
+jobs:
+  test:
+    name: Lint, unit tests and build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run lint -w @waterloorocketry/parsley-ts
+      - run: npm test -w @waterloorocketry/parsley-ts -- --run
+      - run: npm run build -w @waterloorocketry/parsley-ts

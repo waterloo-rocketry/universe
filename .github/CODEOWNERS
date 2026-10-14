@@ -1,0 +1,9 @@
+# Reviewers requested automatically on PRs. GitHub only reads this root file,
+# so per-project rules live here, scoped by area path.
+
+# omnibus (from waterloo-rocketry/omnibus)
+/areas/apps/omnibus/ @waterloo-rocketry/default-reviewers @waterloo-rocketry/omnibus-reviewers
+
+# parsley: generated CAN message definitions (from waterloo-rocketry/parsley)
+/areas/sw_libs/parsley/src/parsley/message_types.py @JasonBrave
+/areas/sw_libs/parsley/src/parsley/message_definitions.py @JasonBrave

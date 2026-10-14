@@ -1,0 +1,42 @@
+name: omnibus-daqms
+
+on:
+    push:
+        branches: [main]
+        paths:
+            [
+                'areas/apps/daqms/**',
+                'areas/sw_libs/omnibus-ts/**',
+                '.nvmrc',
+                'package-lock.json',
+                'package.json',
+            ]
+    pull_request:
+        paths:
+            [
+                'areas/apps/daqms/**',
+                'areas/sw_libs/omnibus-ts/**',
+                '.nvmrc',
+                'package-lock.json',
+                'package.json',
+            ]
+
+# Dependencies come from the root npm workspace (one package-lock.json);
+# @waterloorocketry/omnibus-ts is the in-repo copy, built before checks run.
+jobs:
+    check:
+        name: ${{ matrix.check }}
+        runs-on: ubuntu-latest
+        strategy:
+            fail-fast: false
+            matrix:
+                check: [lint, typecheck, test, format:check]
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions/setup-node@v4
+              with:
+                  node-version-file: .nvmrc
+                  cache: npm
+            - run: npm ci
+            - run: npm run build:libs
+            - run: npm run ${{ matrix.check }} -w omnibus-daqms

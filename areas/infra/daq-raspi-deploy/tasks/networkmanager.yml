@@ -1,0 +1,86 @@
+# Disable competing network managers
+- name: Stop and disable dhcpcd
+  become: true
+  ansible.builtin.systemd:
+    name: dhcpcd
+    state: stopped
+    enabled: false
+    masked: true
+  ignore_errors: true
+
+# Enable and start NetworkManager
+- name: Enable and start NetworkManager
+  become: true
+  ansible.builtin.systemd:
+    name: NetworkManager
+    state: started
+    enabled: true
+
+# Disable captive portal detection for headless operation
+- name: Create NetworkManager configuration directory
+  become: true
+  ansible.builtin.file:
+    path: /etc/NetworkManager/conf.d
+    state: directory
+    mode: "0755"
+
+- name: Disable connectivity checks and captive portal detection
+  become: true
+  ansible.builtin.copy:
+    dest: /etc/NetworkManager/conf.d/99-no-connectivity-check.conf
+    content: |
+      [connectivity]
+      enabled=false
+    mode: "0644"
+  register: nm_config
+
+- name: Restart NetworkManager after configuration change
+  become: true
+  ansible.builtin.systemd:
+    name: NetworkManager
+    state: restarted
+  when: nm_config.changed
+
+# Configure wired ethernet connection (DHCP, auto-reconnect)
+- name: Configure wired ethernet connection
+  become: true
+  community.general.nmcli:
+    conn_name: "Wired connection 1"
+    method4: auto
+    autoconnect: true
+    state: present
+    autoconnect_retries: 0
+    route_metric4: 650
+    route_metric6: 650
+  register: nm_wired_config
+
+# Cycle the wired connection so config changes actually take effect
+- name: Bring down Wired connection 1
+  become: true
+  community.general.nmcli:
+    conn_name: "Wired connection 1"
+    state: down
+  when: nm_wired_config.changed
+  ignore_errors: true
+
+- name: Bring up Wired connection 1
+  become: true
+  community.general.nmcli:
+    conn_name: "Wired connection 1"
+    state: up
+  when: nm_wired_config.changed
+
+# Configure WiFi connection to UniversityOfWaterloo (open, no password)
+- name: Configure WiFi connection to UniversityOfWaterloo
+  become: true
+  community.general.nmcli:
+    conn_name: "UniversityOfWaterloo"
+    ifname: "wlan0"
+    type: wifi
+    ssid: "UniversityOfWaterloo"
+    method4: auto
+    autoconnect: true
+    autoconnect_retries: 10
+    state: present
+    route_metric4: 150
+    route_metric6: 150

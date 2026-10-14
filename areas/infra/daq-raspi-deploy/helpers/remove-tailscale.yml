@@ -1,0 +1,6 @@
+- name: Remove Tailscale
+  hosts: all
+  roles:
+    - role: artis3n.tailscale.machine
+      vars:
+        state: absent

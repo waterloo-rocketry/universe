@@ -1,0 +1,16 @@
+---
+services:
+  code-server:
+    image: lscr.io/linuxserver/code-server@sha256:26dfecc1cd4c0e4c47dceb913b4eb8afd97af9f2311eb449d04b59126e6e5483 # 4.126.0 2026-06-30
+    container_name: code-server
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - DEFAULT_WORKSPACE=/data/omnibus-deploy
+    volumes:
+      - ./config:/config
+      - /home/daq:/data
+    ports:
+      - 9443:8443
+    restart: unless-stopped

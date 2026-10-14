@@ -1,0 +1,28 @@
+name: omnibus-ts publish
+
+# Publishes @waterloorocketry/omnibus-ts to npm when a GitHub release tagged
+# `omnibus-ts-v<version>` is published. npm trusted publishing (OIDC) must be
+# configured on npmjs.com for this repository and this workflow's root copy
+# (.github/workflows/npm-publish-areas-sw_libs-omnibus-ts.yml).
+on:
+  release:
+    types: [published]
+
+permissions:
+  id-token: write # Required for OIDC
+  contents: read
+
+jobs:
+  publish-npm:
+    if: startsWith(github.event.release.tag_name, 'omnibus-ts-v')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          registry-url: https://registry.npmjs.org/
+      - run: npm ci
+      - run: npm test -w @waterloorocketry/omnibus-ts -- --run
+      - run: npm run build -w @waterloorocketry/omnibus-ts
+      - run: npm publish -w @waterloorocketry/omnibus-ts

@@ -1,0 +1,34 @@
+name: parsley
+
+on:
+  push:
+    branches: [main]
+    paths: ["areas/sw_libs/parsley/**"]
+  pull_request:
+    paths: ["areas/sw_libs/parsley/**"]
+
+# Runs from the project dir, with the project's own uv.lock and .python-version.
+defaults:
+  run:
+    working-directory: areas/sw_libs/parsley
+
+jobs:
+  lint:
+    name: Lint (autopep8, flake8, basedpyright)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v7
+      - run: uv sync --locked
+      - run: uv run --no-sync autopep8 -d -r src/parsley/ --exit-code
+      - run: uv run --no-sync flake8
+      - run: uv run --no-sync basedpyright src/parsley
+
+  test:
+    name: Unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v7
+      - run: uv sync --locked
+      - run: uv run --no-sync pytest

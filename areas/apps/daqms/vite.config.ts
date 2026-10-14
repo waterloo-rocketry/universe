@@ -1,0 +1,39 @@
+/// <reference types="vitest/config" />
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+import path from 'path'
+import tailwindcss from '@tailwindcss/vite'
+import { execSync } from 'child_process'
+
+const commitHash =
+    process.env.VITE_COMMIT_HASH ||
+    (() => {
+        try {
+            return execSync('git rev-parse --short HEAD').toString().trim()
+        } catch {
+            return 'unknown'
+        }
+    })()
+
+// https://vite.dev/config/
+export default defineConfig({
+    plugins: [react(), tailwindcss()],
+    define: {
+        'import.meta.env.VITE_COMMIT_HASH': JSON.stringify(commitHash),
+    },
+    resolve: {
+        alias: {
+            '@': path.resolve(__dirname, './src'),
+            src: path.resolve(__dirname, './src'),
+            tests: path.resolve(__dirname, './tests'),
+        },
+    },
+    test: {
+        environment: 'jsdom',
+        setupFiles: './tests/setup.ts',
+        // Node 25+ defines its own global localStorage (undefined without
+        // --localstorage-file), which stops jsdom from installing its working
+        // one. Turn Node's off so tests behave the same on every Node version.
+        execArgv: ['--no-experimental-webstorage'],
+    },
+})

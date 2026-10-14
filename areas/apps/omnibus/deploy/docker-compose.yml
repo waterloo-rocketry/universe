@@ -1,0 +1,39 @@
+services:
+  omnibus-server:
+    image: ghcr.io/waterloo-rocketry/omnibus-server:main
+    network_mode: host
+    restart: unless-stopped
+
+  omnibus-globallog:
+    image: ghcr.io/waterloo-rocketry/omnibus-globallog:main
+    network_mode: host
+    restart: unless-stopped
+    depends_on:
+      - omnibus-server
+    volumes:
+      - ./data:/data
+    command: ["--outfolder", "/data"]
+
+  omnibus-ws-server:
+    image: ghcr.io/waterloo-rocketry/omnibus-ws-server:main
+    network_mode: host
+    restart: unless-stopped
+    depends_on:
+      - omnibus-server
+
+  omnibus-ws-bridge:
+    image: ghcr.io/waterloo-rocketry/omnibus-ws-bridge:main
+    network_mode: host
+    restart: unless-stopped
+    depends_on:
+      - omnibus-server
+      - omnibus-ws-server
+
+  omnibus-source-ljm:
+    image: ghcr.io/waterloo-rocketry/omnibus-source-ljm:main
+    network_mode: host
+    restart: unless-stopped
+    depends_on:
+      - omnibus-server
+    volumes:
+      - ./config:/config

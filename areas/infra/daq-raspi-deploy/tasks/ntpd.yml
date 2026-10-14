@@ -1,0 +1,26 @@
+- name: Install Chrony
+  ansible.builtin.apt:
+    name: chrony
+    state: present
+  become: true
+
+- name: Configure Chrony to allow local network clients
+  ansible.builtin.lineinfile:
+    path: /etc/chrony/chrony.conf
+    line: "allow 192.168.0.0/24"
+    state: present
+  become: true
+
+- name: Configure Chrony to broadcast localtime even offline 
+  ansible.builtin.lineinfile:
+    path: /etc/chrony/chrony.conf
+    line: "local stratum 10"
+    state: present
+  become: true
+
+- name: Start and enable chrony 
+  ansible.builtin.service:
+    name: chronyd
+    state: restarted 
+    enabled: true
+  become: true

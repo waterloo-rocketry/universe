@@ -31,7 +31,7 @@ export default function D3Chart({
     rangeTickCount = 5,
     domainTickCount = 5,
     timeWindowSeconds,
-    delayMs = 50, // Higher will make chart tip move smoother but have more delayed data
+    delayMs = 200, // Higher will make chart tip move smoother but have more delayed data
 }: D3ChartProps) {
     const { top = 10, right = 33, bottom = 24, left = 70 } = margin
 
@@ -48,7 +48,10 @@ export default function D3Chart({
             return timeWindowSeconds * 1000
         }
         if (data.length < 2) return 1000
-        return Math.max(data[data.length - 1].timestamp - data[0].timestamp, 1000)
+        return Math.max(
+            data[data.length - 1].timestamp - data[0].timestamp,
+            1000
+        )
     }, [timeWindowSeconds, data])
 
     const pxPerMs = innerW / windowMs
@@ -198,7 +201,9 @@ export default function D3Chart({
                         <path
                             d={pathD}
                             fill="none"
-                            stroke={strokeClassName ? 'currentColor' : strokeColor}
+                            stroke={
+                                strokeClassName ? 'currentColor' : strokeColor
+                            }
                             className={strokeClassName}
                             strokeWidth={strokeWidth}
                             strokeLinejoin="round"

@@ -1,0 +1,48 @@
+name: Run Lint
+
+# Runs on pull requests that change parsley (it lives at areas/sw_libs/parsley
+# in the universe monorepo)
+on:
+  pull_request:
+    paths: ["areas/sw_libs/parsley/**"]
+
+defaults:
+  run:
+    working-directory: areas/sw_libs/parsley
+
+jobs:
+  run_autopep8:
+    name: Run autopep8
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+      - name: Sync dependencies
+        run: uv sync --locked
+      - name: Run autopep8
+        run: uv run --no-sync autopep8 -d -r src/parsley/ --exit-code
+
+  run_flake8:
+    name: Run flake8
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+      - name: Sync dependencies
+        run: uv sync --locked
+      - name: Run flake8
+        run: uv run --no-sync flake8
+
+  run_basedpyright:
+    name: Run Basedpyright
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+      - name: Sync dependencies
+        run: uv sync --locked
+      - name: Run basedpyright
+        run: uv run --no-sync basedpyright src/parsley

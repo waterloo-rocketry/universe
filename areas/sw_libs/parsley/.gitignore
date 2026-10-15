@@ -1,0 +1,27 @@
+# IDE files and directories
+.idea/
+.vscode/
+.pydevproject
+.project
+
+# Python
+venv/
+.venv/
+
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Coverage files
+.coverage
+.coverage.*
+htmlcov/
+.cov/
+coverage.xml
+
+*.egg-info/
+build/
+dist/
+.coverage
+
+*.DS_Store

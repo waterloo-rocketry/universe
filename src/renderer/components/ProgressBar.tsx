@@ -72,7 +72,8 @@ export function ProgressBar({ channel, min, max, nowMs }: ProgressBarProps) {
   if (value === null || fill === null) {
     valueText = status.replace('-', ' '); // Clean status: "no-data" -> "no data"
   } else {
-    valueText = unit ? `${value} ${unit}` : String(value);
+    const rounded = Math.round(value * 1000) / 1000; // Rounding 3 decimals - can be changed
+    valueText = unit ? `${rounded} ${unit}` : String(rounded);
     if (fill.zone === 'above') valueText += ' ▲ above range';
     if (fill.zone === 'below') valueText += ' ▼ below range';
     if (status === 'stale' || status === 'disconnected') {

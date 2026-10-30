@@ -78,6 +78,31 @@ describe('ProgressBar', () => {
     expect(bar).toHaveClass('progress-bar--stale');
   });
 
+  it('shows when a reading was last updated once it is over 3 s old', () => {
+    renderBar(channelsAfter('stale')['test.pressure']);
+
+    expect(screen.getByText('updated 30 s ago')).toBeInTheDocument();
+  });
+
+  it('starts the last updated tag at 3 s', () => {
+    render(
+      <ProgressBar
+        channel={channelsAfter('nominal')['test.pressure']}
+        min={0}
+        max={100}
+        nowMs={NOW + 3_000}
+      />,
+    );
+
+    expect(screen.getByText('updated 3 s ago')).toBeInTheDocument();
+  });
+
+  it('hides the last updated tag for a fresh reading', () => {
+    renderBar(channelsAfter('nominal')['test.pressure']);
+
+    expect(screen.queryByText(/updated/)).not.toBeInTheDocument();
+  });
+
   it('keeps the last value but marks it when disconnected', () => {
     const { bar } = renderBar(
       channelsAfter('nominal', 'disconnected')['test.pressure'],

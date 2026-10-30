@@ -11,6 +11,8 @@ interface ProgressBarProps {
   nowMs: number; // Current time
 }
 
+const LAST_UPDATED_AFTER_MS = 3_000; // Starting showing a timer if there hasn't been an update in 3s. Might be changed later.
+
 /** Works out how full the bar is and whether the value is outside min–max. */
 function getFill(value: number, min: number, max: number) {
   let zone: 'below' | 'in' | 'above' = 'in';
@@ -81,6 +83,13 @@ export function ProgressBar({ channel, min, max, nowMs }: ProgressBarProps) {
     }
   }
 
+  // Show timer if there hasn't been an update in 3s
+  const ageMs = latest ? nowMs - latest.timestampMs : 0;
+  const lastUpdated =
+    ageMs > LAST_UPDATED_AFTER_MS
+      ? `updated ${(ageMs / 1000).toFixed(1)} s ago`
+      : null;
+
   return (
     <div className={`progress-bar progress-bar--${status}`}>
       <div className="progress-bar__header">
@@ -97,6 +106,9 @@ export function ProgressBar({ channel, min, max, nowMs }: ProgressBarProps) {
       </div>
       <div className="progress-bar__scale">
         <span>{min}</span>
+        {lastUpdated && (
+          <span className="progress-bar__updated">{lastUpdated}</span>
+        )}
         <span>{max}</span>
       </div>
     </div>

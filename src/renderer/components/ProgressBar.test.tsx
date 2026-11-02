@@ -145,7 +145,12 @@ describe('ProgressBar', () => {
 
   it('shows no fill for a NaN reading', () => {
     const channel = channelsAfter('nominal')['test.pressure'];
-    const reading = { ...channel.history.at(-1)!, value: NaN };
+    const reading = {
+      signalId: channel.signal.id,
+      timestampMs: NOW,
+      quality: 'good' as const,
+      value: NaN,
+    };
     const { fill } = renderBar({ ...channel, history: [reading] });
 
     expect(fill).not.toBeInTheDocument();

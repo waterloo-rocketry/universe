@@ -25,7 +25,7 @@ function getFill(value: number, min: number, max: number) {
   const percent = ((value - min) / (max - min)) * 100;
 
   return {
-    // Out-of-range values fill fully 
+    // Out-of-range values fill fully
     percent: zone === 'in' ? percent : 100,
     zone,
   };

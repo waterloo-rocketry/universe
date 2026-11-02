@@ -89,3 +89,64 @@ h2 {
   font-size: 0.875rem;
   cursor: pointer;
 }
+.progress-bar {
+  box-sizing: border-box;
+  max-width: 24rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid #dfe3e8;
+  border-radius: 8px;
+  background: white;
+  font-variant-numeric: tabular-nums;
+}
+.progress-bar__header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+.progress-bar__track {
+  height: 10px;
+  border-radius: 999px;
+  background: #eef0f3;
+  overflow: hidden;
+}
+.progress-bar__fill {
+  height: 100%;
+  border-radius: 999px;
+  background: #1d6b35;
+}
+.progress-bar__fill--above,
+.progress-bar__fill--below {
+  background: #a32020;
+}
+.progress-bar--stale .progress-bar__fill {
+  background: #855c00;
+}
+.progress-bar--disconnected .progress-bar__fill {
+  background: #5b6470;
+}
+.progress-bar--stale .progress-bar__value {
+  color: #855c00;
+  opacity: 0.75;
+}
+.progress-bar--missing .progress-bar__value,
+.progress-bar--invalid .progress-bar__value,
+.progress-bar--disconnected .progress-bar__value,
+.progress-bar--error .progress-bar__value {
+  color: #a32020;
+}
+.progress-bar--no-data .progress-bar__value {
+  color: #5b6470;
+}
+.progress-bar__scale {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+  color: #5b6470;
+}
+.progress-bar-demo {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}

@@ -59,7 +59,7 @@ describe('ProgressBar', () => {
     expect(fill).toHaveStyle({ width: '100%' });
   });
 
-  it('empties and warns when the value is below range', () => {
+  it('fills completely and warns when the value is below range', () => {
     const { fill } = renderBar(
       channelsAfter('nominal')['test.pressure'],
       50,
@@ -68,7 +68,7 @@ describe('ProgressBar', () => {
 
     expect(screen.getByText('42 kPa ▼ below range')).toBeInTheDocument();
     expect(fill).toHaveClass('progress-bar__fill--below');
-    expect(fill).toHaveStyle({ width: '0%' });
+    expect(fill).toHaveStyle({ width: '100%' });
   });
 
   it('marks an old reading as stale', () => {
@@ -135,6 +135,20 @@ describe('ProgressBar', () => {
 
     expect(screen.getByText('not a numeric channel')).toBeInTheDocument();
     expect(bar).toHaveClass('progress-bar--error');
+  });
+
+  it('reports a NaN range as invalid', () => {
+    renderBar(channelsAfter('nominal')['test.pressure'], NaN, 100);
+
+    expect(screen.getByText('invalid range')).toBeInTheDocument();
+  });
+
+  it('shows no fill for a NaN reading', () => {
+    const channel = channelsAfter('nominal')['test.pressure'];
+    const reading = { ...channel.history.at(-1)!, value: NaN };
+    const { fill } = renderBar({ ...channel, history: [reading] });
+
+    expect(fill).not.toBeInTheDocument();
   });
 
   it('reports a min that is not below the max', () => {

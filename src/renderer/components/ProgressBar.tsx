@@ -25,7 +25,8 @@ function getFill(value: number, min: number, max: number) {
   const percent = ((value - min) / (max - min)) * 100;
 
   return {
-    percent: Math.max(0, Math.min(100, percent)),
+    // Out-of-range values fill fully 
+    percent: zone === 'in' ? percent : 100,
     zone,
   };
 }
@@ -49,7 +50,7 @@ export function ProgressBar({ channel, min, max, nowMs }: ProgressBarProps) {
   }
 
   // Check before displaying nonsense data
-  if (min >= max) {
+  if (!Number.isFinite(min) || !Number.isFinite(max) || min >= max) {
     return (
       <div className="progress-bar progress-bar--error">
         <div className="progress-bar__header">
@@ -62,7 +63,12 @@ export function ProgressBar({ channel, min, max, nowMs }: ProgressBarProps) {
 
   // Only draw good numbers
   let value: number | null = null;
-  if (latest && latest.quality === 'good' && typeof latest.value === 'number') {
+  if (
+    latest &&
+    latest.quality === 'good' &&
+    typeof latest.value === 'number' &&
+    Number.isFinite(latest.value)
+  ) {
     value = latest.value;
   }
 

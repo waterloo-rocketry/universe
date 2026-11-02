@@ -1,0 +1,24 @@
+name: Run Unit Tests
+
+# Runs on pull requests that change parsley (it lives at areas/sw_libs/parsley
+# in the universe monorepo)
+on:
+  pull_request:
+    paths: ["areas/sw_libs/parsley/**"]
+
+defaults:
+  run:
+    working-directory: areas/sw_libs/parsley
+
+jobs:
+  build:
+    name: Run Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+      - name: Update dependency
+        run: uv sync
+      - name: Run tests
+        run: uv run pytest

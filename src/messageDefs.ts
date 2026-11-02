@@ -26,7 +26,7 @@ import {
     dem_3d_sensor_id,
     msg_prio,
     msg_type,
-} from './message_types.js'
+} from './messageTypes.js'
 
 // SID-level field constants (shared, not per-msg-type)
 

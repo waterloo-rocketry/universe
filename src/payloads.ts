@@ -9,7 +9,7 @@ import {
     analog_sensor_id,
     dem_2d_sensor_id,
     dem_3d_sensor_id,
-} from './message_types.js'
+} from './messageTypes.js'
 
 // ============================================================
 // Enum Key Schemas

@@ -1,6 +1,6 @@
 export * from './bitString.js'
 export * from './fields.js'
-export * from './message_types.js'
+export * from './messageTypes.js'
 export * from './payloads.js'
 export * from './messageDefs.js'
 export * from './schemas.js'

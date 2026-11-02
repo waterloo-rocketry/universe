@@ -9,7 +9,6 @@ import {
     MESSAGE_METADATA,
     MESSAGE_SID_LEN,
     TIMESTAMP_2,
-    ACTUATOR_CMD,
     MessagePayload,
 } from '../src/messageDefs.js'
 import {
@@ -25,7 +24,7 @@ import {
     BitstringParser,
 } from '../src/parsers.js'
 import { crc8 } from '../src/crc8.js'
-import { actuator_id, actuator_state, analog_sensor_id, board_inst_id, board_type_id, msg_prio } from '../src/message_types.js'
+import { actuator_id, actuator_state, analog_sensor_id, board_inst_id, board_type_id, msg_prio } from '../src/messageTypes.js'
 import { bigintToBytes, createMsgSid, encodeFields, FLOAT_TOLERANCE, splitFormatLine } from './utils.js'
 
 function isError<T>(r: T | { error: string }): r is { error: string } & T {

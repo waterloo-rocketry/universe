@@ -17,7 +17,7 @@ import {
     STREAM_DATA,
     STREAM_RETRY,
 } from '../src/messageDefs.js'
-import { msg_type } from '../src/message_types.js'
+import { msg_type } from '../src/messageTypes.js'
 import { Enum, Numeric } from '../src/fields.js'
 
 describe('MESSAGE_DEFS registry', () => {

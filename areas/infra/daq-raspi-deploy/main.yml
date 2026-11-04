@@ -1,0 +1,43 @@
+- name: Main
+  hosts: all
+  vars:
+    git_user_email: "contact@waterloorocketry.com"
+    git_user_name: "Waterloo Rocketry"
+
+  pre_tasks:
+    - name: NetworkManager
+      ansible.builtin.include_tasks:
+        file: tasks/networkmanager.yml
+
+  tasks:
+    - name: Initial setup
+      ansible.builtin.include_tasks:
+        file: tasks/initial_setup.yml
+
+    - name: NTP Server
+      ansible.builtin.include_tasks:
+        file: tasks/ntpd.yml
+
+    - name: GIT
+      ansible.builtin.include_tasks:
+        file: tasks/git.yml
+
+    - name: Docker
+      ansible.builtin.include_tasks:
+        file: tasks/docker.yml
+
+    - name: Omnibus
+      ansible.builtin.include_tasks:
+        file: tasks/omnibus.yml
+
+    - name: Code Server
+      ansible.builtin.include_tasks:
+        file: tasks/code-server.yml
+
+  roles:
+    - role: artis3n.tailscale.machine
+      tags: ["tailscale"]
+      vars:
+        tailscale_up_skip: "{{ lookup('env', 'TAILSCALE_KEY') | default('', true) == '' }}"
+        # Safely pass the key if it does exist
+        tailscale_authkey: "{{ lookup('env', 'TAILSCALE_KEY') | default(omit) }}"

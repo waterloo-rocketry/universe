@@ -1,0 +1,41 @@
+- name: Define code-server list
+  ansible.builtin.set_fact:
+    code_server_deploy_dir: "/home/{{ ansible_user }}/code-server-deploy"
+
+- name: Check for existing code-server deployment directory
+  ansible.builtin.stat:
+    path: "{{ code_server_deploy_dir }}"
+  register: code_server_deploy_dir_stat
+
+- name: Check for existing code-server Compose file
+  ansible.builtin.stat:
+    path: "{{ code_server_deploy_dir }}/docker-compose.yml"
+  register: code_server_compose_file_stat
+
+- name: Tear down existing code-server containers
+  community.docker.docker_compose_v2:
+    project_src: "{{ code_server_deploy_dir }}"
+    state: absent
+  when:
+    - code_server_deploy_dir_stat.stat.isdir | default(false)
+    - code_server_compose_file_stat.stat.isreg | default(false)
+
+- name: Create code-server deployment directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0755"
+  loop:
+    - "{{ code_server_deploy_dir }}"
+    - "{{ code_server_deploy_dir }}/config"
+
+- name: Copy docker-compose.yml to deployment directory
+  ansible.builtin.copy:
+    src: services/code-server.yml
+    dest: "{{ code_server_deploy_dir }}/docker-compose.yml"
+    mode: "0644"
+
+- name: Start containers up
+  community.docker.docker_compose_v2:
+    project_src: "{{ code_server_deploy_dir }}"
+    state: present

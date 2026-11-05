@@ -27,6 +27,7 @@ import {
     altimeter_id,
     analog_sensor_id,
     board_error_bitfield_offset,
+    board_inst_id,
     dem_2d_sensor_id,
     dem_3d_sensor_id,
 } from '../src/messageTypes.js'
@@ -413,5 +414,15 @@ describe('parseToObject', () => {
         const payload = result.data as MessagePayload<"ACTUATOR_CMD">
         expect(Math.abs(payload.time - 1.0)).toBeLessThan(FLOAT_TOLERANCE)
         expect(payload.cmd_state).toBe('ACT_STATE_OFF')
+    })
+
+    it('decodes TELEMETRY_INFO with signed RSSI and channel ID metadata', () => {
+        const sid = createMsgSid('HIGH', 'TELEMETRY_INFO', 'GROUND', 'RLCS_RELAY', 'GROUND',
+            new Enum('msg_metadata', 8, board_inst_id))
+        const result = parseToObject(sid, [0x00, 0x00, 0x01, 0xC4])
+        if (isError(result)) throw new Error(`unexpected error: ${result.error}`)
+
+        expect(result.msg_metadata).toBe('GROUND')
+        expect(result.data).toEqual({ time: 0, lqi: 1, rssi: -60 })
     })
 })

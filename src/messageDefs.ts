@@ -222,8 +222,8 @@ export const STREAM_RETRY = defineMessage([
 export const TELEMETRY_INFO = defineMessage([
     TIMESTAMP_2,
     new Numeric('lqi', 8),
-    new Numeric('rssi', 8),
-])
+    new Numeric('rssi', 8, 1, true),
+], new Enum('msg_metadata', 8, board_inst_id))
 
 export const TELEMETRY_STATE_SWITCH = defineMessage([
     TIMESTAMP_2,

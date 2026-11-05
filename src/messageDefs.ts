@@ -101,8 +101,8 @@ export const GENERAL_BOARD_STATUS = defineMessage([
 
 export const RESET_CMD = defineMessage([
     TIMESTAMP_2,
-    new Enum('board_type_id', 8, board_type_id),
-    new Enum('board_inst_id', 8, board_inst_id),
+    new Enum('target_board_type_id', 8, board_type_id),
+    new Enum('target_board_inst_id', 8, board_inst_id),
 ])
 
 export const DEBUG_RAW = defineMessage([

@@ -440,4 +440,16 @@ describe('parseToObject', () => {
             severity: 'CANARDS_HEALTH_SEVERITY_HEALTH_ERROR',
         })
     })
+
+    it('decodes RESET_CMD target board IDs', () => {
+        const sid = createMsgSid('HIGH', 'RESET_CMD', 0, 'RLCS_RELAY', 'GROUND')
+        const result = parseToObject(sid, [0x00, 0x00, 0x0C, 0x01])
+        if (isError(result)) throw new Error(`unexpected error: ${result.error}`)
+
+        expect(result.data).toEqual({
+            time: 0,
+            target_board_type_id: 'RLCS_RELAY',
+            target_board_inst_id: 'GROUND',
+        })
+    })
 })

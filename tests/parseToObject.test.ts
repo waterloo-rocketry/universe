@@ -452,4 +452,18 @@ describe('parseToObject', () => {
             target_board_inst_id: 'GROUND',
         })
     })
+
+    it('decodes CONFIG_SET target board IDs', () => {
+        const sid = createMsgSid('HIGH', 'CONFIG_SET', 0, 'RLCS_RELAY', 'GROUND')
+        const result = parseToObject(sid, [0x00, 0x00, 0x0C, 0x01, 0x00, 0x02, 0x00, 0x2A])
+        if (isError(result)) throw new Error(`unexpected error: ${result.error}`)
+
+        expect(result.data).toEqual({
+            time: 0,
+            target_board_type_id: 'RLCS_RELAY',
+            target_board_inst_id: 'GROUND',
+            config_id: 2,
+            config_value: 42,
+        })
+    })
 })

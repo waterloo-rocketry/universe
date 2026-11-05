@@ -112,8 +112,8 @@ export const DEBUG_RAW = defineMessage([
 
 export const CONFIG_SET = defineMessage([
     TIMESTAMP_2,
-    new Enum('board_type_id', 8, board_type_id),
-    new Enum('board_inst_id', 8, board_inst_id),
+    new Enum('target_board_type_id', 8, board_type_id),
+    new Enum('target_board_inst_id', 8, board_inst_id),
     new Numeric('config_id', 16),
     new Numeric('config_value', 16),
 ])

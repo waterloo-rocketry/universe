@@ -28,6 +28,7 @@ import {
     analog_sensor_id,
     board_error_bitfield_offset,
     board_inst_id,
+    canards_module_id,
     dem_2d_sensor_id,
     dem_3d_sensor_id,
 } from '../src/messageTypes.js'
@@ -424,5 +425,19 @@ describe('parseToObject', () => {
 
         expect(result.msg_metadata).toBe('GROUND')
         expect(result.data).toEqual({ time: 0, lqi: 1, rssi: -60 })
+    })
+
+    it('decodes CANARD_FIRMWARE_ERROR with module ID, error bitfield and severity', () => {
+        const sid = createMsgSid('HIGH', 'CANARD_FIRMWARE_ERROR', 'CANARDS_MODULE_ID_ADXL380', 'RLCS_RELAY', 'GROUND',
+            new Enum('msg_metadata', 8, canards_module_id))
+        const result = parseToObject(sid, [0x00, 0x00, 0x00, 0x00, 0x00, 0x05, 0x01])
+        if (isError(result)) throw new Error(`unexpected error: ${result.error}`)
+
+        expect(result.msg_metadata).toBe('CANARDS_MODULE_ID_ADXL380')
+        expect(result.data).toEqual({
+            time: 0,
+            error_bitfield: 'CANARDS_MODULE_E_BAT1_FAULT|CANARDS_MODULE_E_DEVICE_FAULT',
+            severity: 'CANARDS_HEALTH_SEVERITY_HEALTH_ERROR',
+        })
     })
 })

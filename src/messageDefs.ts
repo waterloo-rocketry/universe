@@ -22,6 +22,9 @@ import {
     board_error_bitfield_offset,
     board_inst_id,
     board_type_id,
+    canards_health_severity,
+    canards_module_error_bitfield_offset,
+    canards_module_id,
     dem_2d_sensor_id,
     dem_3d_sensor_id,
     msg_prio,
@@ -231,9 +234,9 @@ export const TELEMETRY_STATE_SWITCH = defineMessage([
 
 export const CANARD_FIRMWARE_ERROR = defineMessage([
     TIMESTAMP_2,
-    new Numeric('error_code', 32),
-    new Numeric('severity', 8),
-])
+    new Bitfield('error_bitfield', 32, 'E_NOMINAL', canards_module_error_bitfield_offset),
+    new Enum('severity', 8, canards_health_severity),
+], new Enum('msg_metadata', 8, canards_module_id))
 
 export const LEDS_ON = defineMessage([])
 

@@ -219,3 +219,73 @@ def test_find_orphaned_copies_ignores_hand_authored_root_workflows(repo: Path):
     orphans = build_ci.find_orphaned_copies([])
 
     assert hand_authored not in orphans
+
+
+def test_find_area_workflows_skips_git_submodules(repo: Path):
+    areas_root = build_ci.AREAS_ROOT
+    write_workflow(areas_root, ("apps", "omnibus"), "ci.yml")
+    write_workflow(areas_root, ("apis", "rocketcan"), "ci.yml")
+    # A submodule checkout has a `.git` file pointing into the superproject.
+    (areas_root / "apis" / "rocketcan" / ".git").write_text("gitdir: ../../../.git/modules/x\n")
+
+    found = build_ci.find_area_workflows()
+
+    assert [wf.area_parts for wf in found] == [("apps", "omnibus")]
+
+
+# --- hand-listed dependencies -------------------------------------------------
+
+
+def scoped_body(*paths: str) -> str:
+    listed = "".join(f"      - '{p}'\n" for p in paths)
+    return f"on:\n  pull_request:\n    paths:\n{listed}jobs: {{{{}}}}\n"  # format()-escaped
+
+
+def test_check_scoping_accepts_listed_dependencies_and_root_files(repo: Path):
+    (repo / "areas/sw_libs/parsley").mkdir(parents=True)
+    (repo / "uv.lock").write_text("")
+    body = scoped_body("{scope}/**", "areas/sw_libs/parsley/**", "uv.lock", "!{scope}/docs/**")
+    source = write_workflow(build_ci.AREAS_ROOT, ("apps", "omnibus"), "ci.yml", body=body)
+
+    assert build_ci.check_scoping(build_ci.AreaWorkflow(source, ("apps", "omnibus"))) == []
+
+
+def test_check_scoping_rejects_unknown_or_escaping_paths(repo: Path):
+    body = scoped_body(
+        "{scope}/**", "areas/sw_libs/missing/**", "areas/**", "src/**", "*.lock", "../{scope}/x",
+        "{scope}/../other/**",
+    )
+    source = write_workflow(build_ci.AREAS_ROOT, ("apps", "omnibus"), "ci.yml", body=body)
+
+    issues = build_ci.check_scoping(build_ci.AreaWorkflow(source, ("apps", "omnibus")))
+
+    for bad in ["areas/sw_libs/missing/**", "areas/**", "src/**", "*.lock", "../areas/apps/omnibus/x",
+                "areas/apps/omnibus/../other/**"]:
+        assert any(f"{bad!r} is not scoped" in i for i in issues), bad
+    assert len(issues) == 6
+
+
+def test_check_scoping_checks_exclusions_like_the_path_they_exclude(repo: Path):
+    body = scoped_body("{scope}/**", "!areas/apps/other/**")
+    source = write_workflow(build_ci.AREAS_ROOT, ("apps", "omnibus"), "ci.yml", body=body)
+
+    issues = build_ci.check_scoping(build_ci.AreaWorkflow(source, ("apps", "omnibus")))
+
+    assert len(issues) == 1 and "'!areas/apps/other/**' is not scoped" in issues[0]
+
+
+def test_check_scoping_requires_an_entry_for_the_own_area(repo: Path):
+    (repo / "areas/sw_libs/parsley").mkdir(parents=True)
+    body = scoped_body("areas/sw_libs/parsley/**")
+    source = write_workflow(build_ci.AREAS_ROOT, ("apps", "omnibus"), "ci.yml", body=body)
+
+    issues = build_ci.check_scoping(build_ci.AreaWorkflow(source, ("apps", "omnibus")))
+
+    assert len(issues) == 1 and "no entry for areas/apps/omnibus/" in issues[0]
+
+
+def test_check_scoping_ignores_workflow_call_only_workflows(repo: Path):
+    body = "on:\n  workflow_call:\njobs: {{}}\n"
+    source = write_workflow(build_ci.AREAS_ROOT, ("sw_libs", "parsley"), "ci.yml", body=body)
+
+    assert build_ci.check_scoping(build_ci.AreaWorkflow(source, ("sw_libs", "parsley"))) == []

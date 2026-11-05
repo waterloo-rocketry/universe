@@ -26,6 +26,17 @@ export abstract class ParsleyParser {
 
 // USBDebugParser — "$<sid_hex>[:<byte_hex>,<byte_hex>,...]"
 
+function parseHex(s: string): bigint {
+    if (!/^[0-9A-Fa-f]+$/.test(s)) throw new Error(`Incorrect line format: "${s}" is not hex`)
+    return BigInt('0x' + s)
+}
+
+// parseInt would turn garbage like "zz" into NaN, which Uint8Array then stores as 0.
+function parseHexByte(s: string): number {
+    if (!/^[0-9A-Fa-f]{1,2}$/.test(s)) throw new Error(`Incorrect line format: "${s}" is not a hex byte`)
+    return parseInt(s, 16)
+}
+
 export class USBDebugParser extends ParsleyParser {
     override parse(line: string): ParseResult {
         const trimmed = line.replace(/^[\s\0\r\n]+|[\s\0\r\n]+$/g, '')
@@ -42,10 +53,10 @@ export class USBDebugParser extends ParsleyParser {
             const dataStr = body.slice(colonIdx + 1)
             if (sidStr.length === 0) throw new Error('Incorrect line format: empty SID')
             if (dataStr.includes(':')) throw new Error('Incorrect line format: multiple colons')
-            sid = BigInt('0x' + sidStr)
-            data = dataStr.length === 0 ? [] : dataStr.split(',').map((b) => parseInt(b, 16))
+            sid = parseHex(sidStr)
+            data = dataStr.length === 0 ? [] : dataStr.split(',').map(parseHexByte)
         } else {
-            sid = BigInt('0x' + body)
+            sid = parseHex(body)
             data = []
         }
 
@@ -62,7 +73,7 @@ export class LiveTelemetryParser extends ParsleyParser {
         if (frame[0] !== 0x02) throw new Error('Incorrect frame header')
 
         const frameLen = frame[1]!
-        if (frameLen > frame.length) throw new Error('Frame length exceeds buffer')
+        if (frameLen < 7 || frameLen > frame.length) throw new Error('Incorrect frame length')
 
         // SID is 4 bytes big-endian, top 3 bits of byte 2 are reserved (mask with 0x1F).
         const sidBytes = new Uint8Array(MESSAGE_SID_BYTES)

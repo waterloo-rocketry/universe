@@ -46,6 +46,12 @@ export abstract class Field<N extends string = string> {
 }
 
 // Reverse the byte order of an unsigned integer that occupies `byteCount` bytes.
+// Python's round(): halves go to the nearest even integer (6.5 -> 6, 7.5 -> 8).
+function roundHalfEven(x: number): number {
+    const r = Math.round(x);
+    return Math.abs(x % 1) === 0.5 && r % 2 !== 0 ? r - 1 : r;
+}
+
 function byteSwap(value: bigint, byteCount: number): bigint {
     let result = BigInt(0);
     for (let i = 0; i < byteCount; i++) {
@@ -74,7 +80,13 @@ export class ASCII<N extends string = string> extends Field<N> {
     public decode(data: bigint): string {
         const byteCount = this.length / 8;
         const hex = data.toString(16).padStart(byteCount * 2, "0");
-        return Buffer.from(hex, "hex").toString("ascii").replace(/\0/g, "");
+        const bytes = Buffer.from(hex, "hex");
+        // Node's "ascii" decoder silently drops the top bit, so reject non-ASCII bytes like Python does.
+        const bad = bytes.findIndex((b) => b > 0x7f);
+        if (bad !== -1) {
+            throw new Error(`ASCII "${this.name}": byte 0x${bytes[bad]!.toString(16).toUpperCase()} at position ${bad} is not ASCII`);
+        }
+        return bytes.toString("ascii").replace(/\0/g, "");
     }
 
     public encode(value: string): [bigint, number] {
@@ -198,7 +210,7 @@ export class Numeric<N extends string = string> extends Field<N> {
             throw new Error(`Value "${value}" is not a valid number`);
         }
 
-        const intVal = Math.floor(value / this.scale);
+        const intVal = roundHalfEven(value / this.scale);
         const max = BigInt(1) << BigInt(this.signed ? this.length - 1 : this.length);
         const min = this.signed ? -(BigInt(1) << BigInt(this.length - 1)) : BigInt(0);
         const big = BigInt(intVal);
@@ -323,10 +335,17 @@ export class Bitfield<N extends string = string> extends Field<N> {
         }
 
         const set: string[] = [];
+        let namedMask = BigInt(0);
         for (const [flag, bit] of Object.entries(this.map_name_offset)) {
+            namedMask |= BigInt(1) << BigInt(bit);
             if (data & (BigInt(1) << BigInt(bit))) {
                 set.push(flag);
             }
+        }
+        // Unnamed bits shouldn't be silently dropped or reported as nominal (matches Python).
+        const unknown = data & ~namedMask;
+        if (unknown !== BigInt(0)) {
+            set.push(`UNKNOWN(0x${unknown.toString(16).toUpperCase()})`);
         }
         return set.length === 0 ? this.default : set.join("|");
     }
@@ -354,12 +373,21 @@ export class Bitfield<N extends string = string> extends Field<N> {
         let bits = BigInt(0);
         if (value !== this.default) {
             for (const name of value.split("|")) {
+                // Round-trip the UNKNOWN(0x...) token that decode emits for unnamed bits.
+                const unknown = /^UNKNOWN\((0x[0-9A-Fa-f]+)\)$/.exec(name);
+                if (unknown) {
+                    bits |= BigInt(unknown[1]!);
+                    continue;
+                }
                 const offset = this.map_name_offset[name];
                 if (offset === undefined) {
                     throw new Error(`Name "${name}" not found in bitfield "${this.name}"`);
                 }
                 bits |= BigInt(1) << BigInt(offset);
             }
+        }
+        if (bits >= max) {
+            throw new Error(`Value "${value}" does not fit in ${this.length} bits`);
         }
         return [bits, this.length];
     }

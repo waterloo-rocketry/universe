@@ -236,6 +236,11 @@ describe('encodeData', () => {
 // USBDebugParser
 
 describe('USBDebugParser', () => {
+    it('rejects bytes that are not hex instead of reading them as 0', () => {
+        expect(() => new USBDebugParser().parse('$8120001:00,00,zz,C4')).toThrow(/not a hex byte/)
+        expect(() => new USBDebugParser().parse('$81zz001:00')).toThrow(/not hex/)
+    })
+
     const parser = new USBDebugParser()
 
     function makeUsbLine(msgType: string, prio: string, btype: string, binst: string, payload: Uint8Array, metadata: number = 0): string {
@@ -285,6 +290,11 @@ describe('USBDebugParser', () => {
 // LiveTelemetryParser
 
 describe('LiveTelemetryParser', () => {
+    it('rejects a frame length byte below the minimum frame size', () => {
+        const frame = new Uint8Array([0x02, 0x00, 0, 0, 0, 0, 0, 0])
+        expect(() => new LiveTelemetryParser().parse(frame)).toThrow('Incorrect frame length')
+    })
+
     const parser = new LiveTelemetryParser()
 
     function buildFrame(sidBytes: Uint8Array, payload: Uint8Array): Uint8Array {

@@ -24,7 +24,7 @@ import {
     dem_3d_sensor_id_schema,
     board_error_bitfield_offset,
     board_error_bitfield_offset_schema,
-} from '../src/message_types.js'
+} from '../src/messageTypes.js'
 
 describe('msg_prio', () => {
     it('should have 4 priorities', () => {

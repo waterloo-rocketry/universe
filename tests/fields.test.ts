@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { Field, ASCII, Enum, Numeric, Floating, Switch, Bitfield } from '../src/fields.js'
-import { board_type_id, board_error_bitfield_offset } from '../src/message_types.js'
+import { board_type_id, board_error_bitfield_offset } from '../src/messageTypes.js'
 
 // Adapted from waterloo-rocketry/parsley tests/test_fields.py.
 
@@ -32,6 +32,11 @@ describe('Field (base class)', () => {
 })
 
 describe('ASCII', () => {
+    it('rejects non-ASCII bytes instead of dropping their top bit', () => {
+        const a = new ASCII('string', 16)
+        expect(() => a.decode(0xb690n)).toThrow(/not ASCII/)
+    })
+
     it('encode and decode round-trip', () => {
         const a = new ASCII('string', 32)
         const [data, length] = a.encode('aBcD')
@@ -217,13 +222,18 @@ describe('Numeric', () => {
         expect(() => n.encode(5)).toThrow()
     })
 
-    it('uses floor when encoding negative scaled values', () => {
-        // -13 / 2 = -6.5. Python's int(value // scale) = -7 (floor).
-        // Math.trunc would give -6, which would be wrong.
+    it('rounds half to even when encoding scaled values, like Python round()', () => {
+        // -13 / 2 = -6.5 -> -6 and 13 / 2 = 6.5 -> 6 (Python's int(round(value / scale))).
         const n = new Numeric('time', 16, 2, true)
-        const [data] = n.encode(-13)
-        // -7 in two's complement, 16 bits = 0xFFF9
-        expect(data).toBe(0xfff9n)
+        expect(n.encode(-13)[0]).toBe(0xfffan)
+        expect(n.encode(13)[0]).toBe(6n)
+        expect(n.encode(15)[0]).toBe(8n)
+    })
+
+    it('round-trips scaled values that floating point would floor down', () => {
+        // 64669 * (1/1000) / (1/1000) is 64668.999..., which Math.floor turned into 64668.
+        const n = new Numeric('time', 16, 1 / 1000)
+        expect(n.encode(n.decode(64669n))[0]).toBe(64669n)
     })
 
     it('signed two\'s complement decode', () => {
@@ -297,6 +307,13 @@ describe('Switch', () => {
 })
 
 describe('Bitfield', () => {
+    it('reports unnamed bits as UNKNOWN instead of dropping them, and round-trips them', () => {
+        const b = new Bitfield('status', 32, 'E_NOMINAL', { E_A: 0, E_B: 1 })
+        expect(b.decode(0xf9800001n)).toBe('E_A|UNKNOWN(0xF9800000)')
+        expect(b.decode(0xf9800000n)).toBe('UNKNOWN(0xF9800000)')
+        expect(b.encode('E_A|UNKNOWN(0xF9800000)')[0]).toBe(0xf9800001n)
+    })
+
     const make = () =>
         new Bitfield('general_board_status', 32, 'E_NOMINAL', board_error_bitfield_offset)
 

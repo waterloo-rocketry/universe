@@ -1,0 +1,19 @@
+[project]
+name = "gen-parsley"
+version = "0.1.0"
+description = "Generate Parsley configs from RocketCAN!"
+readme = "README.md"
+authors = [
+    { name = "asherhe", email = "35799436+asherhe@users.noreply.github.com" }
+]
+requires-python = ">=3.14"
+dependencies = [
+    "strictyaml>=1.7.3",
+]
+
+[project.scripts]
+gen-parsley = "gen_parsley:main"
+
+[build-system]
+requires = ["uv_build>=0.12.18,<0.13.0"]
+build-backend = "uv_build"

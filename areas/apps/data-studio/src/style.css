@@ -1,0 +1,52 @@
+body {
+  margin: 0;
+  background: #101923;
+  color: #edf3f8;
+  font:
+    16px/1.6 system-ui,
+    sans-serif;
+}
+main {
+  max-width: 850px;
+  margin: 64px auto;
+  padding: 0 32px;
+}
+h1 {
+  font-size: 48px;
+  margin: 8px 0;
+}
+.eyebrow {
+  color: #f2bc54;
+  letter-spacing: 0.15em;
+  font-size: 12px;
+}
+button {
+  background: #f2bc54;
+  border: 0;
+  border-radius: 6px;
+  padding: 12px 18px;
+  font: inherit;
+  cursor: pointer;
+}
+button:disabled {
+  opacity: 0.6;
+}
+section {
+  margin-top: 32px;
+  padding: 24px;
+  background: #192632;
+  border-radius: 8px;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+th,
+td {
+  padding: 8px;
+  border-bottom: 1px solid #344657;
+}
+[role='alert'] {
+  color: #ffb3b3;
+}

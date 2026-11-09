@@ -1,0 +1,27 @@
+{
+  "name": "Synthetic pressure run",
+  "provenance": "Synthetic fixture v1; no hardware or reconstructed clocks.",
+  "warnings": [],
+  "series": [
+    {
+      "sourceId": "synthetic-omnibus",
+      "channelId": "pressure",
+      "unit": "kPa",
+      "timeBasis": "relative seconds from synthetic start",
+      "samples": [
+        {
+          "time": 0,
+          "value": 101.3
+        },
+        {
+          "time": 0.5,
+          "value": 103.2
+        },
+        {
+          "time": 1,
+          "value": 102.4
+        }
+      ]
+    }
+  ]
+}

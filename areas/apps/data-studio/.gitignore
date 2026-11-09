@@ -1,0 +1,32 @@
+# Installed dependencies and local package-manager caches
+node_modules/
+.pnpm-store/
+
+# Compiled app/backend and packaged distributables
+/dist/
+/build/
+/release/
+*.tsbuildinfo
+
+# Test output, coverage, and profiling
+coverage/
+*.test
+*.test.exe
+*.prof
+*.coverprofile
+coverage.out
+
+# Local tool caches and diagnostic logs
+.cache/
+.vite/
+*.log
+
+# Local environment settings and secrets (commit examples only)
+.env
+.env.*
+!.env.example
+!.env.*.example
+*.local
+
+# Private or large development logs; keep synthetic fixtures in backend/fixtures
+/local-logs/

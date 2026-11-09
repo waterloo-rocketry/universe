@@ -1,0 +1,20 @@
+appId: com.waterloorocketry.datastudio
+productName: Data Studio
+asar: true
+directories:
+  output: release
+files:
+  - dist/**/*
+  - package.json
+extraResources:
+  - from: build/backend
+    to: backend
+artifactName: Data-Studio-${version}-${os}-${arch}.${ext}
+mac:
+  target: dmg
+  category: public.app-category.developer-tools
+win:
+  target: portable
+linux:
+  target: AppImage
+  category: Development

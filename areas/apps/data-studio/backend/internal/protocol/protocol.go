@@ -40,12 +40,6 @@ func Serve(input io.Reader, output io.Writer) error {
 				if err != nil {
 					response.Error = err.Error()
 				} else {
-					for series := range result.Series {
-						// Multiply the series values by 2
-						for i := 0; i < len(result.Series[series].Samples); i++ {
-							result.Series[series].Samples[i].Value *= 2
-						}
-					}
 					response.Result = &result
 				}
 			}

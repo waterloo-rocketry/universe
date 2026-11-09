@@ -1,0 +1,5 @@
+# Dependency scripts require explicit trust in pnpm.
+allowBuilds:
+  electron: true
+  esbuild: true
+  electron-winstaller: false

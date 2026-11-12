@@ -1,7 +1,13 @@
 name: Run Unit Tests
 
-# Runs on pushes to pull request
-on: pull_request
+# Runs on pull requests that touch parsley-ts
+on:
+  pull_request:
+    paths: ["areas/sw_libs/parsley-ts/**"]
+
+defaults:
+  run:
+    working-directory: areas/sw_libs/parsley-ts
 
 jobs:
   build:

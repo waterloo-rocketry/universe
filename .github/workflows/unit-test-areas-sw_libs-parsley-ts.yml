@@ -1,0 +1,21 @@
+name: Run Unit Tests
+
+# Runs on pull requests that touch parsley-ts
+on:
+  pull_request:
+    paths: ["areas/sw_libs/parsley-ts/**"]
+
+defaults:
+  run:
+    working-directory: areas/sw_libs/parsley-ts
+
+jobs:
+  build:
+    name: Run Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install dependency
+        run: npm install
+      - name: Run tests
+        run: npm test

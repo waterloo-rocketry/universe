@@ -1,6 +1,8 @@
 from dataclasses import MISSING, fields, is_dataclass
 from pathlib import Path
-from typing import get_args, get_origin, get_type_hints
+from turtle import width
+from types import UnionType
+from typing import Union, get_args, get_origin, get_type_hints
 
 from strictyaml import load
 
@@ -19,12 +21,21 @@ def load_rocketcan(path: Path | str) -> RocketCAN:
 
 def _convert(cls: type, value):
     origin = get_origin(cls)
-    if origin is list:
+    if origin in (Union, UnionType):
+        inner = next(a for a in get_args(cls) if a is not type(None))
+        return None if value is None else _convert(inner, value)
+    elif origin is list:
         (item,) = get_args(cls)
         return [_convert(item, v) for v in value]
     elif is_dataclass(cls):
         return _from_dict(cls, value)
-    return value
+    elif cls is int:
+        try:
+            return cls(value)
+        except ValueError:
+            # hex handling logic
+            return int(value, 16)
+    return cls(value)
 
 
 def _from_dict(cls: type, data: dict):

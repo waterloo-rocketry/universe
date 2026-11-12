@@ -7,12 +7,18 @@ on:
   release:
     types: [published]
 
+defaults:
+  run:
+    working-directory: areas/sw_libs/omnibus-ts
+
 permissions:
   id-token: write  # Required for OIDC
   contents: read
 
 jobs:
   build:
+    # In the monorepo every release triggers this; only omnibus-ts releases publish.
+    if: startsWith(github.event.release.tag_name, 'omnibus-ts-v')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

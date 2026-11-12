@@ -1,0 +1,414 @@
+import { describe, it, expect } from 'vitest'
+import { Field, ASCII, Enum, Numeric, Floating, Switch, Bitfield } from '../src/fields.js'
+import { board_type_id, board_error_bitfield_offset } from '../src/messageTypes.js'
+
+// Adapted from waterloo-rocketry/parsley tests/test_fields.py.
+
+// Field is an abstract class and cannot be directly instantiated. this
+// subclass provides access to the Field base class's constructor logic 
+class StubField extends Field {
+    decode(): unknown {
+        return null
+    }
+    encode(): readonly [bigint, number] {
+        return [0n, this.length]
+    }
+}
+
+describe('Field (base class)', () => {
+    it('rejects non-positive lengths', () => {
+        expect(() => new StubField('field', 0)).toThrow()
+        expect(() => new StubField('field', -1)).toThrow()
+    })
+
+    it('rejects non-integer lengths', () => {
+        expect(() => new StubField('field', 8.5)).toThrow()
+        expect(() => new StubField('field', NaN)).toThrow()
+    })
+
+    it('accepts valid positive integer length', () => {
+        expect(() => new StubField('field', 8)).not.toThrow()
+    })
+})
+
+describe('ASCII', () => {
+    it('rejects non-ASCII bytes instead of dropping their top bit', () => {
+        const a = new ASCII('string', 16)
+        expect(() => a.decode(0xb690n)).toThrow(/not ASCII/)
+    })
+
+    it('encode and decode round-trip', () => {
+        const a = new ASCII('string', 32)
+        const [data, length] = a.encode('aBcD')
+        expect(data).toBe(0x61426344n)
+        expect(length).toBe(32)
+        expect(a.decode(0x4c4d414fn)).toBe('LMAO')
+    })
+
+    it('decodes spaces', () => {
+        const a = new ASCII('string', 32)
+        expect(a.decode(0x20205720n)).toBe('  W ')
+    })
+
+    it('decodes implicit leading zeros (front padding)', () => {
+        const a = new ASCII('string', 32)
+        expect(a.decode(0x57n)).toBe('W')
+    })
+
+    it('encode left-aligns with trailing nulls', () => {
+        const a = new ASCII('string', 32)
+        const [data] = a.encode('a')
+        expect(data).toBe(0x61000000n)
+    })
+
+    it('encode then decode is identity', () => {
+        const a = new ASCII('string', 32)
+        const [data] = a.encode('1234')
+        expect(a.decode(data)).toBe('1234')
+    })
+
+    it('encode empty string', () => {
+        const a = new ASCII('string', 32)
+        expect(a.encode('')[0]).toBe(0n)
+    })
+
+    it('throws on non-string input', () => {
+        const a = new ASCII('string', 16)
+        // @ts-expect-error wrong type on purpose
+        expect(() => a.encode(12)).toThrow()
+        // @ts-expect-error wrong type on purpose
+        expect(() => a.encode(Buffer.from('12'))).toThrow()
+    })
+
+    it('throws on non-ASCII characters', () => {
+        const a = new ASCII('string', 16)
+        expect(() => a.encode('💀')).toThrow()
+        expect(() => a.encode('🥀')).toThrow()
+    })
+
+    it('throws when string overflows the field', () => {
+        const a = new ASCII('string', 16)
+        expect(() => a.encode('xdd')).toThrow()
+    })
+
+    it('rejects non-byte-aligned lengths at construction', () => {
+        expect(() => new ASCII('string', 12)).toThrow()
+        expect(() => new ASCII('string', 7)).toThrow()
+    })
+})
+
+describe('Enum', () => {
+    it('encodes and decodes against a real map', () => {
+        const e = new Enum('enum', 8, board_type_id)
+        const [data, length] = e.encode('INJECTOR')
+        expect(data).toBe(0x01n)
+        expect(length).toBe(8)
+        expect(e.decode(0x0an)).toBe('PAYLOAD')
+    })
+
+    it('round-trips', () => {
+        const e = new Enum('enum', 8, { a: 1, b: 10, c: 100 })
+        expect(e.decode(e.encode('a')[0])).toBe('a')
+    })
+
+    it('rejects non-bijective maps', () => {
+        expect(() => new Enum('enum', 8, { a: 1, b: 0, c: 1 })).toThrow()
+    })
+
+    it('rejects negative values', () => {
+        expect(() => new Enum('enum', 8, { a: -1, b: 0, c: 1 })).toThrow()
+    })
+
+    it('rejects values that overflow the field', () => {
+        expect(() => new Enum('enum', 8, { max: 0x3f3f3f3f })).toThrow()
+    })
+
+    it('encode throws on unknown key', () => {
+        const e = new Enum('enum', 8, { a: 1, b: 2, c: 3 })
+        expect(() => e.encode('d')).toThrow()
+    })
+
+    it('decode throws on unknown value', () => {
+        const e = new Enum('enum', 8, { a: 1, b: 2, c: 3 })
+        expect(() => e.decode(0xffn)).toThrow()
+    })
+
+    it('get_keys returns all keys', () => {
+        const e = new Enum('enum', 8, { a: 1, b: 2 })
+        expect(new Set(e.get_keys())).toEqual(new Set(['a', 'b']))
+    })
+})
+
+describe('Numeric', () => {
+    it('rejects data with bits beyond its length', () => {
+        const n = new Numeric('num', 10, 1, true, true)
+        expect(n.decode(0b1000000001n)).toBe(-511)
+        expect(() => n.decode(0b11000000001n)).toThrow()
+        expect(() => n.decode(0b10000000001n)).toThrow()
+    })
+
+    it('basic encode/decode', () => {
+        const n = new Numeric('num', 8)
+        const [data, length] = n.encode(250)
+        expect(data).toBe(0xfan)
+        expect(length).toBe(8)
+        expect(n.decode(0x21n)).toBe(33)
+    })
+
+    it('honors integer scale', () => {
+        const n = new Numeric('time', 8, 2)
+        expect(n.encode(12)[0]).toBe(0x06n)
+    })
+
+    it('honors fractional scale', () => {
+        const n = new Numeric('time', 8, 1 / 2)
+        expect(n.encode(12)[0]).toBe(0x18n)
+    })
+
+    it('round-trips', () => {
+        const n = new Numeric('num', 8)
+        expect(n.decode(n.encode(255)[0])).toBe(255)
+    })
+
+    it('scale imprecision survives a round trip', () => {
+        const n = new Numeric('time', 24, 1 / 1000)
+        const [data] = n.encode(54.321)
+        expect(n.decode(data)).toBeCloseTo(54.321, 3)
+    })
+
+    it('throws on non-number input', () => {
+        const n = new Numeric('num', 8)
+        // @ts-expect-error wrong type on purpose
+        expect(() => n.encode('12')).toThrow()
+        // @ts-expect-error wrong type on purpose
+        expect(() => n.encode(Buffer.from('12'))).toThrow()
+    })
+
+    it('enforces unsigned bounds', () => {
+        const n = new Numeric('num', 8)
+        expect(() => n.encode(0)).not.toThrow()
+        expect(() => n.encode(255)).not.toThrow()
+        expect(() => n.encode(-1)).toThrow()
+        expect(() => n.encode(256)).toThrow()
+    })
+
+    it('enforces signed bounds', () => {
+        const n = new Numeric('num', 8, 1, true)
+        expect(() => n.encode(-128)).not.toThrow()
+        expect(() => n.encode(0)).not.toThrow()
+        expect(() => n.encode(127)).not.toThrow()
+        expect(() => n.encode(-129)).toThrow()
+        expect(() => n.encode(128)).toThrow()
+    })
+
+    it('enforces scaled bounds', () => {
+        const u = new Numeric('num', 8, 1 / 4)
+        expect(() => u.encode(0)).not.toThrow()
+        expect(() => u.encode(63)).not.toThrow()
+        expect(() => u.encode(-1)).toThrow()
+        expect(() => u.encode(64)).toThrow()
+
+        const s = new Numeric('num', 8, 1 / 4, true)
+        expect(() => s.encode(-32)).not.toThrow()
+        expect(() => s.encode(0)).not.toThrow()
+        expect(() => s.encode(31)).not.toThrow()
+        expect(() => s.encode(-33)).toThrow()
+        expect(() => s.encode(32)).toThrow()
+    })
+
+    it('handles negative scale', () => {
+        const n = new Numeric('num', 8, -1 / 2)
+        expect(() => n.encode(-5)).not.toThrow()
+        expect(() => n.encode(5)).toThrow()
+    })
+
+    it('rounds half to even when encoding scaled values, like Python round()', () => {
+        // -13 / 2 = -6.5 -> -6 and 13 / 2 = 6.5 -> 6 (Python's int(round(value / scale))).
+        const n = new Numeric('time', 16, 2, true)
+        expect(n.encode(-13)[0]).toBe(0xfffan)
+        expect(n.encode(13)[0]).toBe(6n)
+        expect(n.encode(15)[0]).toBe(8n)
+    })
+
+    it('round-trips scaled values that floating point would floor down', () => {
+        // 64669 * (1/1000) / (1/1000) is 64668.999..., which Math.floor turned into 64668.
+        const n = new Numeric('time', 16, 1 / 1000)
+        expect(n.encode(n.decode(64669n))[0]).toBe(64669n)
+    })
+
+    it('signed two\'s complement decode', () => {
+        const n = new Numeric('num', 8, 1, true)
+        expect(n.decode(0xfcn)).toBe(-4)
+        expect(n.decode(0x7fn)).toBe(127)
+        expect(n.decode(0x80n)).toBe(-128)
+    })
+
+    it('little-endian byte-swaps', () => {
+        const n = new Numeric('num', 16, 1, false, false)
+        // value 0x1234 → bytes [0x34, 0x12] → bigint 0x3412n
+        expect(n.encode(0x1234)[0]).toBe(0x3412n)
+        expect(n.decode(0x3412n)).toBe(0x1234)
+    })
+})
+
+describe('Floating', () => {
+    it('round-trips dyadic rationals', () => {
+        const f = new Floating('Num')
+        for (const v of [2.0, 0.5, 2.5, 27.015625, 1.3125, 69.0, 420.0]) {
+            expect(f.decode(f.encode(v)[0])).toBe(v)
+        }
+    })
+
+    it('little-endian round-trip', () => {
+        const f = new Floating('Num', false)
+        expect(f.decode(f.encode(2.0)[0])).toBe(2.0)
+        expect(f.decode(f.encode(0.5)[0])).toBe(0.5)
+    })
+
+    it('encodes 9.8125 to the documented bit pattern', () => {
+        // Python comment in fields.py: 9.8125 → b'\x41\x1d\x00\x00'
+        const f = new Floating('Num')
+        expect(f.encode(9.8125)[0]).toBe(0x411d0000n)
+    })
+
+    it('throws on non-number input', () => {
+        const f = new Floating('Num')
+        // @ts-expect-error wrong type on purpose
+        expect(() => f.encode('not a number')).toThrow()
+    })
+})
+
+describe('Switch', () => {
+    it('decodes, encodes, and dispatches fields', () => {
+        const inner = new Numeric('x', 8)
+        const sw = new Switch(
+            'status',
+            8,
+            { a: 0x01, b: 0x02, c: 0x03 },
+            { a: [inner], b: [], c: [] },
+        )
+        const [data, length] = sw.encode('a')
+        expect(data).toBe(0x01n)
+        expect(length).toBe(8)
+        const decoded = sw.decode(data)
+        expect(decoded).toBe('a')
+        expect(sw.get_fields(decoded)).toEqual([inner])
+    })
+
+    it('get_keys returns all keys', () => {
+        const sw = new Switch('status', 8, { a: 1, b: 2 }, { a: [], b: [] })
+        expect(new Set(sw.get_keys())).toEqual(new Set(['a', 'b']))
+    })
+
+    it('get_fields throws on unknown key', () => {
+        const sw = new Switch('status', 8, { a: 1 }, { a: [] })
+        expect(() => sw.get_fields('nope')).toThrow()
+    })
+})
+
+describe('Bitfield', () => {
+    it('reports unnamed bits as UNKNOWN instead of dropping them, and round-trips them', () => {
+        const b = new Bitfield('status', 32, 'E_NOMINAL', { E_A: 0, E_B: 1 })
+        expect(b.decode(0xf9800001n)).toBe('E_A|UNKNOWN(0xF9800000)')
+        expect(b.decode(0xf9800000n)).toBe('UNKNOWN(0xF9800000)')
+        expect(b.encode('E_A|UNKNOWN(0xF9800000)')[0]).toBe(0xf9800001n)
+    })
+
+    const make = () =>
+        new Bitfield('general_board_status', 32, 'E_NOMINAL', board_error_bitfield_offset)
+
+    // [bigint value, hex display, expected flag]
+    const singleBitCases: [bigint, string, string][] = [
+        [0x0000n, '0x0000', 'E_NOMINAL'],
+        [0x0001n, '0x0001', 'E_5V_OVER_CURR'],
+        [0x0002n, '0x0002', 'E_5V_OVER_VOLT'],
+        [0x0004n, '0x0004', 'E_5V_UNDER_VOLT'],
+        [0x0008n, '0x0008', 'E_12V_OVER_CURR'],
+        [0x0010n, '0x0010', 'E_12V_OVER_VOLT'],
+        [0x0020n, '0x0020', 'E_12V_UNDER_VOLT'],
+        [0x0040n, '0x0040', 'E_BATT_OVER_CURR'],
+        [0x0080n, '0x0080', 'E_BATT_OVER_VOLT'],
+        [0x0100n, '0x0100', 'E_BATT_UNDER_VOLT'],
+        [0x0200n, '0x0200', 'E_MOTOR_OVER_CURR'],
+        [0x0400n, '0x0400', 'E_IO_ERROR'],
+        [0x0800n, '0x0800', 'E_FS_ERROR'],
+        [0x1000n, '0x1000', 'E_WATCHDOG_TIMEOUT'],
+        [0x2000n, '0x2000', 'E_12V_EFUSE_FAULT'],
+        [0x4000n, '0x4000', 'E_5V_EFUSE_FAULT'],
+        [0x8000n, '0x8000', 'E_PT_OUT_OF_RANGE'],
+    ]
+    it.each(singleBitCases)('decode %s → %s', (data, _hex, expected) => {
+        expect(make().decode(data)).toBe(expected)
+    })
+
+    it('decodes combined flags', () => {
+        const bf = make()
+        expect(bf.decode(0x0003n)).toBe('E_5V_OVER_CURR|E_5V_OVER_VOLT')
+        expect(bf.decode(0x0005n)).toBe('E_5V_OVER_CURR|E_5V_UNDER_VOLT')
+    })
+
+    it('decodes a custom (raw) bitfield as a zero-padded hex string', () => {
+        const bf = new Bitfield('raw', 16)
+        expect(bf.decode(0x0006n)).toBe('0x0006')
+        expect(bf.decode(0x0000n)).toBe('0x0000')
+        // odd bit-widths round up to the next nibble
+        const bf12 = new Bitfield('raw', 12)
+        expect(bf12.decode(0x00fn)).toBe('0x00f')
+    })
+
+    const encodeCases: [string, bigint][] = [
+        ['E_NOMINAL', 0x0000n],
+        ['E_5V_OVER_CURR', 0x0001n],
+        ['E_5V_OVER_VOLT', 0x0002n],
+        ['E_5V_OVER_CURR|E_5V_OVER_VOLT', 0x0003n],
+        ['E_5V_OVER_CURR|E_5V_UNDER_VOLT', 0x0005n],
+        ['E_WATCHDOG_TIMEOUT', 0x1000n],
+    ]
+    it.each(encodeCases)('encode %s', (value, expected) => {
+        const [data, length] = make().encode(value)
+        expect(data).toBe(expected)
+        expect(length).toBe(32)
+    })
+
+    it('encode/decode round-trip', () => {
+        const bf = make()
+        for (const v of [
+            'E_NOMINAL',
+            'E_5V_OVER_CURR',
+            'E_5V_OVER_CURR|E_5V_OVER_VOLT',
+        ]) {
+            expect(bf.decode(bf.encode(v)[0])).toBe(v)
+        }
+    })
+
+    it('throws on unknown flag', () => {
+        expect(() => make().encode('E_NOT_A_REAL_FLAG')).toThrow()
+    })
+
+    it('throws on non-string value', () => {
+        // @ts-expect-error wrong type on purpose
+        expect(() => make().encode(42)).toThrow()
+    })
+
+    it('encodes a custom (raw) bitfield', () => {
+        const bf = new Bitfield('raw', 16)
+        const [data, length] = bf.encode('0b110')
+        expect(data).toBe(0x0006n)
+        expect(length).toBe(16)
+    })
+
+    it('custom bitfield rejects unparseable strings', () => {
+        const bf = new Bitfield('raw', 16)
+        expect(() => bf.encode('not_a_number')).toThrow()
+    })
+
+    it('custom bitfield rejects overflow', () => {
+        const bf = new Bitfield('raw', 8)
+        expect(() => bf.encode('0x1FF')).toThrow()
+    })
+
+    it('constructor rejects offsets beyond field length', () => {
+        expect(() => new Bitfield('raw', 4, 'NONE', { HIGH: 4 })).toThrow()
+        expect(() => new Bitfield('raw', 4, 'NONE', { LOW: -1 })).toThrow()
+    })
+})

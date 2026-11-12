@@ -27,7 +27,9 @@ def _convert(cls: type, value, where: str = "root"):
     if origin in (Union, UnionType):
         inner_types = [a for a in get_args(cls) if a is not type(None)]
         if len(inner_types) != 1:
-            raise TypeError(f"unsupported target type {cls!r}: only Optional unions are supported")
+            raise TypeError(
+                f"unsupported target type {cls!r}: only Optional unions are supported"
+            )
         return None if value is None else _convert(inner_types[0], value, where)
     elif origin is list:
         (item,) = get_args(cls)
@@ -35,12 +37,14 @@ def _convert(cls: type, value, where: str = "root"):
             raise RocketCANError(where, f"expected a list, got {type(value).__name__}")
         return [_convert(item, v, f"{where}[{i}]") for i, v in enumerate(value)]
     elif is_dataclass(cls):
-        return _from_dict(cls, value)
+        return _from_dict(cls, value, where)
     elif cls is int:
         return _parse_int(value, where)
     elif cls is str:
         if not isinstance(value, str):
-            raise RocketCANError(where, f"expected a string, got {type(value).__name__}")
+            raise RocketCANError(
+                where, f"expected a string, got {type(value).__name__}"
+            )
         return value
     raise TypeError(f"unsupported target type {cls!r}")
 
@@ -48,19 +52,37 @@ def _convert(cls: type, value, where: str = "root"):
 def _parse_int(value, where: str) -> int:
     """Parse a decimal or 0x-prefixed hex string. Anything else is rejected."""
     if not isinstance(value, str):
-        raise RocketCANError(where, f"expected an integer string, got {type(value).__name__}")
+        raise RocketCANError(
+            where, f"expected an integer string, got {type(value).__name__}"
+        )
     if not _INT_PATTERN.fullmatch(value):
         raise RocketCANError(where, f"invalid integer {value!r}")
     return int(value, 0)
 
 
-def _from_dict(cls: type, data: dict):
+def _from_dict(cls: type, data, where: str = "root"):
+    if not isinstance(data, dict):
+        raise RocketCANError(where, f"expected a mapping, got {type(data).__name__}")
     hints = get_type_hints(cls)
     kwargs = {}
+    accepted = set()
     for f in fields(cls):
-        key = f.name.replace("_", "-")
-        if key in data:
-            kwargs[f.name] = _convert(hints[f.name], data[key])
+        underscored = f.name
+        hyphenated = f.name.replace("_", "-")
+        accepted.update((underscored, hyphenated))
+        spellings = list(dict.fromkeys((hyphenated, underscored)))
+        present = [k for k in spellings if k in data]
+        if len(present) == 2:
+            raise RocketCANError(
+                where,
+                f"both {hyphenated!r} and {underscored!r} given, use one spelling",
+            )
+        if present:
+            key = present[0]
+            kwargs[f.name] = _convert(hints[f.name], data[key], f"{where}.{key}")
         elif f.default is MISSING and f.default_factory is MISSING:
-            raise TypeError(f"missing key {f.name}")
+            raise RocketCANError(where, f"missing required key {hyphenated!r}")
+    unknown = sorted(str(k) for k in data if k not in accepted)
+    if unknown:
+        raise RocketCANError(where, f"unknown key(s) {unknown}")
     return cls(**kwargs)

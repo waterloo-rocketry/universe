@@ -11,8 +11,8 @@ class Generator:
     def generate(self, data: RocketCAN):
         self.out_dir.mkdir(parents=True, exist_ok=True)
         files = {
-            "message_types.ts": message_types.render(data),
-            "message_defs.ts": message_defs.render(data),
+            "messageTypes.ts": message_types.render(data),
+            "messageDefs.ts": message_defs.render(data),
         }
         for name, text in files.items():
             (self.out_dir / name).write_text(text, encoding="utf-8", newline="\n")

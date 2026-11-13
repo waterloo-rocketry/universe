@@ -1,5 +1,6 @@
+from collections.abc import Iterable
 from string import Template
-from typing import Any, Iterable
+from typing import Any
 
 from gen_parsley.models import RocketCAN
 from gen_parsley.utils import snake_to_title_case

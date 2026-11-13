@@ -125,3 +125,13 @@ export function getChannelStatus(
   if (latest.quality !== 'good') return latest.quality;
   return nowMs - latest.timestampMs > staleAfterMs ? 'stale' : 'active';
 }
+
+/** Readings newer than `sinceMs`. Ordered by oldest first.
+ * For if you are making like a graph that requires past readings up to n ms ago. Remeber it's ms when using
+ */
+export function getRecentReadings(
+  channel: ChannelState,
+  sinceMs: number,
+): readonly SignalReading[] {
+  return channel.history.filter((r) => r.timestampMs >= sinceMs);
+}

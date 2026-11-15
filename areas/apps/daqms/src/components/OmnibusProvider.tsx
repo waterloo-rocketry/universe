@@ -1,0 +1,139 @@
+import React, { useEffect, useState, useCallback, useRef } from 'react'
+import { communicator } from '@waterloorocketry/omnibus-ts'
+import type {
+    DAQMessage,
+    ParsleyMessage,
+    ConnectionStatus,
+} from '@waterloorocketry/omnibus-ts'
+import { useLastDatapointStore } from '../store/omnibusStore'
+import { parseParsleyAnalogMessage } from '@/lib/parsley'
+
+import { OmnibusContext } from '../context/OmnibusContext'
+import type { OmnibusContextValue } from '../context/OmnibusContext.ts'
+
+const DEFAULT_SERVER_URL = 'http://DAQ.local:6767'
+
+/**
+ * Omnibus Provider Component
+ *
+ * Uses @waterloorocketry/omnibus-ts communicator() to receive typed messages
+ * with Zod validation and automatic snake_case to camelCase conversion.
+ */
+const OmnibusProvider: React.FC<{ children: React.ReactNode }> = ({
+    children,
+}) => {
+    const [serverUrl, setServerUrl] = useState(DEFAULT_SERVER_URL)
+    const [connectionStatus, setConnectionStatus] =
+        useState<ConnectionStatus>('connecting')
+    const [error, setError] = useState<string | null>(null)
+
+    const commRef = useRef<ReturnType<typeof communicator> | null>(null)
+
+    const parseMessage = useCallback(
+        (msg: { channel: string; timestamp: number; payload: DAQMessage }) => {
+            const { data, timestamp: baseTimestamp } = msg.payload
+
+            // Collect averaged values with message-level timestamp (seconds → ms) for all sensors
+            const updates: Record<
+                string,
+                { value: number; timestamp: number; type: string }
+            > = {}
+
+            // Cast entries to the expected type since omnibus-ts Zod v4 inference
+            // does not fully resolve Record<string, number[]> through Object.entries
+            const dataEntries = Object.entries(data) as [string, number[]][]
+
+            dataEntries.forEach(([sensorName, values]) => {
+                if (values.length === 0) return
+
+                // Average all samples in this message
+                const averageValue =
+                    values.reduce((sum, v) => sum + v, 0) / values.length
+
+                // Use the message-level timestamp (seconds → milliseconds)
+                const timestamp = baseTimestamp * 1000
+
+                updates[sensorName] = {
+                    value: averageValue,
+                    timestamp,
+                    type: 'DAQ',
+                }
+            })
+
+            // Single batch update to Zustand store
+            useLastDatapointStore.getState().updateMultipleSeries(updates)
+        },
+        []
+    )
+
+    const parseParsleyMessage = useCallback(
+        (msg: {
+            channel: string
+            timestamp: number
+            payload: ParsleyMessage
+        }) => {
+            const update = parseParsleyAnalogMessage(msg)
+            if (update === null) return
+
+            useLastDatapointStore
+                .getState()
+                .updateSeries(update.seriesName, update.dataPoint)
+        },
+        []
+    )
+
+    useEffect(() => {
+        setConnectionStatus('connecting')
+        setError(null)
+
+        const comm = communicator({
+            serverURL: serverUrl,
+        })
+        commRef.current = comm
+
+        // Subscribe to connection status changes
+        const unsubConnection = comm.connection.onConnectionChange(
+            (status, error) => {
+                setConnectionStatus(status)
+                if (error) {
+                    setError(error.message)
+                } else {
+                    setError(null)
+                }
+            }
+        )
+
+        // Use receive('DAQ', ...) to handle typed DAQ messages with Zod validation
+        const unsubDaqReceive = comm.receiver.receive<DAQMessage>(
+            'DAQ',
+            parseMessage
+        )
+        const unsubParsleyReceive = comm.receiver.receive<ParsleyMessage>(
+            'CAN/Parsley',
+            parseParsleyMessage
+        )
+
+        return () => {
+            unsubConnection()
+            unsubDaqReceive()
+            unsubParsleyReceive()
+            comm.disconnect()
+            commRef.current = null
+        }
+    }, [parseMessage, parseParsleyMessage, serverUrl])
+
+    const value: OmnibusContextValue = {
+        connectionStatus,
+        error,
+        serverUrl,
+        setServerUrl,
+    }
+
+    return (
+        <OmnibusContext.Provider value={value}>
+            {children}
+        </OmnibusContext.Provider>
+    )
+}
+
+export default OmnibusProvider

@@ -1,0 +1,47 @@
+{
+    "name": "@waterloorocketry/omnibus-ts",
+    "public": true,
+    "version": "0.4.1",
+    "description": "Omnibus Message bindings for TypeScript and SocketIO",
+    "license": "MIT",
+    "author": "Waterloo Rocketry",
+    "type": "module",
+    "main": "./dist/index.js",
+    "types": "./dist/types/index.d.ts",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/waterloo-rocketry/omnibus-ts.git"
+    },
+    "scripts": {
+        "test": "vitest",
+        "build": "tsc",
+        "format": "prettier --write .",
+        "lint": "eslint src; eslint tests",
+        "coverage": "vitest run --coverage"
+    },
+    "devDependencies": {
+        "@eslint/js": "^9.39.0",
+        "@eslint/json": "^0.13.2",
+        "@types/express": "^5.0.5",
+        "@types/node": "^24.9.2",
+        "@vitest/coverage-v8": "^4.0.6",
+        "eslint": "^9.39.0",
+        "express": "^4.21.2",
+        "globals": "^16.5.0",
+        "jiti": "^2.6.1",
+        "prettier": "^3.6.2",
+        "socket.io": "^4.8.1",
+        "typescript": "^5.9.3",
+        "typescript-eslint": "^8.46.2",
+        "vitest": "^4.0.6"
+    },
+    "dependencies": {
+        "radash": "^12.1.1",
+        "socket.io-client": "^4.8.1",
+        "socket.io-msgpack-parser": "^3.0.2",
+        "zod": "^4.1.12"
+    },
+    "files": [
+        "dist/**/*"
+    ]
+}

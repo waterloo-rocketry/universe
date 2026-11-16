@@ -24,13 +24,16 @@ def load_rocketcan(path: Path | str) -> RocketCAN:
 
 def _convert(cls: type, value, where: str = "root"):
     origin = get_origin(cls)
+    if cls is type(None):
+        if value is not None:
+            raise RocketCANError(where, "cannot convert non-None value to to NoneType")
+        return None
     if origin in (Union, UnionType):
-        inner_types = [a for a in get_args(cls) if a is not type(None)]
-        if len(inner_types) != 1:
-            raise TypeError(
-                f"unsupported target type {cls!r}: only Optional unions are supported"
-            )
-        return None if value is None else _convert(inner_types[0], value, where)
+        for t in get_args(cls):
+            try:
+                return _convert(t, value, where)
+            except RocketCANError:
+                continue
     elif origin is list:
         (item,) = get_args(cls)
         if not isinstance(value, list):

@@ -64,7 +64,7 @@ def main():
     generator.generate(data)
     generator.validate()
 
-    print(f"configs written to {args.out}")
+    print(f"configs written to {out_dir}")
 
 
 if __name__ == "__main__":

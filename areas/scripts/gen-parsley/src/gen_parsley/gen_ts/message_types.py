@@ -38,44 +38,12 @@ def _hex_entries(items: Iterable[tuple[str, int]]) -> str:
 def render(data: RocketCAN) -> str:
     blocks: list[dict] = []
 
-    # message priority
-    msg_prio = ["HIGHEST", "HIGH", "MEDIUM", "LOW"]
-    blocks.append(
-        {
-            "title": "Message Priority",
-            "name": "msg_prio",
-            "entries": _obj_entries(zip(msg_prio, range(len(msg_prio)))),
-        }
-    )
-
     # message types
     blocks.append(
         {
             "title": "Message Types",
             "name": "msg_type",
             "entries": _hex_entries([(m.name, m.id) for m in data.messages]),
-        }
-    )
-
-    # board types
-    blocks.append(
-        {
-            "title": "Board Type ID",
-            "name": "board_type_id",
-            "entries": _hex_entries([(b.name, b.id) for b in data.boards]),
-        }
-    )
-
-    # board instance ids
-    board_inst = ["ANY", "GROUND", "ROCKET"]
-    for board in data.boards:
-        if board.inst:
-            board_inst.extend(inst.name for inst in board.inst)
-    blocks.append(
-        {
-            "title": "Board Instance ID",
-            "name": "board_inst_id",
-            "entries": _hex_entries(zip(board_inst, range(len(board_inst)))),
         }
     )
 

@@ -1,5 +1,6 @@
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Literal
 
 import pytest
 from strictyaml import load as strict_load
@@ -18,12 +19,18 @@ class Sample:
     label: str = "none"
 
 
+# ---------------------------------------------------------------- RocketCANError
+
+
 def test_rocketcan_error_message_includes_path():
     err = RocketCANError("messages[2].field[0]", "missing key name")
 
     assert isinstance(err, ValueError)
     assert err.path == "messages[2].field[0]"
     assert str(err) == "messages[2].field[0]: missing key name"
+
+
+# ---------------------------------------------------------------- int and str
 
 
 @pytest.mark.parametrize(
@@ -71,12 +78,23 @@ def test_int_error_includes_given_path():
         _convert(int, "1f", where="messages[2].id")
 
 
+# ---------------------------------------------------------------- Optional and list
+
+
 def test_optional_none_returns_none():
     assert _convert(int | None, None) is None
 
 
 def test_optional_converts_non_none_value():
     assert _convert(int | None, "0x1F") == 31
+
+
+def test_optional_invalid_inner_value_raises_instead_of_returning_none():
+    with pytest.raises(
+        RocketCANError,
+        match=r"^x: no union member matched 'zz': invalid integer 'zz'; cannot convert non-None",
+    ):
+        _convert(int | None, "zz", "x")
 
 
 def test_list_empty_returns_empty_list():
@@ -102,10 +120,133 @@ def test_nested_list_converts_recursively():
     assert _convert(list[list[int]], [["1", "0x2"], [], ["3"]]) == [[1, 2], [], [3]]
 
 
-@pytest.mark.parametrize("cls", [float, int | str, int | str | None])
-def test_unsupported_target_types_raise_type_error(cls):
+# ---------------------------------------------------------------- NoneType
+
+
+def test_none_type_accepts_none():
+    assert _convert(type(None), None) is None
+
+
+def test_none_type_rejects_non_none_value():
+    with pytest.raises(RocketCANError, match="cannot convert non-None value to NoneType"):
+        _convert(type(None), "x", "x")
+
+
+# ---------------------------------------------------------------- Unions
+
+
+def test_union_uses_first_member_that_accepts_value():
+    assert _convert(int | str, "5") == 5
+
+
+def test_union_member_order_decides_the_result():
+    assert _convert(str | int, "5") == "5"
+
+
+def test_union_with_none_returns_none_for_none():
+    assert _convert(int | str | None, None) is None
+
+
+def test_union_with_no_matching_member_reports_every_failure():
+    with pytest.raises(RocketCANError, match=r"^x: no union member matched None"):
+        _convert(int | str, None, "x")
+
+
+def test_union_of_unsupported_member_raises_type_error():
     with pytest.raises(TypeError, match="unsupported target type"):
-        _convert(cls, "5", "x")
+        _convert(int | float, "1.5", "x")
+
+
+# ---------------------------------------------------------------- Unsupported types
+
+
+def test_unsupported_target_type_raises_type_error():
+    with pytest.raises(TypeError, match="unsupported target type"):
+        _convert(float, "1.5", "x")
+
+
+# ---------------------------------------------------------------- Literal
+
+
+@pytest.mark.parametrize("value", ["uint", "enum", "raw", "ascii", "int", "bitfield"])
+def test_field_type_accepts_each_literal_value(value):
+    assert _convert(models.Field, {"name": "x", "type": value}).type == value
+
+
+def test_literal_returns_matching_value():
+    assert _convert(Literal["uint", "enum"], "enum") == "enum"
+
+
+def test_literal_rejects_value_outside_options_with_path():
+    with pytest.raises(
+        RocketCANError,
+        match=r"^x: expected one of \('uint', 'enum'\), got 'bogus'",
+    ):
+        _convert(Literal["uint", "enum"], "bogus", "x")
+
+
+def test_literal_rejects_non_string_value():
+    with pytest.raises(RocketCANError, match=r"^x: expected one of .*, got 1$"):
+        _convert(Literal["1"], 1, "x")
+
+
+def test_field_type_error_path_names_the_type_key():
+    with pytest.raises(
+        RocketCANError,
+        match=r"^messages\[0\]\.field\[0\]\.type: expected one of",
+    ):
+        _convert(models.Field, {"name": "x", "type": "bogus"}, "messages[0].field[0]")
+
+
+def test_field_missing_type_is_rejected():
+    with pytest.raises(RocketCANError, match="missing required key 'type'"):
+        _convert(models.Field, {"name": "x"})
+
+
+# ---------------------------------------------------------------- Union switching (Field | RefField)
+
+FIELD_OR_REF = list[models.Field | models.RefField]
+
+
+def test_union_switches_to_ref_field_for_ref_mapping():
+    assert _convert(FIELD_OR_REF, [{"ref": "ts"}]) == [models.RefField(ref="ts")]
+
+
+def test_union_switches_to_field_for_field_mapping():
+    result = _convert(FIELD_OR_REF, [{"name": "state", "type": "enum", "enum": "STATE"}])
+
+    assert result == [models.Field(name="state", type="enum", enum="STATE")]
+
+
+def test_union_keeps_order_of_mixed_entries():
+    result = _convert(
+        FIELD_OR_REF,
+        [{"name": "a", "type": "raw"}, {"ref": "b"}, {"name": "c", "type": "int"}],
+    )
+
+    assert result == [
+        models.Field(name="a", type="raw"),
+        models.RefField(ref="b"),
+        models.Field(name="c", type="int"),
+    ]
+
+
+def test_union_rejects_entry_matching_neither_member():
+    with pytest.raises(RocketCANError, match=r"^root\[0\]: no union member matched"):
+        _convert(FIELD_OR_REF, [{"name": "a", "type": "raw", "ref": "b"}])
+
+
+def test_union_bad_literal_reports_both_member_failures():
+    doc = _message_doc(field=[{"name": "x", "type": "bogus"}])
+
+    with pytest.raises(
+        RocketCANError,
+        match=r"^messages\[0\]\.field\[0\]: no union member matched .*expected one of",
+    ):
+        _convert(models.Message, doc, where="messages[0]")
+
+
+# ---------------------------------------------------------------- Dataclass and _from_dict
 
 
 def test_from_dict_accepts_hyphenated_key():
@@ -127,9 +268,7 @@ def test_from_dict_rejects_unknown_key_typo():
 
 
 def test_from_dict_missing_required_key_names_yaml_key_and_path():
-    with pytest.raises(
-        RocketCANError, match=r"^messages\[0\]: missing required key 'ts-name'"
-    ):
+    with pytest.raises(RocketCANError, match=r"^messages\[0\]: missing required key 'ts-name'"):
         _convert(Sample, {}, where="messages[0]")
 
 
@@ -148,184 +287,186 @@ def test_from_dict_rejects_non_mapping_input(value):
 
 
 def test_from_dict_child_error_path_uses_yaml_key():
-    with pytest.raises(RocketCANError, match=r"^messages\[0\]\.width: invalid integer"):
+    with pytest.raises(
+        RocketCANError,
+        match=r"^messages\[0\]\.width: no union member matched 'zz': invalid integer 'zz'",
+    ):
         _convert(Sample, {"ts-name": "a", "width": "zz"}, where="messages[0]")
 
 
-def test_full_rocketcan_document_converts_to_models():
+# ---------------------------------------------------------------- RocketCAN models
+
+
+def _message_doc(**overrides):
+    doc = {"name": "LEDS_OFF", "id": "0x20", "field": []}
+    doc.update(overrides)
+    return doc
+
+
+def _rocketcan_doc(**overrides):
     doc = {
+        "sid": {"fields": [{"name": "priority", "bits": "4", "enum": "PRIO"}]},
+        "message_fields": [{"name": "state", "type": "enum", "enum": "STATE", "bytes": "1"}],
         "messages": [
             {
                 "name": "LEDS_OFF",
                 "desc": "turn off",
                 "id": "0x20",
-                "timestamp": "1",
-                "field": [{"name": "state", "width": "2", "enum": "STATE"}],
+                "metadata": [{"name": "ts", "type": "uint", "bytes": "4"}],
+                "field": [
+                    {"name": "state", "type": "enum", "enum": "STATE"},
+                    {"ref": "ts"},
+                ],
             }
         ],
-        "boards": [
-            {"name": "CAMERA", "id": "0x0A", "inst": [{"name": "CAM1"}], "doc_link": "http://x"}
-        ],
-        "enums": [{"name": "STATE", "prefix": "S", "value": [{"name": "OFF"}]}],
-        "bitfields": [{"name": "FLAGS", "prefix": "F", "bits": [{"name": "B0"}]}],
-    }
-    expected = models.RocketCAN(
-        messages=[
-            models.Message(
-                name="LEDS_OFF",
-                desc="turn off",
-                id=32,
-                timestamp=1,
-                field=[models.Field(name="state", width=2, enum="STATE")],
-            )
-        ],
-        boards=[
-            models.Board(
-                name="CAMERA",
-                id=10,
-                inst=[models.ConfigItem(name="CAM1")],
-                doc_link="http://x",
-            )
-        ],
-        enums=[models.Enum(name="STATE", prefix="S", value=[models.ConfigItem(name="OFF")])],
-        bitfields=[
-            models.Bitfield(name="FLAGS", prefix="F", bits=[models.ConfigItem(name="B0")])
-        ],
-    )
-
-    assert _convert(models.RocketCAN, doc) == expected
-
-
-def test_nested_missing_required_field_reports_full_path():
-    doc = {
-        "messages": [
+        "enums": [
             {
-                "name": "LEDS_OFF",
-                "id": "0x20",
-                "timestamp": "1",
-                "field": [{"name": "state"}, {"desc": "no name"}],
+                "name": "STATE",
+                "prefix": "S",
+                "value": [{"name": "OFF", "id": "0", "doc_link": "http://x"}],
             }
         ],
-        "boards": [],
-        "enums": [],
-        "bitfields": [],
+        "bitfields": [{"name": "FLAGS", "prefix": "F", "bits": [{"name": "B0", "bit": "0"}]}],
     }
+    doc.update(overrides)
+    return doc
+
+
+EXPECTED_DOC_ROCKETCAN = models.RocketCAN(
+    sid=models.SID(fields=[models.SIDField(name="priority", bits=4, enum="PRIO")]),
+    message_fields=[models.Field(name="state", type="enum", enum="STATE", bytes=1)],
+    messages=[
+        models.Message(
+            name="LEDS_OFF",
+            desc="turn off",
+            id=32,
+            metadata=[models.Field(name="ts", type="uint", bytes=4)],
+            field=[
+                models.Field(name="state", type="enum", enum="STATE"),
+                models.RefField(ref="ts"),
+            ],
+        )
+    ],
+    enums=[
+        models.Enum(
+            name="STATE",
+            prefix="S",
+            value=[models.EnumValue(name="OFF", id=0, doc_link="http://x")],
+        )
+    ],
+    bitfields=[
+        models.Bitfield(
+            name="FLAGS",
+            prefix="F",
+            bits=[models.BitfieldBit(name="B0", bit=0)],
+        )
+    ],
+)
+
+
+def test_full_rocketcan_document_converts_to_models():
+    assert _convert(models.RocketCAN, _rocketcan_doc()) == EXPECTED_DOC_ROCKETCAN
+
+
+def test_sid_fields_default_to_empty_list():
+    assert _convert(models.SID, {}) == models.SID()
+
+
+def test_rocketcan_missing_sid_reports_root_path():
+    doc = _rocketcan_doc()
+    del doc["sid"]
+
+    with pytest.raises(RocketCANError, match=r"^root: missing required key 'sid'"):
+        _convert(models.RocketCAN, doc)
+
+
+def test_nested_missing_type_reports_full_path():
+    doc = _rocketcan_doc()
+    doc["messages"][0]["field"] = [{"name": "state"}]
 
     with pytest.raises(
         RocketCANError,
-        match=r"^root\.messages\[0\]\.field\[1\]: missing required key 'name'",
+        match=r"^root\.messages\[0\]\.field\[0\]: no union member matched .*missing required key 'type'",
     ):
         _convert(models.RocketCAN, doc)
 
 
 def test_nested_invalid_int_reports_full_path():
-    doc = {
-        "messages": [{"name": "LEDS_OFF", "id": "zz", "timestamp": "1"}],
-        "boards": [],
-        "enums": [],
-        "bitfields": [],
-    }
+    doc = _rocketcan_doc()
+    doc["messages"][0]["id"] = "zz"
 
     with pytest.raises(RocketCANError, match=r"^root\.messages\[0\]\.id: invalid integer"):
         _convert(models.RocketCAN, doc)
 
 
-def test_board_without_inst_defaults_to_empty_list():
-    board = _convert(models.Board, {"name": "CAMERA", "id": "0x0A"})
-
-    assert board.inst == []
-    assert board.id == 10
+def test_enum_value_missing_id_is_rejected():
+    with pytest.raises(RocketCANError, match=r"^root\.value\[0\]: missing required key 'id'"):
+        _convert(models.Enum, {"name": "S", "prefix": "S", "value": [{"name": "OFF"}]})
 
 
 def test_enum_entry_with_explicit_value_key_is_rejected():
     enum_doc = {
         "name": "STATE",
         "prefix": "S",
-        "value": [{"name": "OFF", "value": "0"}],
+        "value": [{"name": "OFF", "id": "0", "value": "0"}],
     }
 
-    with pytest.raises(
-        RocketCANError,
-        match=r"^root\.value\[0\]: unknown key\(s\) \['value'\]",
-    ):
+    with pytest.raises(RocketCANError, match=r"^root\.value\[0\]: unknown key\(s\) \['value'\]"):
         _convert(models.Enum, enum_doc)
-
-
-def test_board_instance_with_explicit_id_key_is_rejected():
-    board_doc = {
-        "name": "CAMERA",
-        "id": "0x0A",
-        "inst": [{"name": "CAM1", "id": "1"}],
-    }
-
-    with pytest.raises(
-        RocketCANError,
-        match=r"^root\.inst\[0\]: unknown key\(s\) \['id'\]",
-    ):
-        _convert(models.Board, board_doc)
 
 
 def test_bit_with_explicit_offset_key_is_rejected():
     bitfield_doc = {
         "name": "FLAGS",
         "prefix": "F",
-        "bits": [{"name": "B0", "offset": "0"}],
+        "bits": [{"name": "B0", "bit": "0", "offset": "0"}],
     }
 
-    with pytest.raises(
-        RocketCANError,
-        match=r"^root\.bits\[0\]: unknown key\(s\) \['offset'\]",
-    ):
+    with pytest.raises(RocketCANError, match=r"^root\.bits\[0\]: unknown key\(s\) \['offset'\]"):
         _convert(models.Bitfield, bitfield_doc)
 
 
+# ---------------------------------------------------------------- load_rocketcan
+
+
 ROCKETCAN_YAML = """\
+sid:
+  fields:
+    - name: priority
+      bits: 4
+      enum: PRIO
+message-fields:
+  - name: state
+    type: enum
+    enum: STATE
+    bytes: 1
 messages:
   - name: LEDS_OFF
     desc: turn off
     id: 0x20
-    timestamp: 1
+    metadata:
+      - name: ts
+        type: uint
+        bytes: 4
     field:
       - name: state
-        width: 2
+        type: enum
         enum: STATE
-boards:
-  - name: CAMERA
-    id: 0x0A
-    doc_link: http://x
+      - ref: ts
 enums:
   - name: STATE
     prefix: S
     value:
       - name: OFF
+        id: 0
+        doc-link: http://x
 bitfields:
   - name: FLAGS
     prefix: F
     bits:
       - name: B0
+        bit: 0
 """
-
-EXPECTED_ROCKETCAN = models.RocketCAN(
-    messages=[
-        models.Message(
-            name="LEDS_OFF",
-            desc="turn off",
-            id=32,
-            timestamp=1,
-            field=[models.Field(name="state", width=2, enum="STATE")],
-        )
-    ],
-    boards=[
-        models.Board(
-            name="CAMERA",
-            id=10,
-            inst=[],
-            doc_link="http://x",
-        )
-    ],
-    enums=[models.Enum(name="STATE", prefix="S", value=[models.ConfigItem(name="OFF")])],
-    bitfields=[models.Bitfield(name="FLAGS", prefix="F", bits=[models.ConfigItem(name="B0")])],
-)
 
 
 def _write_yaml(tmp_path: Path, text: str, name: str = "rocketcan.yaml") -> Path:
@@ -337,25 +478,24 @@ def _write_yaml(tmp_path: Path, text: str, name: str = "rocketcan.yaml") -> Path
 def test_load_rocketcan_accepts_str_path(tmp_path):
     path = _write_yaml(tmp_path, ROCKETCAN_YAML)
 
-    assert load_rocketcan(str(path)) == EXPECTED_ROCKETCAN
+    assert load_rocketcan(str(path)) == EXPECTED_DOC_ROCKETCAN
 
 
 def test_load_rocketcan_accepts_path_object(tmp_path):
     path = _write_yaml(tmp_path, ROCKETCAN_YAML)
 
-    assert load_rocketcan(path) == EXPECTED_ROCKETCAN
+    assert load_rocketcan(path) == EXPECTED_DOC_ROCKETCAN
 
 
 def test_strictyaml_returns_scalars_as_strings():
     data = strict_load(ROCKETCAN_YAML).data
 
     assert data["messages"][0]["id"] == "0x20"
-    assert data["messages"][0]["timestamp"] == "1"
-    assert all(isinstance(v, str) for v in data["messages"][0].values() if not isinstance(v, (list, dict)))
+    assert data["sid"]["fields"][0]["bits"] == "4"
 
 
 def test_load_rocketcan_rejects_unknown_key_with_path(tmp_path):
-    text = ROCKETCAN_YAML.replace("    timestamp: 1\n", "    timestamp: 1\n    colour: red\n")
+    text = ROCKETCAN_YAML.replace("    id: 0x20\n", "    id: 0x20\n    colour: red\n")
     path = _write_yaml(tmp_path, text)
 
     with pytest.raises(RocketCANError, match=r"^root\.messages\[0\]: unknown key\(s\) \['colour'\]"):

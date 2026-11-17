@@ -1,8 +1,7 @@
 import re
 from dataclasses import MISSING, fields, is_dataclass
 from pathlib import Path
-from types import UnionType
-from typing import Union, get_args, get_origin, get_type_hints
+from typing import Literal, Union, get_args, get_origin, get_type_hints
 
 from strictyaml import load
 
@@ -26,14 +25,22 @@ def _convert(cls: type, value, where: str = "root"):
     origin = get_origin(cls)
     if cls is type(None):
         if value is not None:
-            raise RocketCANError(where, "cannot convert non-None value to to NoneType")
+            raise RocketCANError(where, "cannot convert non-None value to NoneType")
         return None
-    if origin in (Union, UnionType):
+    elif origin is Literal:
+        if value not in get_args(cls):
+            raise RocketCANError(where, f"expected one of {get_args(cls)}, got {value!r}")
+        return value
+    elif origin is Union:
+        errors = []
         for t in get_args(cls):
             try:
                 return _convert(t, value, where)
-            except RocketCANError:
-                continue
+            except RocketCANError as e:
+                errors.append(e.message)
+        raise RocketCANError(
+            where, f"no union member matched {value!r}: " + "; ".join(errors)
+        )
     elif origin is list:
         (item,) = get_args(cls)
         if not isinstance(value, list):

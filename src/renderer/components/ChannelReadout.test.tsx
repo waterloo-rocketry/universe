@@ -19,7 +19,7 @@ describe('ChannelReadout', () => {
   // Test 1
   it('shows unavailable before the channel list arrives', () => {
     setup();
-    expect(screen.getByText(/unavailable/)).toBeInTheDocument();
+    expect(screen.getByText('Channel not found!')).toBeInTheDocument();
   });
 
   // Test 2
@@ -35,7 +35,7 @@ describe('ChannelReadout', () => {
     const events = setup();
     act(() => events.signals(MOCK_SIGNALS));
     act(() => events.frame(getMockFixture('missing')));
-    expect(screen.getByText('missing')).toBeInTheDocument();
+    expect(screen.getByText('Missing data!')).toBeInTheDocument();
   });
 
   // Test 4
@@ -51,6 +51,6 @@ describe('ChannelReadout', () => {
     const events = setup('test.status');
     act(() => events.signals(MOCK_SIGNALS));
     act(() => events.frame(getMockFixture()));
-    expect(screen.getByText(/Test status:/)).toBeInTheDocument();
+    expect(screen.getByText('idle')).toBeInTheDocument();
   });
 });

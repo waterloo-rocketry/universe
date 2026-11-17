@@ -1,33 +1,28 @@
 import { useChannel } from '../data/telemetry-context';
+import BaseComponent from './BaseComponent';
 
 interface ChannelReadoutProps {
   /** Channel to display, e.g. "test.pressure". */
   signalId: string;
 }
 
-/** Shows one channel's latest value, or its status when the value can't be trusted. */
+/** Shows one channel's latest value inside the shared widget container. */
 export function ChannelReadout({ signalId }: ChannelReadoutProps) {
   // get the channel's data
   const data = useChannel(signalId);
-
-  // if there's no data, show "unavailable"
-  if (!data) {
-    return <p className="channel-readout">{signalId}: unavailable</p>;
-  }
-
-  // unpack the pieces you need
-  const { channel, latest, status } = data;
-  const { label, unit } = channel.signal;
-
-  let valueText = status.replace('-', ' ');
-  if (latest && latest.quality === 'good') {
-    valueText = unit ? `${latest.value} ${unit}` : String(latest.value);
-    if (status !== 'active') valueText += ` (${status})`;
-  }
+  const latest = data?.latest;
+  const unit = data?.channel.signal.unit;
 
   return (
-    <p className={`channel-readout channel-readout--${status}`}>
-      <strong>{label}:</strong> {valueText}
-    </p>
+    <BaseComponent
+      id={signalId}
+      componentType="numeric"
+      channel={data?.channel}
+      currentTime={data?.nowMs ?? 0}
+    >
+      {latest?.quality === 'good' && (
+        <p>{unit ? `${latest.value} ${unit}` : String(latest.value)}</p>
+      )}
+    </BaseComponent>
   );
 }

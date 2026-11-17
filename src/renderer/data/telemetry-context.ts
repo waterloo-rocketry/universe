@@ -22,6 +22,9 @@ export interface ChannelData {
   // recent readings, oldest first
   history: readonly SignalReading[];
   status: ChannelStatus;
+
+  // Current time in ms, ticking so widgets can detect staleness
+  nowMs: number;
 }
 
 // Binds widget to one telemetry channel. Returns null until the signal catalogue arrives or if channel does not exist
@@ -37,5 +40,6 @@ export function useChannel(signalId: string): ChannelData | null {
     latest: getLatestReading(channel),
     history: channel.history,
     status: getChannelStatus(channel, telemetry.nowMs),
+    nowMs: telemetry.nowMs,
   };
 }

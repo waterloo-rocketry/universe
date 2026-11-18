@@ -1,0 +1,43 @@
+# This workflow will run tests using node and then publish a package to GitHub Packages when a release is created
+# For more information see: https://docs.github.com/en/actions/publishing-packages/publishing-nodejs-packages
+
+name: Node.js Package
+
+on:
+  release:
+    types: [published]
+
+defaults:
+  run:
+    working-directory: areas/sw_libs/omnibus-ts
+
+permissions:
+  id-token: write  # Required for OIDC
+  contents: read
+
+jobs:
+  build:
+    # In the monorepo every release triggers this; only omnibus-ts releases publish.
+    if: startsWith(github.event.release.tag_name, 'omnibus-ts-v')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: npm install
+      - run: npm test -- --run
+      - run: npm run build
+
+  publish-npm:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org/
+      - run: npm install
+      - run: npm run build
+      - run: npm publish

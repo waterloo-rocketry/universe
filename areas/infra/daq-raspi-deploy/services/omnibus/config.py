@@ -18,31 +18,42 @@ def setup():
     """
     Setup the sensors.
     """
-    # IFM (round) PT 5402: 4-20mA 0-1450 psi
+
     # B1 P1
-    Sensor("[OPT-101] Ox Fill", "AIN87", 10, Connection.SINGLE,
-          LinearCalibration(1/100*1450/0.016, -0.004*1450/0.016, "psi"))
-    ## IFM PT 2402: 4-20mA 0-1000 psi
-    Sensor("[OPT-102] Ox Fill", "AIN95", 10, Connection.SINGLE,
-          LinearCalibration(1/100*1000/0.016, -0.004*1000/0.016, "psi"))
+    # Promass 83 flowmeter: 4-20mA 0-2600 kg/h (configurable)
+    Sensor("[FLOW-101] Flowmeter", "AIN87", 10, Connection.SINGLE,
+          LinearCalibration(1/100*(2600/3600)/0.016, -0.004*(2600/3600)/0.016, "kg/s"))
 
     # B1 P2
+    # IFM PT 5402: 4-20mA 1-1450 psi
     Sensor("[NPT-201] N2 Fill", "AIN86", 10, Connection.SINGLE,
           LinearCalibration(1/100*1450/0.016, -0.004*1450/0.016, "psi"))
+    # IFM PT 2402: 4-20mA 1-1000 psi
     Sensor("[NPT-202] Pneumatics", "AIN94", 10, Connection.SINGLE,
-          LinearCalibration(1/100*1450/0.016, -0.004*1450/0.016, "psi"))
-    # TDM
-    # B2 P3 TDM
-    # Sensor("[CDPT-401] CO2 Fill", "AIN82", 10, Connection.SINGLE,
-    #       LinearCalibration(1/100*3000/0.016, -0.004*3000/0.016, "psi"))
+          LinearCalibration(1/100*1000/0.016, -0.004*1000/0.016, "psi"))
 
+    # B1 P3
+    # TDH40-B-G-3000-03-A00-5, 4-20mA 0-3000 psi
+    Sensor("[OPT-101] Ox Fill", "AIN85", 10, Connection.SINGLE,
+          LinearCalibration(1/100*3000/0.016, -0.004*3000/0.016, "psi"))
+
+    # IFM PT 5402: 4-20mA 1-1450 psi
+    Sensor("[NPT-201] N2 Fill", "AIN86", 10, Connection.SINGLE,
+          LinearCalibration(1/100*1450/0.016, -0.004*1450/0.016, "psi"))
+
+    # B2 P3
+    # TDM: 4-20mA 0-3000 psi
+    Sensor("[CDPT-401] CO2 Fill", "AIN82", 10, Connection.SINGLE,
+          LinearCalibration(1/100*3000/0.016, -0.004*3000/0.016, "psi"))
+
+    # B4 P1
     # Kulite ETM-375-70BARSG Pressure Transucer
     # 0-70bar (~1000 psi), converted to PSI, 0-5V output
-    # B4 P1
-#     Sensor("[OPT-301] Ox Tank", "AIN70", 10, Connection.DIFFERENTIAL,
-#           LinearCalibration(70/5 * 14.5038, 0, "psi"))
-#     Sensor("[FPT-301] Fuel Tank", "AIN69", 10, Connection.DIFFERENTIAL,
-#           LinearCalibration(70/5 * 14.5038, 0, "psi"))
+    Sensor("[OPT-301] Ox Tank", "AIN70", 10, Connection.DIFFERENTIAL,
+          LinearCalibration(70/5 * 14.5038, 0, "psi"))
+    Sensor("[FPT-301] Fuel Tank", "AIN69", 10, Connection.DIFFERENTIAL,
+          LinearCalibration(70/5 * 14.5038, 0, "psi"))
+
     #B5 P3
     # Adafruit anemometer. 0.4 - 2V mapping to 0-32.4 m/s
     Sensor("Anemometer", "AIN65", 10, Connection.SINGLE,

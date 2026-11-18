@@ -1,3 +1,7 @@
+- name: Load code-server image digest
+  ansible.builtin.include_vars:
+    file: services/code-server/vars.yml
+
 - name: Define code-server list
   ansible.builtin.set_fact:
     code_server_deploy_dir: "/home/{{ ansible_user }}/code-server-deploy"
@@ -30,8 +34,8 @@
     - "{{ code_server_deploy_dir }}/config"
 
 - name: Copy docker-compose.yml to deployment directory
-  ansible.builtin.copy:
-    src: services/code-server.yml
+  ansible.builtin.template:
+    src: services/code-server/docker-compose.yml.j2
     dest: "{{ code_server_deploy_dir }}/docker-compose.yml"
     mode: "0644"
 

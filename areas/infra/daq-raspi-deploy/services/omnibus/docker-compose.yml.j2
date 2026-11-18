@@ -1,11 +1,11 @@
 services:
   omnibus-server:
-    image: ghcr.io/waterloo-rocketry/omnibus-server@sha256:104f969857a4c61a70a4f0621c11af9feafccf94775ef3ce185310f8eb1c967c
+    image: "{{ omnibus_server_image }}"
     network_mode: host
     restart: unless-stopped
 
   omnibus-globallog:
-    image: ghcr.io/waterloo-rocketry/omnibus-globallog@sha256:6fcedde3ea72b0d49ffd7812a4ca76c21cbfb0a0e34a48e0c646574c7c8b1858
+    image: "{{ omnibus_globallog_image }}"
     network_mode: host
     restart: unless-stopped
     depends_on:
@@ -15,7 +15,7 @@ services:
     command: ["--outfolder", "/data"]
 
   omnibus-source-ljm:
-    image: ghcr.io/waterloo-rocketry/omnibus-source-ljm@sha256:2c07aa238d4b8626712f984a8a817d04ab988151993d71eb41273b8c2fb77be2
+    image: "{{ omnibus_ljm_image }}"
     network_mode: host
     restart: unless-stopped
     depends_on:
@@ -24,7 +24,7 @@ services:
       - ./config:/config
   
   omnibus-ws-bridge:
-    image: ghcr.io/waterloo-rocketry/omnibus-ws-bridge@sha256:c20218eda368626e2be25eb6d4608ee69205ff63e12e3de31aeddcc127ec7fcc
+    image: "{{ omnibus_ws_bridge_image }}"
     network_mode: host
     restart: unless-stopped
     depends_on:
@@ -32,14 +32,14 @@ services:
       - omnibus-ws-server
 
   omnibus-ws-server:
-    image: ghcr.io/waterloo-rocketry/omnibus-ws-server@sha256:b43dff41c05fc83e85694dfef9e3e5a8a3d28a0ab90db31fe08c1d3fee127acf
+    image: "{{ omnibus_ws_server_image }}"
     network_mode: host
     restart: unless-stopped
     depends_on:
       - omnibus-server
 
   daqms:
-    image: ghcr.io/waterloo-rocketry/omnibus-daqms@sha256:433a4c4ea0bddd2d25fba356a3f2bb89c38214ef159190182886d061af331646
+    image: "{{ omnibus_daqms_image }}"
     restart: unless-stopped
     depends_on:
       - omnibus-server
@@ -48,7 +48,7 @@ services:
 
   # /dev/serial/by-path/platform-xhci-hcd.0-usb-0:1.1:1.0 is the Injector CAN support board, USB Port 1 on hub
   parsley-source-injector:
-    image: ghcr.io/waterloo-rocketry/omnibus-source-parsley@sha256:1c1fde8bfa0a576516e8b5eebb0b8d6aa81c2e184afdb6602ea3d9c707f61674
+    image: "{{ omnibus_parsley_image }}"
     restart: unless-stopped
     depends_on:
       - omnibus-server
@@ -61,7 +61,7 @@ services:
 
   # /dev/serial/by-path/platform-xhci-hcd.0-usb-0:1.2:1.0 is the Upper CAN support board, USB Port 2 on hub
   parsley-source-upper:
-    image: ghcr.io/waterloo-rocketry/omnibus-source-parsley@sha256:1c1fde8bfa0a576516e8b5eebb0b8d6aa81c2e184afdb6602ea3d9c707f61674
+    image: "{{ omnibus_parsley_image }}"
     restart: unless-stopped
     depends_on:
       - omnibus-server

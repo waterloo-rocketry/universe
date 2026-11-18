@@ -1,0 +1,42 @@
+{
+  "name": "@waterloo-rocketry/data-studio",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Offline log exploration desktop scaffold",
+  "author": "Waterloo Rocketry",
+  "license": "UNLICENSED",
+  "main": "dist/electron/main.js",
+  "packageManager": "pnpm@12.18.0",
+  "engines": {
+    "node": ">=24.13.0 <27",
+    "pnpm": "12.18.0"
+  },
+  "scripts": {
+    "dev": "pnpm build:go && pnpm build:electron && node scripts/dev.mjs",
+    "build:go": "node scripts/go.mjs build",
+    "build:electron": "tsc -p tsconfig.electron.json",
+    "build": "pnpm typecheck && pnpm build:go && pnpm build:electron && vite build",
+    "typecheck": "tsc --noEmit && tsc -p tsconfig.electron.json --noEmit && node scripts/go.mjs vet",
+    "format": "prettier --write . && node scripts/go.mjs format",
+    "format:check": "prettier --check . && node scripts/go.mjs format:check",
+    "test": "node scripts/go.mjs test && pnpm build:go && vitest run",
+    "check": "pnpm typecheck && pnpm format:check && pnpm test",
+    "package": "pnpm build && electron-builder --publish never",
+    "setup:desktop": "install-electron"
+  },
+  "dependencies": {
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "24.19.2",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "electron": "45.2.3",
+    "electron-builder": "26.18.0",
+    "prettier": "3.9.10",
+    "typescript": "5.9.3",
+    "vite": "8.3.6",
+    "vitest": "5.1.0"
+  }
+}

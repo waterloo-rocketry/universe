@@ -1,0 +1,47 @@
+# On-card format for the SD card log tool.
+#
+# PLACEHOLDERS: firmware has not fixed header_id, the CRC variant, or the data
+# type numbers yet. Change them here (or pass --config with your own copy);
+# no code changes are needed.
+
+# Every chunk occupies one slot of this many bytes. The payload is what is left
+# after the 4-byte header ID, 2-byte file ID, 4-byte segment counter and
+# 2-byte CRC footer (32768 - 12 = 32756 bytes).
+chunk_size = 32768
+
+# Byte order of the multi-byte header fields and the CRC footer.
+byte_order = "little"
+
+# Marks a slot as a log chunk. PLACEHOLDER.
+header_id = 0x534C4F47
+
+# The 16-bit file ID packs a startup counter and a data type.
+counter_bits = 13
+type_bits = 3
+# "high": the counter is in the top 13 bits and the type in the bottom 3.
+counter_position = "high"
+
+# Name of each exported file. {counter} is the startup counter and
+# {extension} comes from the [types] table below.
+filename = "{counter:05d}.{extension}"
+
+# A slot counts as unused when its first empty_check_bytes bytes are all zero.
+# 32768 matches "format zeroes the whole card"; set 512 if formatting only
+# clears the start of each slot.
+empty_check_bytes = 32768
+
+[crc]
+# PLACEHOLDER: CRC-16/CCITT-FALSE until firmware picks a standard.
+poly = 0x1021
+init = 0xFFFF
+reflect_in = false
+reflect_out = false
+xor_out = 0x0000
+# "chunk": header + payload (everything before the footer). "data": payload only.
+covers = "chunk"
+
+# Data type number -> exported file extension. PLACEHOLDER numbers.
+[types]
+0 = "BIN"  # Data
+1 = "ERR"  # Error
+2 = "TXT"  # Text

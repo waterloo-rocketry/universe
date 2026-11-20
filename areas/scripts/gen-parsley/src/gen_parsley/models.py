@@ -71,3 +71,26 @@ class RocketCAN:
     messages: list[Message]
     enums: list[Enum]
     bitfields: list[Bitfield]
+
+    def get_bitfield(self, name: str) -> Bitfield:
+        bitfield = next(
+            (b for b in self.bitfields if b.name == name), None
+        )
+        if bitfield is None:
+            raise ValueError(f"Cannot find bitfield with name {name}")
+        return bitfield
+
+    def get_enum(self, name: str) -> Enum:
+        enum = next(
+            (e for e in self.enums if e.name == name), None
+        )
+        if enum is None:
+            raise ValueError(f"Cannot find enum with name {name}")
+        return enum
+
+    def get_message_field(self, ref: str) -> Field:
+        ref_source = next((f for f in self.message_fields if f.id == ref), None)
+        if ref_source is None:
+            raise ValueError(f"Cannot find message_field with id {ref}")
+        return ref_source
+

@@ -117,11 +117,7 @@ def _resolve_ref(field: Field | RefField, data: RocketCAN) -> Field:
     if isinstance(field, Field):
         return field
     elif isinstance(field, RefField):
-        # TODO: maybe parse RocketCAN to have message_fields as dict
-        ref_source = next((f for f in data.message_fields if f.id == field.ref), None)
-        if ref_source is None:
-            raise ValueError(f"Cannot find message_field with id {field.ref}")
-        return ref_source
+        return data.get_message_field(field.ref)
     raise TypeError(f"Expected Field or RefField, got {type(field)}")
 
 
@@ -134,19 +130,15 @@ def _field(field: Field | RefField, data: RocketCAN) -> str:
                 return f"new ASCII('{name}', {field.bytes})"
             case "bitfield":
                 assert isinstance(field.bytes, int)
-                bitfield = next(
-                    (b for b in data.bitfields if b.name == field.bitfield), None
-                )
-                if bitfield is None:
-                    raise ValueError(f"Cannot find bitfield with id {field.bitfield}")
+                assert isinstance(field.bitfield, str)
+                bitfield = data.get_bitfield(field.bitfield)
                 # TODO: assuming default bitfield string is *_NOMINAL
                 bitfield_default = f"{bitfield.prefix}_NOMINAL"
                 return f"new Bitfield('{name}', {field.bytes * 8}, '{bitfield_default}', {field.bitfield}_offset)"
             case "enum":
                 assert isinstance(field.bytes, int)
-                enum = next((e for e in data.enums if e.name == field.enum), None)
-                if enum is None:
-                    raise ValueError(f"Cannot find enum with id {field.enum}")
+                assert isinstance(field.enum, str)
+                data.get_enum(field.enum)  # verify it exists, value is not used
                 return f"new Enum('{name}', {field.bytes * 8}, {field.enum})"
             case "int":
                 assert isinstance(field.bytes, int)

@@ -17,12 +17,12 @@ type Link interface {
 
 // NamedSample is one decoded reading, already named.
 type NamedSample struct {
-	DeviceID  string // "injector-rocket", "ox-injector-valve"
-	ChannelID string // "pt-channel-1", "state"
-	Value     Value
+	DeviceID   string // "injector-rocket", "ox-injector-valve"
+	ChannelID  string // "pt-channel-1", "state"
+	Value      Value
 	ReceivedAt float64 // when the laptop got the frame (unix seconds)
-	BoardMs    uint16 // the board's raw clock, untouched. Analysis only, it wraps every 65.5 s
-	FrameSeq   uint64 // counts every frame that splits OK; used to confirm commands
+	BoardMs    uint16  // the board's raw clock, untouched. Analysis only, it wraps every 65.5 s
+	FrameSeq   uint64  // counts every frame that splits OK; used to confirm commands
 }
 
 // RawFrame is a frame exactly as received, for the CAN log view.
@@ -62,23 +62,26 @@ type ChannelDef struct {
 	StaleAfterMs        uint32
 }
 
-// Sink is where the bridge puts everything it makes. The console sink prints
-// it, the converter hands it to Orion core, and tests record it.
+// Sink is where the bridge puts everything it makes. The console sink prints and the converter hands it to Orion core, and tests record it.
 type Sink interface {
 	Frame(raw RawFrame, samples []NamedSample, droppedBefore uint32) error
 	Catalog(newChannels []ChannelDef) error
 	Health(h Health) error
 }
 
-// SendRequest is what core asks the bridge to write. Exactly one of Command,
-// RawMsg or RawBytes is set.
+// SendRequest is what core asks the bridge to write.
 type SendRequest struct {
 	RequestID string
 	Deadline  time.Time // set by core from the command's remaining time
-	Command   *GenericCommand
-	RawMsg    *RawMessageForm
-	RawBytes  *RawBytes
+	Body      SendBody  // *GenericCommand, *RawMessageForm or *RawBytes
 }
+
+// SendBody is one of the three kinds of thing the bridge can send
+type SendBody interface{ isSendBody() }
+
+func (*GenericCommand) isSendBody() {}
+func (*RawMessageForm) isSendBody() {}
+func (*RawBytes) isSendBody()       {}
 
 // GenericCommand is a catalog command, e.g. set-state ON on ox-injector-valve.
 type GenericCommand struct {
@@ -90,11 +93,10 @@ type GenericCommand struct {
 
 // RawMessageForm is a message from the CAN sender, encoded by the bridge.
 type RawMessageForm struct {
-	MsgType  string
-	Metadata Value
-	Fields   map[string]Value
-	// "" means the source's default (tx_board, tx_prio)
-	BoardType, BoardInst, Prio string
+	MsgType                    string
+	Metadata                   Value
+	Fields                     map[string]Value
+	BoardType, BoardInst, Prio string // "" means the source's default (tx_board, tx_prio)
 }
 
 // RawBytes is an exact frame, for sending odd frames on purpose.
@@ -115,13 +117,9 @@ const (
 
 // SendResult is what goes back to core.
 type SendResult struct {
-	RequestID string
-	State     SendState
-	Reason    string
-	// SeqAtWrite is the frame counter right after the write. Only frames after
-	// it can confirm the command.
-	SeqAtWrite uint64
-	// SettleAfterSeq is the first frame at least confirm_settle_ms after the
-	// write (0 means not yet).
-	SettleAfterSeq uint64
+	RequestID      string
+	State          SendState
+	Reason         string
+	SeqAtWrite     uint64 // The frame counter right after the write. Only frames after it can confirm the command.
+	SettleAfterSeq uint64 // Only status frames after this one can confirm the command, so an old status can't
 }

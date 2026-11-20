@@ -41,17 +41,17 @@ export interface MessageSchema<
 }
 
 // overloads for defineMessage because metadataField is optional.
-// protects against specifying an M that does not match the default $msg_metadata_field
+// protects against specifying an M that does not match the default $name_MESSAGE_METADATA
 export function defineMessage<const F extends readonly Field[]>(
     fields: F,
-): MessageSchema<F, typeof $msg_metadata_field>
+): MessageSchema<F, typeof $name_MESSAGE_METADATA>
 export function defineMessage<const F extends readonly Field[], M extends Field>(
     fields: F,
     metadataField: M,
 ): MessageSchema<F, M>
 export function defineMessage(
     fields: readonly Field[],
-    metadataField: Field = $msg_metadata_field,
+    metadataField: Field = $name_MESSAGE_METADATA,
 ): MessageSchema {
     return { fields, metadataField }
 }
@@ -97,10 +97,10 @@ export type MessageMetadata<K extends MessageSchemaKey> =
 // one parsed message of type K
 type ParsleyMessageEntry<K extends MessageSchemaKey> = {
     // msg_prio, board_type_id, board_inst_id are a hex code when given unknown enum value
-    msg_prio: keyof typeof msg_prio | (string & {})
+    msg_prio: keyof typeof $name_msg_prio | (string & {})
     msg_type: K
-    board_type_id: keyof typeof board_type_id | (string & {})
-    board_inst_id: keyof typeof board_inst_id | (string & {})
+    board_type_id: keyof typeof $name_board_type_id | (string & {})
+    board_inst_id: keyof typeof $name_board_inst_id | (string & {})
     msg_metadata: MessageMetadata<K>
     data: MessagePayload<K>
 }
@@ -168,10 +168,18 @@ def _field(field: Field | RefField, data: RocketCAN) -> str:
 
 
 def render(data: RocketCAN) -> str:
+    # named identifiers in the generated code
+    names: dict[str, str] = {}
+
     msg_types = ["msg_type"]
     msg_types.extend(enum.name for enum in data.enums)
     msg_types.extend(f"{bitfield.name}_offset" for bitfield in data.bitfields)
     import_msg_types = "\n".join(f"    {name}," for name in msg_types)
+
+    # TODO: these are hardcoded, see if there is some smart way to get these from message types
+    names["msg_prio"] = "prio"
+    names["board_type_id"] = "board_type"
+    names["board_inst_id"] = "board_inst"
 
     sid_field_defs = []
     for field in data.sid.fields:
@@ -192,7 +200,7 @@ export const MESSAGE_SID_LEN =
 {sid_len_sum}"""
 
     # HACK: assuming last SID field is metadata
-    msg_metadata_field = data.sid.fields[-1].name.upper()
+    names["MESSAGE_METADATA"] = data.sid.fields[-1].name.upper()
 
     # HACK: currently hard-coding timestamp field because RocketCAN has no config for Numeric scale
     msg_shared_fields = """\
@@ -232,8 +240,8 @@ export const MSG_FIELD_TIMESTAMP = new Numeric('time', 16, 1 / 1000, false, true
     return _FILE.substitute(
         imports_msg_types=import_msg_types,
         sid_fields=sid_fields,
-        msg_metadata_field=msg_metadata_field,
         msg_fields=msg_shared_fields,
         msg_definitions="\n\n".join(msg_defs),
         msg_name_list="\n".join(msg_name_list),
+        **{f"name_{key}": name for key, name in names.items()},
     )

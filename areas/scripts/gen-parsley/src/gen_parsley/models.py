@@ -31,13 +31,13 @@ class Field(ConfigItem):
 
 @dataclass(frozen=True, kw_only=True)
 class RefField:
-    ref: str | None = None
+    ref: str
 
 
 @dataclass(frozen=True, kw_only=True)
 class Message(ConfigItem):
     id: int
-    metadata: list[Field] = field(default_factory=list)
+    metadata: list[Field | RefField] = field(default_factory=list)
     field: list[Field | RefField] = field(default_factory=list)
 
 

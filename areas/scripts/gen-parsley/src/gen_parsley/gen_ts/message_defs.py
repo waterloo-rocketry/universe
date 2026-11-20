@@ -143,18 +143,18 @@ def _field(field: Field | RefField, data: RocketCAN) -> str:
                 bitfield_default = f"{bitfield.prefix}_NOMINAL"
                 return f"new Bitfield('{name}', {field.bytes * 8}, '{bitfield_default}', {field.bitfield}_offset)"
             case "enum":
+                assert isinstance(field.bytes, int)
                 enum = next((e for e in data.enums if e.name == field.enum), None)
                 if enum is None:
                     raise ValueError(f"Cannot find enum with id {field.enum}")
-                byte_size = field.bytes or 1  # HACK: some Fields don't define bytes
-                return f"new Enum('{name}', {byte_size * 8}, {field.enum})"
+                return f"new Enum('{name}', {field.bytes * 8}, {field.enum})"
             case "int":
                 assert isinstance(field.bytes, int)
                 return f"new Numeric('{name}', {field.bytes * 8}, 1, true)"
             case "uint":
+                assert isinstance(field.bytes, int)
                 # TODO: TIMESTAMP_2 requiers the `scale` ctor parameter
-                byte_size = field.bytes or 1  # HACK: some Fields don't define bytes
-                return f"new Numeric('{name}', {byte_size * 8}, 1, false)"
+                return f"new Numeric('{name}', {field.bytes * 8}, 1, false)"
             case "raw":
                 return f"new ASCII('{name}', {field.bytes})"
             case _:
@@ -223,7 +223,7 @@ export const MSG_FIELD_TIMESTAMP = new Numeric('time', 16, 1 / 1000, false, true
                 is_unused = meta_field.name == "UNUSED"
 
             if not is_unused:
-                metadata = ", " + _field(message.metadata[0], data)
+                metadata = ", " + _field(meta_field, data)
 
         msg_defs.append(
             f"export const {message.name} = defineMessage([{msg_fields}]{metadata})"

@@ -1,3 +1,4 @@
+from dataclasses import replace
 from string import Template
 
 from gen_parsley.models import Field, RefField, RocketCAN
@@ -40,17 +41,17 @@ export interface MessageSchema<
 }
 
 // overloads for defineMessage because metadataField is optional.
-// protects against specifying an M that does not match the default MESSAGE_METADATA
+// protects against specifying an M that does not match the default $msg_metadata_field
 export function defineMessage<const F extends readonly Field[]>(
     fields: F,
-): MessageSchema<F, typeof MESSAGE_METADATA>
+): MessageSchema<F, typeof $msg_metadata_field>
 export function defineMessage<const F extends readonly Field[], M extends Field>(
     fields: F,
     metadataField: M,
 ): MessageSchema<F, M>
 export function defineMessage(
     fields: readonly Field[],
-    metadataField: Field = MESSAGE_METADATA,
+    metadataField: Field = $msg_metadata_field,
 ): MessageSchema {
     return { fields, metadataField }
 }
@@ -72,7 +73,7 @@ export function decodeMessage<F extends readonly Field[]>(
     return data as PayloadOf<F>
 }
 
-// One schema per msg_type (24 total: UNDEFINED + 23 real types)
+// One schema per msg_type
 
 $msg_definitions
 
@@ -133,7 +134,14 @@ def _field(field: Field | RefField, data: RocketCAN) -> str:
                 return f"new ASCII('{name}', {field.bytes})"
             case "bitfield":
                 assert isinstance(field.bytes, int)
-                return f"new Bitfield('{name}', {field.bytes * 8}, {'E_NOMINAL'}, {field.bitfield}_offset)"
+                bitfield = next(
+                    (b for b in data.bitfields if b.name == field.bitfield), None
+                )
+                if bitfield is None:
+                    raise ValueError(f"Cannot find bitfield with id {field.bitfield}")
+                # TODO: assuming default bitfield string is *_NOMINAL
+                bitfield_default = f"{bitfield.prefix}_NOMINAL"
+                return f"new Bitfield('{name}', {field.bytes * 8}, '{bitfield_default}', {field.bitfield}_offset)"
             case "enum":
                 enum = next((e for e in data.enums if e.name == field.enum), None)
                 if enum is None:
@@ -154,7 +162,7 @@ def _field(field: Field | RefField, data: RocketCAN) -> str:
                     f"Cannot convert Field of type {field.type} (field {field.name})"
                 )
     elif isinstance(field, RefField):
-        return f"MSG_FIELD_{field.ref}"
+        return f"MSG_FIELD_{field.ref.upper()}"
 
     raise TypeError(f"Expected Field or RefField, got {type(field)}")
 
@@ -165,18 +173,26 @@ def render(data: RocketCAN) -> str:
     msg_types.extend(f"{bitfield.name}_offset" for bitfield in data.bitfields)
     import_msg_types = "\n".join(f"    {name}," for name in msg_types)
 
-    # TODO: message_type, metadata are not Enum fields
-    sid_field_defs = "\n".join(
-        f"export const {field.name.upper()} = "
-        f"new Enum('{field.name}', {field.bits}, {field.enum})"
-        for field in data.sid.fields
+    sid_field_defs = []
+    for field in data.sid.fields:
+        sid_field_def = f"export const {field.name.upper()} = "
+        if field.enum is None:
+            # one-byte placeholder when enum type not given
+            sid_field_def += f"new Numeric('{field.name}', 8)"
+        else:
+            # TODO: message_type is not hooked up to msg_types in rocketcan.yaml
+            sid_field_def += f"new Enum('{field.name}', {field.bits}, {field.enum})"
+        sid_field_defs.append(sid_field_def)
+    sid_len_sum = " +\n".join(
+        f"    {field.name.upper()}.length" for field in data.sid.fields
     )
-    sid_len_sum = "\n".join(f"    {field.name.upper()} +" for field in data.sid.fields)
     sid_fields = f"""\
-{sid_field_defs}
+{"\n".join(sid_field_defs)}
 export const MESSAGE_SID_LEN =
-{sid_len_sum}
-"""
+{sid_len_sum}"""
+
+    # HACK: assuming last SID field is metadata
+    msg_metadata_field = data.sid.fields[-1].name.upper()
 
     # HACK: currently hard-coding timestamp field because RocketCAN has no config for Numeric scale
     msg_shared_fields = """\
@@ -188,9 +204,7 @@ export const MSG_FIELD_TIMESTAMP = new Numeric('time', 16, 1 / 1000, false, true
     for message in data.messages:
         msg_name_list.append(f"    {message.name},")
 
-        msg_fields = "\n".join(
-            f"    {_field(_resolve_ref(field, data), data)}," for field in message.field
-        )
+        msg_fields = "\n".join(f"    {_field(field, data)}," for field in message.field)
         if msg_fields:
             msg_fields = f"\n{msg_fields}\n"
 
@@ -200,16 +214,25 @@ export const MSG_FIELD_TIMESTAMP = new Numeric('time', 16, 1 / 1000, false, true
                 raise ValueError(
                     "parsley-ts only supports one metadata field in Messages"
                 )
-            if message.metadata[0].name != "UNUSED":
+            meta_field = message.metadata[0]
+            is_unused = False
+            if isinstance(meta_field, Field):
+                if meta_field.bytes is None:
+                    # metadata size is 1 byte if not given
+                    meta_field = replace(meta_field, bytes=1)
+                is_unused = meta_field.name == "UNUSED"
+
+            if not is_unused:
                 metadata = ", " + _field(message.metadata[0], data)
 
         msg_defs.append(
-            f" export const {message.name} = defineMessage([{msg_fields}]{metadata})"
+            f"export const {message.name} = defineMessage([{msg_fields}]{metadata})"
         )
 
     return _FILE.substitute(
         imports_msg_types=import_msg_types,
         sid_fields=sid_fields,
+        msg_metadata_field=msg_metadata_field,
         msg_fields=msg_shared_fields,
         msg_definitions="\n\n".join(msg_defs),
         msg_name_list="\n".join(msg_name_list),

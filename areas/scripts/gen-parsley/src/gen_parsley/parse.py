@@ -29,7 +29,9 @@ def _convert(cls: type, value, where: str = "root"):
         return None
     elif origin is Literal:
         if value not in get_args(cls):
-            raise RocketCANError(where, f"expected one of {get_args(cls)}, got {value!r}")
+            raise RocketCANError(
+                where, f"expected one of {get_args(cls)}, got {value!r}"
+            )
         return value
     elif origin is Union:
         errors = []
@@ -74,7 +76,7 @@ def _from_dict(cls: type, data, where: str = "root"):
     if not isinstance(data, dict):
         raise RocketCANError(where, f"expected a mapping, got {type(data).__name__}")
     hints = get_type_hints(cls)
-    kwargs = {}
+    kwargs = {"yaml_path": where}
     accepted = set()
     for f in fields(cls):
         underscored = f.name

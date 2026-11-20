@@ -1,6 +1,7 @@
 from dataclasses import replace
 from string import Template
 
+from gen_parsley.errors import RocketCANError
 from gen_parsley.models import Field, RefField, RocketCAN
 
 _FILE = Template("""\
@@ -117,7 +118,7 @@ def _resolve_ref(field: Field | RefField, data: RocketCAN) -> Field:
     if isinstance(field, Field):
         return field
     elif isinstance(field, RefField):
-        return data.get_message_field(field.ref)
+        return data.get_message_field(field.ref, where=f"{field.ref}.ref")
     raise TypeError(f"Expected Field or RefField, got {type(field)}")
 
 
@@ -131,14 +132,14 @@ def _field(field: Field | RefField, data: RocketCAN) -> str:
             case "bitfield":
                 assert isinstance(field.bytes, int)
                 assert isinstance(field.bitfield, str)
-                bitfield = data.get_bitfield(field.bitfield)
+                bitfield = data.get_bitfield(field.bitfield, where=f"{field.yaml_path}.bitfield")
                 # TODO: assuming default bitfield string is *_NOMINAL
                 bitfield_default = f"{bitfield.prefix}_NOMINAL"
                 return f"new Bitfield('{name}', {field.bytes * 8}, '{bitfield_default}', {field.bitfield}_offset)"
             case "enum":
                 assert isinstance(field.bytes, int)
                 assert isinstance(field.enum, str)
-                data.get_enum(field.enum)  # verify it exists, value is not used
+                data.get_enum(field.enum, where=f"{field.yaml_path}.enum")  # verify it exists, value is not used
                 return f"new Enum('{name}', {field.bytes * 8}, {field.enum})"
             case "int":
                 assert isinstance(field.bytes, int)
@@ -150,8 +151,9 @@ def _field(field: Field | RefField, data: RocketCAN) -> str:
             case "raw":
                 return f"new ASCII('{name}', {field.bytes})"
             case _:
-                raise ValueError(
-                    f"Cannot convert Field of type {field.type} (field {field.name})"
+                raise RocketCANError(
+                    f"{field.yaml_path}.type",
+                    f"Cannot convert Field of type {field.type} (field {field.name})",
                 )
     elif isinstance(field, RefField):
         return f"MSG_FIELD_{field.ref.upper()}"
@@ -211,7 +213,8 @@ export const MSG_FIELD_TIMESTAMP = new Numeric('time', 16, 1 / 1000, false, true
         metadata = ""
         if message.metadata:
             if len(message.metadata) != 1:
-                raise ValueError(
+                raise RocketCANError(
+                    f"{message.yaml_path}.metadata",
                     "parsley-ts only supports one metadata field in Messages"
                 )
             meta_field = message.metadata[0]

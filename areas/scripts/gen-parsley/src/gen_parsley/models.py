@@ -23,7 +23,7 @@ class SID:
 class Field(ConfigItem):
     id: str | None = None
     bytes: int | None = None
-    type: Literal["uint", "enum", "raw", "ascii", "int", "bitfield"]
+    type: Literal["ascii", "bitfield", "enum", "int", "uint", "raw"]
     unit: str | None = None
     bitfield: str | None = None
     enum: str | None = None

@@ -1,0 +1,30 @@
+name: CI
+
+# Runs on pull requests that change orion (it lives at areas/apps/orion in the
+# universe monorepo)
+on:
+  pull_request:
+    paths: ["areas/apps/orion/**"]
+
+defaults:
+  run:
+    working-directory: areas/apps/orion
+
+jobs:
+  build:
+    name: Build and test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: areas/apps/orion/go.mod # uses the pinned toolchain
+          cache: false
+      - name: Check formatting
+        run: test -z "$(gofmt -l .)"
+      - name: Vet
+        run: go vet ./...
+      - name: Build
+        run: go build ./...
+      - name: Test
+        run: go test ./...

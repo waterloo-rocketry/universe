@@ -1,4 +1,5 @@
-// Orion is the ground server that replaces Omnibus. Just a skeleton for now.
+// Command orion is the ground server that replaces Omnibus. Just a skeleton
+// for now.
 package main
 
 import "fmt"

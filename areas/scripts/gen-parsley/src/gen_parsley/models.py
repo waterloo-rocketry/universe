@@ -1,9 +1,18 @@
 from dataclasses import dataclass, field
 from typing import Literal
 
+from gen_parsley.errors import RocketCANError
+
 
 @dataclass(frozen=True, kw_only=True)
-class ConfigItem:
+class YAMLObject:
+    """base class for all yaml-derived models, with path info"""
+
+    yaml_path: str | None = None
+
+
+@dataclass(frozen=True, kw_only=True)
+class ConfigItem(YAMLObject):
     name: str
     desc: str = ""
 
@@ -15,7 +24,7 @@ class SIDField(ConfigItem):
 
 
 @dataclass(frozen=True, kw_only=True)
-class SID:
+class SID(YAMLObject):
     fields: list[SIDField] = field(default_factory=list)
 
 
@@ -30,7 +39,7 @@ class Field(ConfigItem):
 
 
 @dataclass(frozen=True, kw_only=True)
-class RefField:
+class RefField(YAMLObject):
     ref: str
 
 
@@ -65,32 +74,27 @@ class Bitfield(ConfigItem):
 
 
 @dataclass(frozen=True, kw_only=True)
-class RocketCAN:
+class RocketCAN(YAMLObject):
     sid: SID
     message_fields: list[Field]
     messages: list[Message]
     enums: list[Enum]
     bitfields: list[Bitfield]
 
-    def get_bitfield(self, name: str) -> Bitfield:
-        bitfield = next(
-            (b for b in self.bitfields if b.name == name), None
-        )
+    def get_bitfield(self, name: str, where: str | None = None) -> Bitfield:
+        bitfield = next((b for b in self.bitfields if b.name == name), None)
         if bitfield is None:
-            raise ValueError(f"Cannot find bitfield with name {name}")
+            raise RocketCANError(where, f"Cannot find bitfield with name {name}")
         return bitfield
 
-    def get_enum(self, name: str) -> Enum:
-        enum = next(
-            (e for e in self.enums if e.name == name), None
-        )
+    def get_enum(self, name: str, where: str | None = None) -> Enum:
+        enum = next((e for e in self.enums if e.name == name), None)
         if enum is None:
-            raise ValueError(f"Cannot find enum with name {name}")
+            raise RocketCANError(where, f"Cannot find enum with name {name}")
         return enum
 
-    def get_message_field(self, ref: str) -> Field:
+    def get_message_field(self, ref: str, where: str | None = None) -> Field:
         ref_source = next((f for f in self.message_fields if f.id == ref), None)
         if ref_source is None:
-            raise ValueError(f"Cannot find message_field with id {ref}")
+            raise RocketCANError(where, f"Cannot find message_field with id {ref}")
         return ref_source
-

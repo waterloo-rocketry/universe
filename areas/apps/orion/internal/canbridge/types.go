@@ -1,6 +1,3 @@
-// Package canbridge is the part of Orion that talks to CAN hardware. One
-// bridge per connection: it reads bytes, decodes them with Parsley-go, names
-// them as Orion channels, and writes commands back out.
 package canbridge
 
 import (
@@ -8,12 +5,10 @@ import (
 	"time"
 )
 
-// Value is one decoded value. It becomes parsley.Value once Parsley-go's
-// shared types land.
+// Value is one decoded value. Will becomes parsley.Value once Parsley-go's are done shared types land.
 type Value = any
 
-// Link is where the bridge reads bytes from and writes bytes to: a serial
-// port, a mock's port or a replay file. It knows nothing about CAN.
+// Link is where the bridge reads bytes from and writes bytes to.
 type Link interface {
 	Read(ctx context.Context, buf []byte) (int, error)
 	Write(ctx context.Context, b []byte) error // must give up by ctx's deadline
@@ -25,9 +20,7 @@ type NamedSample struct {
 	DeviceID  string // "injector-rocket", "ox-injector-valve"
 	ChannelID string // "pt-channel-1", "state"
 	Value     Value
-	// ReceivedAt is when the laptop got the frame (unix seconds). Everything
-	// live uses this time.
-	ReceivedAt float64
+	ReceivedAt float64 // when the laptop got the frame (unix seconds)
 	BoardMs    uint16 // the board's raw clock, untouched. Analysis only, it wraps every 65.5 s
 	FrameSeq   uint64 // counts every frame that splits OK; used to confirm commands
 }
@@ -38,10 +31,10 @@ type RawFrame struct {
 	ReceivedAt  float64
 	SID         uint32
 	Data        []byte
-	DecodedText string // FormatLine, or "" if it didn't decode
+	DecodedText string
 }
 
-// LinkState says whether the hardware connection itself is open.
+// LinkState says if hardware connection itself is open.
 type LinkState string
 
 const (
@@ -60,11 +53,11 @@ type Health struct {
 	Counters   map[string]uint64
 }
 
-// ChannelDef is a channel the bridge found, for the catalog.
+// ChannelDef is a channel the bridge found, for the catalog
 type ChannelDef struct {
 	DeviceID, ChannelID string
 	Type                string // NUMBER, ENUM, TEXT
-	Unit                string // "counts" for CAN numbers until scaling exists
+	Unit                string // "counts" for CAN numbers (raw, unscaled)
 	EnumValues          []string
 	StaleAfterMs        uint32
 }

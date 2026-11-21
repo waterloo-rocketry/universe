@@ -4,9 +4,7 @@ from __future__ import annotations
 
 import argparse
 import sys
-from importlib import resources
-
-from .config import ConfigError, load_config
+from .config import ConfigError, default_format_text, load_config
 from .export import export
 
 
@@ -21,29 +19,28 @@ def main(argv: list[str] | None = None) -> int:
     export_cmd.add_argument("image", help="card image file to read")
     export_cmd.add_argument("out_dir", help="folder to write the files into")
     export_cmd.add_argument(
-        "--config", help="format config TOML (default: built-in placeholders)")
+        "--format", help="format YAML file (default: built-in placeholders)")
     export_cmd.add_argument(
         "--overwrite", action="store_true",
         help="replace output files that already exist")
 
     commands.add_parser(
-        "default-config", help="print the built-in format config")
+        "default-format", help="print the built-in format file")
 
     args = parser.parse_args(argv)
-    if args.command == "default-config":
-        print(resources.files("sd_card_tool").joinpath(
-            "default_config.toml").read_text(encoding="utf-8"), end="")
+    if args.command == "default-format":
+        print(default_format_text(), end="")
         return 0
     return _export(args)
 
 
 def _export(args: argparse.Namespace) -> int:
     try:
-        config = load_config(args.config)
+        config = load_config(args.format)
         with open(args.image, "rb") as card:
             result, files = export(
                 card, config, args.out_dir, overwrite=args.overwrite)
-    except (ConfigError, OSError) as error:
+    except (ConfigError, OSError, ValueError) as error:
         print(f"error: {error}", file=sys.stderr)
         return 1
 
@@ -54,6 +51,9 @@ def _export(args: argparse.Namespace) -> int:
     for location in result.duplicates:
         print(f"  slot {location.slot} skipped: duplicate of segment "
               f"{location.segment}")
+    for wrap in result.wraps:
+        print(f"  slot {wrap.slot}: startup counter went from {wrap.previous} "
+              f"to {wrap.counter}; treating it as a wrap")
     if result.trailing_bytes:
         print(f"  ignored {result.trailing_bytes} bytes after the last "
               f"whole slot")

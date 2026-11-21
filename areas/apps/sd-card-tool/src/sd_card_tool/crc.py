@@ -3,13 +3,40 @@
 from __future__ import annotations
 
 import binascii
+from dataclasses import dataclass
 from functools import lru_cache
 
-from .config import CrcParams
+
+@dataclass(frozen=True)
+class CrcParams:
+    """A CRC-16 recipe in the usual (Rocksoft) model."""
+    poly: int
+    init: int
+    reflect_in: bool
+    reflect_out: bool
+    xor_out: int
+
+    def __post_init__(self) -> None:
+        for name in ("poly", "init", "xor_out"):
+            if not 0 <= getattr(self, name) <= 0xFFFF:
+                raise ValueError(f"crc.{name} must fit in 16 bits")
+
+
+# Named algorithms from the CRC catalogue (reveng.sourceforge.io).
+ALGORITHMS: dict[str, CrcParams] = {
+    "CRC-16/CCITT-FALSE": CrcParams(0x1021, 0xFFFF, False, False, 0x0000),
+    "CRC-16/XMODEM": CrcParams(0x1021, 0x0000, False, False, 0x0000),
+    "CRC-16/KERMIT": CrcParams(0x1021, 0x0000, True, True, 0x0000),
+    "CRC-16/X-25": CrcParams(0x1021, 0xFFFF, True, True, 0xFFFF),
+    "CRC-16/ARC": CrcParams(0x8005, 0x0000, True, True, 0x0000),
+    "CRC-16/MODBUS": CrcParams(0x8005, 0xFFFF, True, True, 0x0000),
+    "CRC-16/USB": CrcParams(0x8005, 0xFFFF, True, True, 0xFFFF),
+    "CRC-16/UMTS": CrcParams(0x8005, 0x0000, False, False, 0x0000),
+}
 
 
 def crc16(data: bytes, params: CrcParams) -> int:
-    """Compute a CRC-16 with the given parameters (Rocksoft model)."""
+    """Compute a CRC-16 with the given recipe."""
     if params.poly == 0x1021 and not params.reflect_in and not params.reflect_out:
         # The common CCITT family; binascii does it in C, which keeps a full
         # card scan fast.

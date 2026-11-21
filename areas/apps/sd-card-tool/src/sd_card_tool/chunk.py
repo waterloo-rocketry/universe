@@ -1,15 +1,21 @@
-"""Encodes and decodes a single chunk slot."""
+"""Encodes and decodes a single chunk slot, following the format file."""
 
 from __future__ import annotations
 
 from dataclasses import dataclass
 
-from .config import FormatConfig
+from .config import (
+    DATA_TYPE,
+    SEGMENT_COUNTER,
+    STARTUP_COUNTER,
+    Field,
+    FormatConfig,
+)
 from .crc import crc16
 
 
 class ChunkError(ValueError):
-    """A slot is not a valid chunk (wrong header ID or failed CRC)."""
+    """A slot is not a valid chunk (wrong fixed value or failed CRC)."""
 
 
 @dataclass(frozen=True)
@@ -20,65 +26,72 @@ class Chunk:
     data: bytes
 
 
-def pack_file_id(counter: int, data_type: int, config: FormatConfig) -> int:
-    if not 0 <= counter <= config.max_counter:
-        raise ValueError(
-            f"startup counter {counter} does not fit in "
-            f"{config.counter_bits} bits")
-    if not 0 <= data_type <= config.max_type:
-        raise ValueError(
-            f"data type {data_type} does not fit in {config.type_bits} bits")
-    if config.counter_position == "high":
-        return (counter << config.type_bits) | data_type
-    return (data_type << config.counter_bits) | counter
-
-
-def unpack_file_id(file_id: int, config: FormatConfig) -> tuple[int, int]:
-    """Split a file ID into (startup counter, data type)."""
-    if config.counter_position == "high":
-        return file_id >> config.type_bits, file_id & config.max_type
-    return file_id & config.max_counter, file_id >> config.counter_bits
-
-
 def encode_chunk(chunk: Chunk, config: FormatConfig) -> bytes:
     """Build the bytes of one slot. Short payloads are zero-padded."""
     if len(chunk.data) > config.data_size:
         raise ValueError(
             f"payload is {len(chunk.data)} bytes; a chunk holds "
             f"{config.data_size}")
-    if not 0 <= chunk.segment <= 0xFFFFFFFF:
-        raise ValueError("segment counter must fit in 32 bits")
-    order = config.byte_order
+    given = {
+        STARTUP_COUNTER: chunk.counter,
+        DATA_TYPE: chunk.data_type,
+        SEGMENT_COUNTER: chunk.segment,
+    }
+    header = b""
+    for field in config.fields:
+        total = 0
+        for part in config.parts(field):
+            number = given.get(part.name, part.value)
+            if number is None:
+                number = 0  # an extra field the tool does not fill
+            elif part.value is not None and number != part.value:
+                raise ValueError(f"{part.name} must be {part.value}")
+            if not 0 <= number <= part.max:
+                raise ValueError(
+                    f"{part.name} {number} does not fit in {part.bits} bits")
+            total |= number << part.shift
+        header += total.to_bytes(field.size, config.byte_order)
+
     data = chunk.data.ljust(config.data_size, b"\0")
-    body = (
-        config.header_id.to_bytes(4, order)
-        + pack_file_id(chunk.counter, chunk.data_type, config).to_bytes(2, order)
-        + chunk.segment.to_bytes(4, order)
-        + data
-    )
-    crc = crc16(body if config.crc.covers == "chunk" else data, config.crc)
-    return body + crc.to_bytes(2, order)
+    body = header + data
+    crc = crc16(body if config.crc_covers == "header+data" else data,
+                config.crc)
+    return body + crc.to_bytes(config.footer_size, config.byte_order)
+
+
+def read_value(slot: bytes, field: Field, config: FormatConfig) -> int:
+    whole = int.from_bytes(slot[field.offset:field.offset + field.size],
+                           config.byte_order)
+    return (whole >> field.shift) & field.max
 
 
 def decode_chunk(slot: bytes, config: FormatConfig) -> Chunk:
     """Validate and decode one slot. Raises ChunkError if it is not valid."""
-    if len(slot) != config.chunk_size:
+    if len(slot) != config.slot_size:
         raise ChunkError(
-            f"slot is {len(slot)} bytes, expected {config.chunk_size}")
-    order = config.byte_order
-    header_id = int.from_bytes(slot[0:4], order)
-    if header_id != config.header_id:
-        raise ChunkError(f"header ID is {header_id:#010x}")
-    body, footer = slot[:-2], slot[-2:]
-    data = slot[10:-2]
-    expected = crc16(body if config.crc.covers == "chunk" else data, config.crc)
-    actual = int.from_bytes(footer, order)
+            f"slot is {len(slot)} bytes, expected {config.slot_size}")
+    for field in config.values.values():
+        if field.value is None:
+            continue
+        actual = read_value(slot, field, config)
+        if actual != field.value:
+            width = (field.bits + 3) // 4
+            raise ChunkError(
+                f"{field.name} is {actual:#0{width + 2}x}, "
+                f"expected {field.value:#0{width + 2}x}")
+
+    body = slot[:-config.footer_size]
+    data = slot[config.header_size:-config.footer_size]
+    expected = crc16(body if config.crc_covers == "header+data" else data,
+                     config.crc)
+    actual = int.from_bytes(slot[-config.footer_size:], config.byte_order)
     if actual != expected:
         raise ChunkError(f"CRC is {actual:#06x}, expected {expected:#06x}")
-    counter, data_type = unpack_file_id(int.from_bytes(slot[4:6], order), config)
+
+    values = config.values
     return Chunk(
-        counter=counter,
-        data_type=data_type,
-        segment=int.from_bytes(slot[6:10], order),
-        data=data,
+        counter=read_value(slot, values[STARTUP_COUNTER], config),
+        data_type=read_value(slot, values[DATA_TYPE], config),
+        segment=read_value(slot, values[SEGMENT_COUNTER], config),
+        data=bytes(data),
     )

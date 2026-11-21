@@ -21,6 +21,8 @@ class ChunkLocation:
 
 @dataclass
 class FileRecord:
+    # How many times the startup counter had wrapped before this file.
+    generation: int
     counter: int
     data_type: int
     chunks: list[ChunkLocation] = field(default_factory=list)
@@ -37,6 +39,14 @@ class FileRecord:
                 if s not in present]
 
 
+@dataclass(frozen=True)
+class Wrap:
+    """The startup counter went down, so it is treated as having wrapped."""
+    slot: int
+    previous: int
+    counter: int
+
+
 @dataclass
 class ScanResult:
     slots: int = 0
@@ -45,9 +55,10 @@ class ScanResult:
     corrupt: list[tuple[int, str]] = field(default_factory=list)
     # Later copies of a (file, segment) that was already found; first one wins.
     duplicates: list[ChunkLocation] = field(default_factory=list)
+    wraps: list[Wrap] = field(default_factory=list)
     # Bytes at the end of the card that do not fill a whole slot.
     trailing_bytes: int = 0
-    files: dict[tuple[int, int], FileRecord] = field(default_factory=dict)
+    files: dict[tuple[int, int, int], FileRecord] = field(default_factory=dict)
 
     @property
     def valid(self) -> int:
@@ -64,13 +75,19 @@ class ExportedFile:
 def scan(card: BinaryIO, config: FormatConfig) -> ScanResult:
     """Check every slot in address order and record where valid chunks are.
 
-    Payloads are not kept in memory; export() reads them again by slot.
+    Startup counters only go up in card order, so a valid chunk whose counter
+    is lower than the previous valid chunk's means the counter wrapped. Files
+    after a wrap get the next generation, so two startups that share a counter
+    are never merged. Payloads are not kept in memory; export() reads them
+    again by slot.
     """
     result = ScanResult()
-    blank = bytes(config.empty_check_bytes)
-    seen: set[tuple[int, int, int]] = set()
-    files: dict[tuple[int, int], FileRecord] = {}
-    size = config.chunk_size
+    blank = bytes(config.clear_bytes)
+    seen: set[tuple[int, int, int, int]] = set()
+    files: dict[tuple[int, int, int], FileRecord] = {}
+    size = config.slot_size
+    generation = 0
+    previous: int | None = None
 
     while block := card.read(size * SLOTS_PER_READ):
         whole = len(block) - len(block) % size
@@ -80,7 +97,7 @@ def scan(card: BinaryIO, config: FormatConfig) -> ScanResult:
             slot_index = result.slots
             result.slots += 1
             slot = view[start:start + size]
-            if slot[:config.empty_check_bytes] == blank:
+            if slot[:config.clear_bytes] == blank:
                 result.empty += 1
                 continue
             try:
@@ -88,15 +105,21 @@ def scan(card: BinaryIO, config: FormatConfig) -> ScanResult:
             except ChunkError as error:
                 result.corrupt.append((slot_index, str(error)))
                 continue
+
+            if previous is not None and chunk.counter < previous:
+                generation += 1
+                result.wraps.append(Wrap(slot_index, previous, chunk.counter))
+            previous = chunk.counter
+
             location = ChunkLocation(slot_index, chunk.segment)
-            key = (chunk.counter, chunk.data_type, chunk.segment)
+            key = (generation, chunk.counter, chunk.data_type, chunk.segment)
             if key in seen:
                 result.duplicates.append(location)
                 continue
             seen.add(key)
             record = files.setdefault(
-                (chunk.counter, chunk.data_type),
-                FileRecord(chunk.counter, chunk.data_type))
+                key[:3],
+                FileRecord(generation, chunk.counter, chunk.data_type))
             record.chunks.append(location)
         if result.trailing_bytes:
             break
@@ -108,8 +131,11 @@ def scan(card: BinaryIO, config: FormatConfig) -> ScanResult:
 
 
 def output_name(record: FileRecord, config: FormatConfig) -> str:
-    extension = config.types.get(record.data_type, f"TYPE{record.data_type}")
-    return config.filename.format(counter=record.counter, extension=extension)
+    pattern = config.filename if record.generation == 0 \
+        else config.wrapped_filename
+    return pattern.format(counter=record.counter,
+                          ext=config.extension(record.data_type),
+                          generation=record.generation)
 
 
 def export(
@@ -122,15 +148,18 @@ def export(
     """Scan the card, then write each file's payloads in segment order.
 
     The card stream must be seekable. Each chunk's CRC is checked again as it
-    is copied. Existing output files are only replaced
-    when overwrite is True; otherwise FileExistsError is raised before
-    anything is written.
+    is copied. Existing output files are only replaced when overwrite is
+    True; otherwise FileExistsError is raised before anything is written.
     """
     card.seek(0)
     result = scan(card, config)
     out = Path(out_dir)
     targets = [(record, out / output_name(record, config))
                for record in result.files.values()]
+    names = [path.name for _, path in targets]
+    if len(set(names)) != len(names):
+        raise ValueError(
+            "The output filename patterns give two files the same name")
     if not overwrite:
         existing = [str(path) for _, path in targets if path.exists()]
         if existing:
@@ -142,10 +171,10 @@ def export(
     for record, path in targets:
         with path.open("wb") as file:
             for location in record.chunks:
-                card.seek(location.slot * config.chunk_size)
+                card.seek(location.slot * config.slot_size)
                 # Check the CRC again, in case the second read differs.
                 try:
-                    chunk = decode_chunk(card.read(config.chunk_size), config)
+                    chunk = decode_chunk(card.read(config.slot_size), config)
                 except ChunkError as error:
                     raise ChunkError(
                         f"slot {location.slot} changed between reads: "

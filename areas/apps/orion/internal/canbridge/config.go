@@ -2,7 +2,7 @@ package canbridge
 
 type Config struct {
 	Server  Server   `toml:"server"`
-	Parent  *Parent  `toml:"parent"`
+	Parent  *Parent  `toml:"parent"` // if present, Orion instance is a child and never sends commands directly
 	Sources []Source `toml:"source"`
 }
 
@@ -24,8 +24,8 @@ type Source struct {
 	Format              string            `toml:"format"`
 	Baud                *int              `toml:"baud"`
 	Boards              []string          `toml:"boards"`
-	TxBoard             string            `toml:"tx_board"`
-	TxPrio              string            `toml:"tx_prio"`
+	TxBoard             string            `toml:"tx_board"` // board our own commands go out as
+	TxPrio              string            `toml:"tx_prio"`  // priority our own commands go out as
 	DefaultStaleAfterMs *uint32           `toml:"default_stale_after_ms"`
 	StaleAfterMs        map[string]uint32 `toml:"stale_after_ms"`
 	Actuators           []Actuator        `toml:"actuator"`
@@ -34,8 +34,8 @@ type Source struct {
 type Actuator struct {
 	Id              string  `toml:"id"`
 	RocketCAN       string  `toml:"rocketcan"`
-	Critical        bool    `toml:"critical"`
-	Command         bool    `toml:"command"`
+	Critical        bool    `toml:"critical"` // whether this needs the operator to arm first
+	Command         bool    `toml:"command"`  // whether this connection can command it
 	SafeState       string  `toml:"safe_state"`
 	ConfirmSettleMs *uint32 `toml:"confirm_settle_ms"`
 }

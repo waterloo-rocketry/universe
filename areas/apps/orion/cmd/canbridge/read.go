@@ -27,24 +27,38 @@ func (f *LineFramer) ErrorCount() uint64 {
 	return f.errorCount
 }
 
+func (f *LineFramer) AddError() {
+	f.errorCount++
+}
+
 func (f *LineFramer) Feed(chunk []byte) [][]byte {
 	var lines [][]byte
 
 	for _, b := range chunk {
 		if b == '\n' {
-			if f.discardLine {
-				f.discardLine = false
-				f.buffer = nil
-				continue
+			if len(f.buffer) <= maxLine {
+				line := append([]byte{}, f.buffer...)
+				lines = append(lines, line)
+			} else {
+				if !f.discardLine {
+					f.AddError()
+				}
 			}
 
-			line := append([]byte{}, f.buffer...)
-			lines = append(lines, line)
 			f.buffer = nil
+			f.discardLine = false
 			continue
+		} else {
+			if len(f.buffer) < maxLine {
+				f.buffer = append(f.buffer, b)
+			} else {
+				if !f.discardLine {
+					f.discardLine = true
+					f.buffer = append(f.buffer, b)
+					f.AddError()
+				}
+			}
 		}
-
-
 	}
 
 	return lines

@@ -39,3 +39,27 @@ type Actuator struct {
 	SafeState       string  `toml:"safe_state"`
 	ConfirmSettleMs *uint32 `toml:"confirm_settle_ms"`
 }
+
+func (c *Config) applyDefaults() {
+	for i := range c.Sources {
+		src := &c.Sources[i]
+		if src.Baud == nil {
+			*src.Baud = 115200
+		}
+		if src.TxBoard == "" {
+			src.TxBoard = "DAQ/GROUND"
+		}
+		if src.TxPrio == "" {
+			src.TxPrio = "HIGHEST"
+		}
+		if src.DefaultStaleAfterMs == nil {
+			*src.DefaultStaleAfterMs = 1000
+		}
+		for j := range src.Actuators {
+			act := &src.Actuators[j]
+			if act.ConfirmSettleMs == nil {
+				*act.ConfirmSettleMs = 200
+			}
+		}
+	}
+}

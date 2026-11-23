@@ -54,6 +54,34 @@ func TestLineFramerAcrossChunks(t *testing.T) {
 	}
 }
 
+func TestLineFramerLengthBoundaryAndRecovery(t *testing.T) {
+	framer := NewLineFramer()
+
+	validLine := bytes.Repeat([]byte{'V'}, maxLine)
+	validChunk := append(validLine, '\n')
+	if lines := framer.Feed(validChunk); len(lines) != 1 || !bytes.Equal(lines[0], validLine) {
+		t.Fatalf("lines = %q, want one %d-byte line", lines, maxLine)
+	}
+	if got := framer.ErrorCount(); got != 0 {
+		t.Fatalf("framing error count = %d, want 0", got)
+	}
+
+	if lines := framer.Feed(bytes.Repeat([]byte{'X'}, maxLine+1)); len(lines) != 0 {
+		t.Fatalf("unexpected lines before newline: %q", lines)
+	}
+	if got := framer.ErrorCount(); got != 1 {
+		t.Fatalf("framing error count before newline = %d, want 1", got)
+	}
+
+	lines := framer.Feed([]byte("discarded\n$123:AB\n"))
+	if len(lines) != 1 || string(lines[0]) != "$123:AB" {
+		t.Fatalf("lines after discarded line = %q, want [$123:AB]", lines)
+	}
+	if got := framer.ErrorCount(); got != 1 {
+		t.Fatalf("framing error count after recovery = %d, want 1", got)
+	}
+}
+
 func FuzzLineFramerNoPanic(f *testing.F) {
 	f.Add([]byte("$123:AB\n"))
 	f.Add([]byte{})

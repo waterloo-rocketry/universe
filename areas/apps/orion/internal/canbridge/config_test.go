@@ -133,13 +133,13 @@ func checkStateNotInRocketCAN(cfg Config, names RocketCANNames) error {
 	return nil
 }
 
-func checkBareCOMnPortInOps(cfg Config) error {
+func checkBareCOMnPortInOps(cfg Config) string {
 	if cfg.Server.Mode == "ops" {
 		for _, src := range cfg.Sources {
 			if strings.HasPrefix(src.Port, "COM") {
-				return fmt.Errorf("bare COMn port in source %q; use 'usb:...' instead", src.ID)
+				return fmt.Sprintf("bare COMn port in source %q; use 'usb:...' instead", src.ID)
 			}
 		}
 	}
-	return nil
+	return ""
 }

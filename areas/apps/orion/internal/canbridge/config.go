@@ -32,7 +32,7 @@ type Source struct {
 }
 
 type Actuator struct {
-	Id              string  `toml:"id"`
+	ID              string  `toml:"id"`
 	RocketCAN       string  `toml:"rocketcan"`
 	Critical        bool    `toml:"critical"` // whether this needs the operator to arm first
 	Command         bool    `toml:"command"`  // whether this connection can command it

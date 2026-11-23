@@ -26,3 +26,26 @@ func (f *LineFramer) Reset() {
 func (f *LineFramer) ErrorCount() uint64 {
 	return f.errorCount
 }
+
+func (f *LineFramer) Feed(chunk []byte) [][]byte {
+	var lines [][]byte
+
+	for _, b := range chunk {
+		if b == '\n' {
+			if f.discardLine {
+				f.discardLine = false
+				f.buffer = nil
+				continue
+			}
+
+			line := append([]byte{}, f.buffer...)
+			lines = append(lines, line)
+			f.buffer = nil
+			continue
+		}
+
+
+	}
+
+	return lines
+}

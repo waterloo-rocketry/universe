@@ -1,5 +1,11 @@
 package canbridge
 
+type RocketCANNames interface {
+	HasActuator(string) bool
+	HasBoard(string) bool
+	HasState(string) bool
+}
+
 type Config struct {
 	Server  Server   `toml:"server"`
 	Parent  *Parent  `toml:"parent"` // if present, Orion instance is a child and never sends commands directly

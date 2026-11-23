@@ -44,7 +44,8 @@ func (c *Config) applyDefaults() {
 	for i := range c.Sources {
 		src := &c.Sources[i]
 		if src.Baud == nil {
-			*src.Baud = 115200
+			baud := 115200
+			src.Baud = &baud
 		}
 		if src.TxBoard == "" {
 			src.TxBoard = "DAQ/GROUND"
@@ -53,12 +54,14 @@ func (c *Config) applyDefaults() {
 			src.TxPrio = "HIGHEST"
 		}
 		if src.DefaultStaleAfterMs == nil {
-			*src.DefaultStaleAfterMs = 1000
+			defaultStaleAfterMs := uint32(1000)
+			src.DefaultStaleAfterMs = &defaultStaleAfterMs
 		}
 		for j := range src.Actuators {
 			act := &src.Actuators[j]
 			if act.ConfirmSettleMs == nil {
-				*act.ConfirmSettleMs = 200
+				confirmSettleMs := uint32(200)
+				act.ConfirmSettleMs = &confirmSettleMs
 			}
 		}
 	}

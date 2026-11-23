@@ -4,6 +4,7 @@ import { useTelemetry } from '../data/useTelemetry';
 import { ChannelFilters } from './ChannelFilters';
 import { ChannelList } from './ChannelList';
 import { ProgressBar } from './ProgressBar';
+import { Guage } from './Guage';
 
 interface TelemetryMonitorProps {
   /** Telemetry event stream URL. */
@@ -44,6 +45,22 @@ export function TelemetryMonitor({ url }: TelemetryMonitorProps) {
           )}
           {temperature && (
             <ProgressBar channel={temperature} min={0} max={40} nowMs={nowMs} />
+          )}
+        </div>
+        <div className="guage-demo">
+          {pressure && (
+            <div>
+            <Guage channel={pressure}
+                  min={0}
+                  max={100}
+                  nowMs={nowMs}
+        />
+        <Guage channel={pressure}
+                  min={40}
+                  max={45}
+                  nowMs={nowMs}
+        />
+        </div>
           )}
         </div>
       </>

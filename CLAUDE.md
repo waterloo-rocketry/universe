@@ -39,6 +39,8 @@ Waterloo Rocketry's 2026 monorepo. This file is symlinked to
 - Workflow depth under `areas/` is capped at 3 path segments before
   `.github/` (e.g. `areas/apps/omnibus/.github/...` is fine; a 4th nested
   level is not discovered).
+- PR descriptions follow `.github/pull_request_template.md`: fill in every
+  section (or write N/A / None) instead of replacing it with free-form text.
 - The root `pyproject.toml` (`package = false`) holds the Python
   dependencies for everything under `tools/`; it is not itself an
   installable package, and tools under `tools/` don't get their own

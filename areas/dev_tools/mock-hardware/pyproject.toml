@@ -1,0 +1,23 @@
+[project]
+name = "mock-hardware"
+version = "0.1.0"
+description = "Fake ground hardware on fake serial ports, for testing Orion without a rocket"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = ["parsley"]
+
+[project.scripts]
+
+[tool.uv.sources]
+parsley = { path = "../../sw_libs/parsley", editable = true }
+
+[dependency-groups]
+dev = ["pytest"]
+
+[build-system]
+requires = ["uv_build>=0.8.22,<0.9.0"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "mock_hardware"
+module-root = ""

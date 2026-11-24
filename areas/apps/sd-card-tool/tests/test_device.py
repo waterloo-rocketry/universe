@@ -7,7 +7,7 @@ import pytest
 from sd_card_tool import device
 from sd_card_tool.device import (
     DeviceError,
-    FullReader,
+    RawDisk,
     checked_disk,
     disk_info,
     external_disks,
@@ -166,7 +166,7 @@ class Trickle(io.RawIOBase):
 
 
 def test_full_reader_fills_each_read():
-    reader = FullReader(Trickle(b"0123456789"))
+    reader = RawDisk(Trickle(b"0123456789"))
     assert reader.read(8) == b"01234567"
     assert reader.read(8) == b"89"
     assert reader.read(8) == b""

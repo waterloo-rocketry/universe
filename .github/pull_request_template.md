@@ -1,63 +1,67 @@
-## Description
-<!-- This section should be a couple of sentences describing what you changed and why you changed it. -->
+## TL;DR
+<!-- This section should be one line describing what you changed and why you changed it. -->
 
-<!-- Replace this line with a description of your changes. -->
-I changed X and Y to accomplish Z.
+<!-- Replace this line with a one-line description of your changes. -->
+I changed X to accomplish Y.
 
 <!-- Replace "XXX" with the relevant GitHub Issue number. -->
 <!-- If this PR is not related to an issue, replace the `#XXX` with "N/A" and say where the work came from. -->
-This PR resolves #XXX.
+Resolves #XXX.
+
+
+## Changes
+<!-- This section should describe the specific decisions you made and what changes about the system overall. Don't go line by line. -->
+
+Here's what I changed:
+
+<!-- Add a couple of bullet points about your decisions and changes. Make sure to call out breaking changes and any effects on other projects. -->
+- Did A instead of B, because C.
+- Renaming X in project A breaks project B until B is updated.
+
+Here's what needs to be done after merging:
+
+<!-- Add a bullet point for each action needed after merging, such as a release tag, a redeploy, or a config change. If nothing is needed, write "None." -->
+- Redeploy Y to pick up the new config.
 
 
 ## Areas Affected
-<!-- List every project or repo path this PR changes. -->
+<!-- This section should list every project or repo path this PR changes. -->
 
 - `areas/<kind>/<project>/`
 
 
-## Change Details
-Here's what I changed:
-
-<!-- Add a bullet point for each concrete change you made. -->
-- Changed A
-- Added B
-
-Here's what my changes affect:
-
-<!-- Mention any breaking changes or anything that needs to be done after merging. If nothing does, write "None." -->
-
-- Renaming X in project A breaks project B until B is updated.
-- After merging, Y needs to be redeployed to pick up the new config.
-
-
-## Developer Testing
-<!-- This section should be longer and more comprehensive than the next one. Make sure to test your changes thoroughly. -->
+## Testing & Coverage
+<!-- This section should be comprehensive. Make sure to test your changes thoroughly. -->
 
 **Environment:** <!-- Replace this comment with whatever could affect your results, such as your OS, toolchain versions, and build mode, e.g. "macOS 15, Go 1.24, release build". -->
 
 Here's what I did to test my changes:
 
 <!-- Add a couple of bullet points about how you tested your changes, including the exact commands you ran and their results. -->
-<!-- Put long output in a <details> block. -->
-<!-- For UI changes, also add before and after screenshots, in a <details> block. -->
-
+<!-- For UI changes, also add before and after screenshots in a <details> block. -->
 - Ran A
 - Ran B
-- Ran C
 
+Here's my coverage report:
 
-## Reviewer Testing
-<!-- This section shouldn't be that long. Just include some quick tests that reviewers can easily run. -->
+<!-- Paste the coverage report for the projects you touched. Put long output in a <details> block. -->
 
 Here's what you should do to quickly validate my changes:
 
-<!-- Add some steps reviewers can take to test your changes, along with the expected result of each. -->
-<!-- For UI changes, mention the desired effect that was recorded in your testing ("Developer Testing"). -->
-
+<!-- Add some quick steps reviewers can take to test your changes, along with the expected result of each. -->
+<!-- For UI changes, describe what reviewers should see, matching your screenshots above. -->
 - Run D and check output/effect E.
 
 
-## Workflow Checklist
+## End-to-End Demo (if applicable)
+<!-- This section is important for end-to-end feature validation. If this PR doesn't need a demo, replace this section's content with "N/A." -->
+
+Here's a demo of my changes working end to end:
+
+<!-- Add screenshots, a recording, or logs showing your changes working across the whole system. -->
+
+
+## Checklist
 <!-- Go through these steps before requesting a review, and tick each one as you finish it. -->
 <!-- If a step doesn't apply to this PR, tick it and add "(N/A)" at the end. -->
 

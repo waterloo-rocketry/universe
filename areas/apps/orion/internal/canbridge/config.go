@@ -182,3 +182,34 @@ func checkBareCOMnPortInOps(cfg Config) string {
 	}
 	return ""
 }
+
+func (c *Config) Check(names RocketCANNames) (errs []error, warnings []string) {
+	c.applyDefaults()
+	
+	if err := checkSerialOrMockWithoutFormat(*c); err != nil {
+		errs = append(errs, err)
+	}
+	if err := checkNotCommandedOnLiveTelemetry(*c); err != nil {
+		errs = append(errs, err)
+	}
+	if err := checkUSBDebugInOpsConfig(*c); err != nil {
+		errs = append(errs, err)
+	}
+	if err := checkMockInOpsConfig(*c); err != nil {
+		errs = append(errs, err)
+	}
+	if err := checkCommandableActuatorWithoutOperator(*c); err != nil {
+		errs = append(errs, err)
+	}
+	if err := checkNotMainSendsCommands(*c); err != nil {
+		errs = append(errs, err)
+	}
+	if err := checkStateNotInRocketCAN(*c, names); err != nil {
+		errs = append(errs, err)
+	}
+	if warn := checkBareCOMnPortInOps(*c); warn != "" {
+		warnings = append(warnings, warn)
+	}
+
+	return errs, warnings
+}

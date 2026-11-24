@@ -8,7 +8,12 @@ from sd_card_tool.chunk import Chunk, encode_chunk
 from sd_card_tool.config import load_config
 from sd_card_tool.device import Disk, RawDisk
 from sd_card_tool.export import scan
-from sd_card_tool.wipe import find_leftovers, make_plan, write_zeros
+from sd_card_tool.wipe import (
+    WipeError,
+    find_leftovers,
+    make_plan,
+    write_zeros,
+)
 
 CONFIG = load_config()
 SIZE = CONFIG.slot_size
@@ -167,3 +172,37 @@ def test_format_an_image_file(tmp_path, capsys):
     assert cli.main(["format", str(image)]) == 0
     assert "All 3 slots are blank" in capsys.readouterr().out
     assert scan(io.BytesIO(image.read_bytes()), CONFIG).empty == 3
+
+
+class FailsAt(io.BytesIO):
+    """A card that returns an I/O error from a given byte on."""
+
+    def __init__(self, data: bytes, fail_at: int) -> None:
+        super().__init__(data)
+        self.fail_at = fail_at
+
+    def write(self, data) -> int:
+        if self.tell() >= self.fail_at:
+            raise OSError(5, "Input/output error")
+        return super().write(data)
+
+
+def test_write_error_on_the_first_slot_suggests_write_protection():
+    plan = make_plan(4 * SIZE, CONFIG, whole=False)
+    with pytest.raises(WipeError, match="slot 0 .*write-protected") as info:
+        write_zeros(FailsAt(bytes(4 * SIZE), 0), plan)
+    assert info.value.slot == 0
+
+
+def test_write_error_later_names_the_slot():
+    plan = make_plan(4 * SIZE, CONFIG, whole=False)
+    with pytest.raises(WipeError, match=r"Writing slot 2 \(byte 65,536\)"):
+        write_zeros(FailsAt(bytes(4 * SIZE), 2 * SIZE), plan)
+
+
+def test_cli_reports_where_formatting_failed(fake_card, monkeypatch, capsys):
+    image, _ = fake_card
+    monkeypatch.setattr(cli, "open_disk", lambda disk, writable=False:
+                        FailsAt(image.read_bytes(), 0))
+    assert cli.main(["format", "disk4", "--confirm", "disk4"]) == 1
+    assert "Writing slot 0" in capsys.readouterr().err

@@ -17,6 +17,24 @@ BLOCK = 1 << 20
 Progress = Callable[[int], None]
 
 
+class WipeError(OSError):
+    """The card failed while being formatted."""
+
+    def __init__(self, action: str, offset: int, slot_size: int,
+                 error: OSError) -> None:
+        slot = offset // slot_size
+        super().__init__(
+            f"{action} slot {slot:,} (byte {offset:,}) failed: "
+            f"{error.strerror or error}. "
+            + ("The card refused the very first write, so it is probably "
+               "write-protected (check the lock switch on the card or "
+               "adapter) or failing." if offset == 0 and action == "Writing"
+               else "The card or reader may have disconnected, or the card "
+                    "may be failing or smaller than it claims."))
+        self.offset = offset
+        self.slot = slot
+
+
 @dataclass(frozen=True)
 class Plan:
     """Which byte ranges formatting zeroes."""
@@ -59,13 +77,19 @@ def write_zeros(card: BinaryIO, plan: Plan,
                 progress: Progress | None = None) -> None:
     zeros = bytes(BLOCK if plan.whole else plan.clear_bytes)
     done = 0
-    for offset, length in plan.ranges():
-        card.seek(offset)
-        _write_all(card, zeros[:length])
-        done += length
-        if progress:
-            progress(done)
-    card.flush()
+    offset = 0
+    try:
+        for offset, length in plan.ranges():
+            card.seek(offset)
+            _write_all(card, zeros[:length])
+            done += length
+            if progress:
+                progress(done)
+        card.flush()
+    except WipeError:
+        raise
+    except OSError as error:
+        raise WipeError("Writing", offset, plan.slot_size, error) from error
 
 
 def find_leftovers(card: BinaryIO, plan: Plan,
@@ -74,8 +98,12 @@ def find_leftovers(card: BinaryIO, plan: Plan,
     bad: list[int] = []
     done = 0
     for offset, length in plan.ranges():
-        card.seek(offset)
-        data = card.read(length)
+        try:
+            card.seek(offset)
+            data = card.read(length)
+        except OSError as error:
+            raise WipeError("Checking", offset, plan.slot_size, error) \
+                from error
         if len(data) != length or data.count(0) != length:
             first = offset // plan.slot_size
             if len(data) == length:

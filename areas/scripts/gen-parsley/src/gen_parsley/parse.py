@@ -1,4 +1,5 @@
 import re
+from collections.abc import Iterable
 from dataclasses import MISSING, fields, is_dataclass
 from pathlib import Path
 from typing import Literal, Union, get_args, get_origin, get_type_hints
@@ -6,7 +7,7 @@ from typing import Literal, Union, get_args, get_origin, get_type_hints
 from strictyaml import load
 
 from gen_parsley.errors import RocketCANError
-from gen_parsley.models import RocketCAN
+from gen_parsley.models import Field, RocketCAN, YAMLObject
 
 _INT_PATTERN = re.compile(r"-?(0|[1-9][0-9]*|0[xX][0-9a-fA-F]+)")
 
@@ -18,7 +19,76 @@ def load_rocketcan(path: Path | str) -> RocketCAN:
     if isinstance(path, str):
         path = Path(path)
     yaml = load(path.read_text(encoding="utf-8"), label=str(path))
-    return _convert(RocketCAN, yaml.data)
+    data = _convert(RocketCAN, yaml.data)
+    _validate_rocketcan(data)
+    return data
+
+
+def _check_unique(items: Iterable[YAMLObject], key_name: str) -> None:
+    visited: set[object] = set()
+    for item in items:
+        key = getattr(item, key_name)
+        if key is None:
+            continue
+        if key in visited:
+            raise RocketCANError(
+                f"{item.yaml_path}.{key_name}",
+                f"duplicate {key_name} {key!r}",
+            )
+        visited.add(key)
+
+
+def _validate_field(field: Field, data: RocketCAN, *, metadata: bool = False) -> None:
+    path = field.yaml_path
+    if field.bytes is None and not metadata:
+        raise RocketCANError(f"{path}.bytes", "field requires a byte width")
+    if field.bytes is not None and field.bytes <= 0:
+        raise RocketCANError(f"{path}.bytes", "byte width must be positive")
+
+    if field.type == "enum":
+        if field.enum is None:
+            raise RocketCANError(f"{path}.enum", "enum field requires an enum name")
+        try:
+            data.get_enum(field.enum)
+        except KeyError:
+            raise RocketCANError(
+                f"{path}.enum", f"cannot find enum named {field.enum!r}"
+            ) from None
+    elif field.type == "bitfield":
+        if field.bitfield is None:
+            raise RocketCANError(
+                f"{path}.bitfield", "bitfield field requires a bitfield name"
+            )
+        try:
+            data.get_bitfield(field.bitfield)
+        except KeyError:
+            raise RocketCANError(
+                f"{path}.bitfield", f"cannot find bitfield named {field.bitfield!r}"
+            ) from None
+
+
+def _validate_rocketcan(data: RocketCAN) -> None:
+    """verify the validity of the decoded RocketCAN object"""
+    _check_unique(data.enums, "name")
+    _check_unique(data.bitfields, "name")
+    _check_unique(data.message_fields, "id")
+    _check_unique(data.messages, "name")
+    _check_unique(data.messages, "id")
+
+    if not data.sid.fields:
+        raise RocketCANError(
+            f"{data.sid.yaml_path}.fields", "at least one SID field is required"
+        )
+
+    for field in data.message_fields:
+        _validate_field(field, data)
+    for message in data.messages:
+        for field in message.metadata:
+            if isinstance(field, Field):
+                _validate_field(field, data, metadata=True)
+        for field in message.field:
+            if isinstance(field, Field):
+                _validate_field(field, data)
 
 
 def _convert(cls: type, value, where: str = "root"):
@@ -76,9 +146,11 @@ def _from_dict(cls: type, data, where: str = "root"):
     if not isinstance(data, dict):
         raise RocketCANError(where, f"expected a mapping, got {type(data).__name__}")
     hints = get_type_hints(cls)
-    kwargs = {"yaml_path": where}
+    kwargs = {}
     accepted = set()
     for f in fields(cls):
+        if not f.init:
+            continue
         underscored = f.name
         hyphenated = f.name.replace("_", "-")
         accepted.update((underscored, hyphenated))
@@ -97,4 +169,7 @@ def _from_dict(cls: type, data, where: str = "root"):
     unknown = sorted(str(k) for k in data if k not in accepted)
     if unknown:
         raise RocketCANError(where, f"unknown key(s) {unknown}")
-    return cls(**kwargs)
+    result = cls(**kwargs)
+    if isinstance(result, YAMLObject):
+        object.__setattr__(result, "yaml_path", where)
+    return result

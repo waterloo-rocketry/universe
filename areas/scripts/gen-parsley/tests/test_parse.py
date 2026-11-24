@@ -8,7 +8,8 @@ from strictyaml.exceptions import StrictYAMLError
 
 from gen_parsley import models
 from gen_parsley.errors import RocketCANError
-from gen_parsley.parse import _convert, load_rocketcan
+from gen_parsley.gen_ts import message_defs
+from gen_parsley.parse import _convert, _validate_rocketcan, load_rocketcan
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -314,7 +315,7 @@ def _rocketcan_doc(**overrides):
                 "id": "0x20",
                 "metadata": [{"name": "ts", "type": "uint", "bytes": "4"}],
                 "field": [
-                    {"name": "state", "type": "enum", "enum": "STATE"},
+                    {"name": "state", "type": "enum", "enum": "STATE", "bytes": "1"},
                     {"ref": "ts"},
                 ],
             }
@@ -342,7 +343,7 @@ EXPECTED_DOC_ROCKETCAN = models.RocketCAN(
             id=32,
             metadata=[models.Field(name="ts", type="uint", bytes=4)],
             field=[
-                models.Field(name="state", type="enum", enum="STATE"),
+                models.Field(name="state", type="enum", enum="STATE", bytes=1),
                 models.RefField(ref="ts"),
             ],
         )
@@ -366,6 +367,76 @@ EXPECTED_DOC_ROCKETCAN = models.RocketCAN(
 
 def test_full_rocketcan_document_converts_to_models():
     assert _convert(models.RocketCAN, _rocketcan_doc()) == EXPECTED_DOC_ROCKETCAN
+
+
+def test_yaml_path_is_parser_owned():
+    field = _convert(models.Field, {"name": "state", "type": "uint"}, "messages[0].field[0]")
+    assert field.yaml_path == "messages[0].field[0]"
+
+    with pytest.raises(RocketCANError, match=r"unknown key\(s\) \['yaml-path'\]"):
+        _convert(models.Field, {"name": "state", "type": "uint", "yaml-path": "fake"})
+
+
+def test_getters_use_keys_and_report_internal_misses():
+    doc = _rocketcan_doc()
+    doc["message_fields"][0]["id"] = "shared"
+    data = _convert(models.RocketCAN, doc)
+    assert data.get_enum("STATE").name == "STATE"
+    assert data.get_bitfield("FLAGS").name == "FLAGS"
+    assert data.get_message_field("shared").name == "state"
+    with pytest.raises(KeyError, match="MISSING"):
+        data.get_enum("MISSING")
+
+
+def test_validation_reports_missing_enum_at_reference():
+    doc = _rocketcan_doc()
+    doc["messages"][0]["field"][0]["enum"] = "MISSING"
+
+    with pytest.raises(RocketCANError, match=r"^root\.messages\[0\]\.field\[0\]\.enum: cannot find enum"):
+        _validate_rocketcan(_convert(models.RocketCAN, doc))
+
+
+def test_validation_reports_missing_bitfield_at_reference():
+    doc = _rocketcan_doc()
+    doc["messages"][0]["field"][0] = {
+        "name": "flags", "type": "bitfield", "bitfield": "MISSING", "bytes": "1"
+    }
+
+    with pytest.raises(RocketCANError, match=r"^root\.messages\[0\]\.field\[0\]\.bitfield: cannot find bitfield"):
+        _validate_rocketcan(_convert(models.RocketCAN, doc))
+
+
+def test_validation_reports_missing_width_before_render():
+    doc = _rocketcan_doc()
+    del doc["messages"][0]["field"][0]["bytes"]
+
+    with pytest.raises(RocketCANError, match=r"^root\.messages\[0\]\.field\[0\]\.bytes: field requires"):
+        _validate_rocketcan(_convert(models.RocketCAN, doc))
+
+
+def test_validation_reports_duplicate_definition_at_second_entry():
+    doc = _rocketcan_doc()
+    doc["enums"].append(doc["enums"][0].copy())
+
+    with pytest.raises(RocketCANError, match=r"^root\.enums\[1\]\.name: duplicate name 'STATE'"):
+        _validate_rocketcan(_convert(models.RocketCAN, doc))
+
+
+def test_typescript_renderer_reports_multiple_metadata_fields():
+    doc = _rocketcan_doc()
+    doc["messages"][0]["metadata"].append({"name": "extra", "type": "uint"})
+
+    data = _convert(models.RocketCAN, doc)
+    _validate_rocketcan(data)
+    with pytest.raises(RocketCANError, match=r"^root\.messages\[0\]\.metadata: parsley-ts only supports one"):
+        message_defs.render(data)
+
+
+def test_validation_reports_missing_sid_field():
+    doc = _rocketcan_doc(sid={})
+
+    with pytest.raises(RocketCANError, match=r"^root\.sid\.fields: at least one SID field"):
+        _validate_rocketcan(_convert(models.RocketCAN, doc))
 
 
 def test_sid_fields_default_to_empty_list():
@@ -452,6 +523,7 @@ messages:
       - name: state
         type: enum
         enum: STATE
+        bytes: 1
       - ref: ts
 enums:
   - name: STATE
@@ -485,6 +557,21 @@ def test_load_rocketcan_accepts_path_object(tmp_path):
     path = _write_yaml(tmp_path, ROCKETCAN_YAML)
 
     assert load_rocketcan(path) == EXPECTED_DOC_ROCKETCAN
+
+
+def test_load_rocketcan_validates_before_generation(tmp_path):
+    text = ROCKETCAN_YAML.replace("        enum: STATE\n        bytes: 1", "        enum: MISSING\n        bytes: 1")
+    path = _write_yaml(tmp_path, text)
+
+    with pytest.raises(RocketCANError, match=r"^root\.messages\[0\]\.field\[0\]\.enum: cannot find enum"):
+        load_rocketcan(path)
+
+
+def test_renderer_uses_validated_metadata_default(tmp_path):
+    text = ROCKETCAN_YAML.replace("        bytes: 4\n    field:", "    field:")
+    data = load_rocketcan(_write_yaml(tmp_path, text))
+
+    assert "new Numeric('ts', 8, 1, false)" in message_defs.render(data)
 
 
 def test_strictyaml_returns_scalars_as_strings():

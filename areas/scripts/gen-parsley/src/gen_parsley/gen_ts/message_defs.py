@@ -1,5 +1,5 @@
-from dataclasses import replace
 from string import Template
+from typing import assert_never, cast
 
 from gen_parsley.errors import RocketCANError
 from gen_parsley.models import Field, RefField, RocketCAN
@@ -113,48 +113,31 @@ export type ParsleyMessage = {
 """)
 
 
-def _resolve_ref(field: Field | RefField, data: RocketCAN) -> Field:
-    """if field is a RefField, get the Field that it points to"""
-    if isinstance(field, Field):
-        return field
-    elif isinstance(field, RefField):
-        return data.get_message_field(field.ref, where=f"{field.ref}.ref")
-    raise TypeError(f"Expected Field or RefField, got {type(field)}")
-
-
-def _field(field: Field | RefField, data: RocketCAN) -> str:
+def _field(
+    field: Field | RefField, data: RocketCAN, *, byte_width: int | None = None
+) -> str:
     if isinstance(field, Field):
         name = field.name.lower()
+        size = cast(int, field.bytes if byte_width is None else byte_width)
         match field.type:
             case "ascii":
-                assert isinstance(field.bytes, int)
-                return f"new ASCII('{name}', {field.bytes})"
+                return f"new ASCII('{name}', {size})"
             case "bitfield":
-                assert isinstance(field.bytes, int)
-                assert isinstance(field.bitfield, str)
-                bitfield = data.get_bitfield(field.bitfield, where=f"{field.yaml_path}.bitfield")
+                bitfield = data.get_bitfield(cast(str, field.bitfield))
                 # TODO: assuming default bitfield string is *_NOMINAL
                 bitfield_default = f"{bitfield.prefix}_NOMINAL"
-                return f"new Bitfield('{name}', {field.bytes * 8}, '{bitfield_default}', {field.bitfield}_offset)"
+                return f"new Bitfield('{name}', {size * 8}, '{bitfield_default}', {field.bitfield}_offset)"
             case "enum":
-                assert isinstance(field.bytes, int)
-                assert isinstance(field.enum, str)
-                data.get_enum(field.enum, where=f"{field.yaml_path}.enum")  # verify it exists, value is not used
-                return f"new Enum('{name}', {field.bytes * 8}, {field.enum})"
+                return f"new Enum('{name}', {size * 8}, {field.enum})"
             case "int":
-                assert isinstance(field.bytes, int)
-                return f"new Numeric('{name}', {field.bytes * 8}, 1, true)"
+                return f"new Numeric('{name}', {size * 8}, 1, true)"
             case "uint":
-                assert isinstance(field.bytes, int)
                 # TODO: TIMESTAMP_2 requiers the `scale` ctor parameter
-                return f"new Numeric('{name}', {field.bytes * 8}, 1, false)"
+                return f"new Numeric('{name}', {size * 8}, 1, false)"
             case "raw":
-                return f"new ASCII('{name}', {field.bytes})"
+                return f"new ASCII('{name}', {size})"
             case _:
-                raise RocketCANError(
-                    f"{field.yaml_path}.type",
-                    f"Cannot convert Field of type {field.type} (field {field.name})",
-                )
+                assert_never(field.type)
     elif isinstance(field, RefField):
         return f"MSG_FIELD_{field.ref.upper()}"
 
@@ -211,22 +194,28 @@ export const MSG_FIELD_TIMESTAMP = new Numeric('time', 16, 1 / 1000, false, true
             msg_fields = f"\n{msg_fields}\n"
 
         metadata = ""
+        if len(message.metadata) > 1:
+            raise RocketCANError(
+                f"{message.yaml_path}.metadata",
+                "parsley-ts only supports one metadata field in Messages",
+            )
         if message.metadata:
-            if len(message.metadata) != 1:
-                raise RocketCANError(
-                    f"{message.yaml_path}.metadata",
-                    "parsley-ts only supports one metadata field in Messages"
-                )
             meta_field = message.metadata[0]
             is_unused = False
             if isinstance(meta_field, Field):
-                if meta_field.bytes is None:
-                    # metadata size is 1 byte if not given
-                    meta_field = replace(meta_field, bytes=1)
                 is_unused = meta_field.name == "UNUSED"
 
             if not is_unused:
-                metadata = ", " + _field(meta_field, data)
+                # Metadata defaults to one byte when its width is omitted.
+                metadata = ", " + _field(
+                    meta_field,
+                    data,
+                    byte_width=(
+                        1
+                        if isinstance(meta_field, Field) and meta_field.bytes is None
+                        else None
+                    ),
+                )
 
         msg_defs.append(
             f"export const {message.name} = defineMessage([{msg_fields}]{metadata})"

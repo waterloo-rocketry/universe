@@ -50,17 +50,9 @@ export function TelemetryMonitor({ url }: TelemetryMonitorProps) {
         <div className="guage-demo">
           {pressure && (
             <div>
-            <Guage channel={pressure}
-                  min={0}
-                  max={100}
-                  nowMs={nowMs}
-        />
-        <Guage channel={pressure}
-                  min={40}
-                  max={45}
-                  nowMs={nowMs}
-        />
-        </div>
+              <Guage channel={pressure} min={0} max={100} nowMs={nowMs} />
+              <Guage channel={pressure} min={40} max={45} nowMs={nowMs} />
+            </div>
           )}
         </div>
       </>

@@ -51,7 +51,9 @@ function needleDegrees(hand: HTMLElement | null) {
 
 describe('Guage', () => {
   it('points the needle to where the value sits between min and max', () => {
-    const { hand, face } = renderGuage(channelsAfter('nominal')['test.pressure']);
+    const { hand, face } = renderGuage(
+      channelsAfter('nominal')['test.pressure'],
+    );
 
     expect(screen.getByText('42 kPa')).toBeInTheDocument();
     // 42% of the 240 degree sweep, minus the 210 degree starting offset
@@ -111,7 +113,9 @@ describe('Guage', () => {
   });
 
   it('keeps the last value but shows the status when stale', () => {
-    const { status, hand } = renderGuage(channelsAfter('stale')['test.pressure']);
+    const { status, hand } = renderGuage(
+      channelsAfter('stale')['test.pressure'],
+    );
 
     expect(screen.getByText('42 kPa')).toBeInTheDocument();
     expect(status).toHaveTextContent('stale');

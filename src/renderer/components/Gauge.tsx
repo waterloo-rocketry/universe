@@ -10,7 +10,7 @@ interface GaugeProps {
   min: number;
   max: number;
   major_intervals?: number; // Max is divided by this to determine the amount of numbers on the gauge, default is 5.
-                            // So for instance, if max = 100 and this is the default value, you get 0, 20, 40, ..., 100.
+  // So for instance, if max = 100 and this is the default value, you get 0, 20, 40, ..., 100.
   minor_intervals?: number; // Amount of small dashes between numbers, default is 2.
   nowMs: number; // Current time
 }
@@ -50,7 +50,14 @@ function armLocationFromPolarCoords(degrees: number, radius: number) {
   };
 }
 
-export function Gauge({ channel, min, max, major_intervals = 5, minor_intervals = 2, nowMs }: GaugeProps) {
+export function Gauge({
+  channel,
+  min,
+  max,
+  major_intervals = 5,
+  minor_intervals = 2,
+  nowMs,
+}: GaugeProps) {
   const { unit, kind } = channel.signal;
   const status = getChannelStatus(channel, nowMs);
   const latest = getLatestReading(channel);

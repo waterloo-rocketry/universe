@@ -23,6 +23,7 @@ sd-card-tool = "sd_card_tool.cli:main"
 
 [dependency-groups]
 dev = [
+    "flake8>=7.0",
     "pytest>=8.0",
 ]
 

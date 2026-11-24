@@ -110,6 +110,11 @@ first so nothing else writes to it.
 ```sh
 uv sync
 uv run pytest
+uv run flake8
 ```
+
+CI runs both on every pull request that changes this folder
+(`.github/workflows/ci.yml`; after editing it, run `uv run tools/build_ci`
+from the repo root and commit the copy it makes).
 
 The tests build fake card images, so no SD card is needed.

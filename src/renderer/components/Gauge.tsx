@@ -9,19 +9,19 @@ interface GaugeProps {
   channel: ChannelState;
   min: number;
   max: number;
-  nowMs: number; //Current time
+  nowMs: number; // Current time
 }
 
-const STARTING_DEGREES = 210; //Where it rests when it's at 0
-const TOTAL_ROTATION = 240; //Total rotation of the uhh stick or whatever it's called
+const STARTING_DEGREES = 210; // Where it rests when it's at 0
+const TOTAL_ROTATION = 240; // Total rotation of the uhh stick or whatever it's called
 const CENTER_X = 100;
 const CENTER_Y = 100;
-const MAJOR_INTERVALS = 5; //The amount of big dashes. This could be made customizeable pretty easily
-const MINTOR_INTERVALS = 2; //Amount of small dashes in between the big ones. Again could be changed to be custom
+const MAJOR_INTERVALS = 5; // The amount of numbers displayed on the guage. This could be made customizeable pretty easily
+const MINOR_INTERVALS = 2; // Amount of small dashes between numbers. Again could be changed to be custom
 
 function getAngle(value: number, min: number, max: number) {
-  //Gauge is from min at 210 to max at -30 degrees from rightward horizontal.
-  //So 240 total degrees of rotation. The visual has the angle adjustment.
+  // Gauge is from min at 210 to max at -30 degrees from rightward horizontal.
+  // So 240 total degrees of rotation. The visual has the angle adjustment.
   let range: 'in' | 'below min' | 'above max';
   let angle = 0;
 
@@ -54,7 +54,7 @@ export function Gauge({ channel, min, max, nowMs }: GaugeProps) {
   const status = getChannelStatus(channel, nowMs);
   const latest = getLatestReading(channel);
 
-  //Must be a number ofc
+  // Rejects non numeric channels
   if (kind != 'number') {
     return (
       <div>
@@ -63,7 +63,7 @@ export function Gauge({ channel, min, max, nowMs }: GaugeProps) {
     );
   }
 
-  //Make sure they set normal min/max values. Also no min > max that's evil
+  // Make sure max/min are set and that min < max
   if (!Number.isFinite(min) || !Number.isFinite(max) || min >= max) {
     return (
       <div>
@@ -72,7 +72,7 @@ export function Gauge({ channel, min, max, nowMs }: GaugeProps) {
     );
   }
 
-  //Make sure the most recent value is good according to the channel
+  // Make sure the most recent value is good according to the channel
   let value: number | null = null;
   if (
     latest &&
@@ -83,26 +83,26 @@ export function Gauge({ channel, min, max, nowMs }: GaugeProps) {
     value = latest.value;
   }
 
-  //Only display angles that exist. If not, have it be at the min just resting there.
+  // Only display angles that exist. If not, have it be at the min just resting there.
   const angle =
     value == null ? getAngle(min, min, max) : getAngle(value, min, max);
 
-  //Actual value for display purposes
+  // Actual value for display purposes
   let valueText: string;
   if (value == null || angle == null) {
-    valueText = 'N/A'; //No value is there
+    valueText = 'N/A'; // No value is there
   } else {
-    const roundedValue = Math.round(value * 1000) / 1000; //Rounds to 3 decimal places
+    const roundedValue = Math.round(value * 1000) / 1000; // Rounds to 3 decimal places
     valueText = unit ? `${roundedValue} ${unit}` : String(roundedValue);
   }
 
   // Ticks + labels
   // -theta is used because the coordinate logic for the styling is from the top left,
   // but the polar system measures it from the bottom left
-  const totalTicks = MAJOR_INTERVALS * MINTOR_INTERVALS;
+  const totalTicks = MAJOR_INTERVALS * MINOR_INTERVALS;
   const ticks = Array.from({ length: totalTicks + 1 }, (_, i) => {
     const theta = STARTING_DEGREES - (TOTAL_ROTATION * i) / totalTicks;
-    const isMajor = i % MINTOR_INTERVALS === 0;
+    const isMajor = i % MINOR_INTERVALS === 0;
     const outer = armLocationFromPolarCoords(-theta, 92);
     const inner = armLocationFromPolarCoords(-theta, isMajor ? 80 : 85);
     return { i, outer, inner, isMajor };
@@ -115,7 +115,7 @@ export function Gauge({ channel, min, max, nowMs }: GaugeProps) {
     return {
       i,
       pos,
-      rotation: 90 - theta, //Tilts the text as it goes around the circle.
+      rotation: 90 - theta, // Tilts the text as it goes around the circle.
       text: String(Math.round(labelValue * 100) / 100),
     };
   });

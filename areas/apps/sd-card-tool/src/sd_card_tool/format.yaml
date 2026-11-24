@@ -8,7 +8,7 @@ layout:
   clear_bytes: 512        # leading bytes of each slot zeroed by formatting.
                           # A slot whose first clear_bytes bytes are all zero
                           # is unused.
-  byte_order: little      # PLACEHOLDER: to be confirmed by firmware
+  byte_order: little      # confirmed by firmware
 
 # Fields at the start of every chunk, in this order. Widths are in bits, and
 # each top-level field must be a whole number of bytes. The payload fills the

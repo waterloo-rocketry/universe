@@ -19,7 +19,7 @@ from .device import (
     problems,
     system_disks,
 )
-from .export import export
+from .export import corrupt_runs, export
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -97,10 +97,14 @@ def _export(args: argparse.Namespace) -> int:
 
     print(f"Scanned {result.slots} slots: {result.valid} valid, "
           f"{result.empty} empty, {len(result.corrupt)} corrupt")
-    for slot, reason in result.corrupt[:20]:
-        print(f"  slot {slot} skipped: {reason}")
-    if len(result.corrupt) > 20:
-        print(f"  ...and {len(result.corrupt) - 20} more corrupt slots")
+    runs = corrupt_runs(result.corrupt)
+    for first, last, reason in runs[:20]:
+        where = f"slot {first:,}" if first == last else \
+            f"slots {first:,}-{last:,} ({last - first + 1:,} slots)"
+        print(f"  {where} skipped: {reason}")
+    if len(runs) > 20:
+        rest = sum(last - first + 1 for first, last, _ in runs[20:])
+        print(f"  ...and {rest:,} more corrupt slots")
     for location in result.duplicates:
         print(f"  slot {location.slot} skipped: duplicate of segment "
               f"{location.segment}")

@@ -6,7 +6,7 @@ from helpers import config_with
 from sd_card_tool.chunk import Chunk, encode_chunk
 from sd_card_tool.cli import main
 from sd_card_tool.config import load_config
-from sd_card_tool.export import export, scan
+from sd_card_tool.export import corrupt_runs, export, scan
 
 CONFIG = load_config()
 SIZE = CONFIG.slot_size
@@ -194,3 +194,21 @@ def test_cli_reports_errors(tmp_path, capsys):
 def test_cli_prints_default_format(capsys):
     assert main(["default-format"]) == 0
     assert "slot_size: 32768" in capsys.readouterr().out
+
+
+def test_groups_corrupt_runs():
+    corrupt = [(1, "HEADER_ID is 0x1"), (2, "HEADER_ID is 0x1"),
+               (3, "HEADER_ID is 0x2"), (5, "HEADER_ID is 0x2"),
+               (6, "CRC is 0x0001, expected 0x0002"),
+               (7, "CRC is 0x0003, expected 0x0004")]
+    assert corrupt_runs(corrupt) == [
+        (1, 2, "HEADER_ID is 0x1"), (3, 3, "HEADER_ID is 0x2"),
+        (5, 5, "HEADER_ID is 0x2"), (6, 7, "CRC check failed")]
+
+
+def test_cli_groups_corrupt_slots(tmp_path, capsys):
+    image = tmp_path / "card.img"
+    image.write_bytes(EMPTY + (b"\xFF" * SIZE) * 3)
+    assert main(["export", str(image), str(tmp_path / "out")]) == 0
+    assert "slots 1-3 (3 slots) skipped: HEADER_ID is 0xffffffff" in \
+        capsys.readouterr().out

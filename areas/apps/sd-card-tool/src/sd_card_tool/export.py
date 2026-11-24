@@ -139,6 +139,23 @@ def scan(card: BinaryIO, config: FormatConfig,
     return result
 
 
+def corrupt_runs(corrupt: list[tuple[int, str]]) -> list[tuple[int, int, str]]:
+    """Group consecutive corrupt slots that failed the same way.
+
+    Returns (first slot, last slot, reason). CRC failures are grouped
+    together even though each has its own checksum values.
+    """
+    runs: list[tuple[int, int, str]] = []
+    for slot, reason in corrupt:
+        if reason.startswith("CRC"):
+            reason = "CRC check failed"
+        if runs and runs[-1][1] == slot - 1 and runs[-1][2] == reason:
+            runs[-1] = (runs[-1][0], slot, reason)
+        else:
+            runs.append((slot, slot, reason))
+    return runs
+
+
 def output_name(record: FileRecord, config: FormatConfig) -> str:
     pattern = config.filename if record.generation == 0 \
         else config.wrapped_filename

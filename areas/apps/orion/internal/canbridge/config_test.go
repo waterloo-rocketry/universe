@@ -359,7 +359,7 @@ func TestCheckNotMainSendsCommands(t *testing.T) {
 }
 
 func TestCheckStateNotInRocketCAN(t *testing.T) {
-	// A fake that knows one real board, one real actuator, and one real state.
+	// a fake that knows one real board, one real actuator, and one real state.
 	known := fakeRocketCAN{
 		boards:    map[string]bool{"INJECTOR/ROCKET": true},
 		actuators: map[string]bool{"OX_INJECTOR_VALVE": true},
@@ -462,4 +462,86 @@ func TestCheckBareCOMnPortInOps(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestCheck(t *testing.T) {
+	known := fakeRocketCAN{
+		boards:    map[string]bool{"INJECTOR/ROCKET": true},
+		actuators: map[string]bool{"OX_INJECTOR_VALVE": true},
+		states:    map[string]bool{"OFF": true},
+	}
+
+	t.Run("clean ops config has no errors or warnings", func(t *testing.T) {
+		cfg := Config{
+			Server: Server{Mode: "ops", CommandOperators: []string{"mc-laptop-2-*"}},
+			Sources: []Source{{
+				ID:         "can-injector",
+				Connection: "UMBILICAL",
+				Port:       "usb:1234:5678:INJECTOR",
+				Format:     "usb",
+				Boards:     []string{"INJECTOR/ROCKET"},
+				Actuators: []Actuator{{
+					ID:        "ox-injector-valve",
+					RocketCAN: "OX_INJECTOR_VALVE",
+					Command:   true,
+					SafeState: "OFF",
+				}},
+			}},
+		}
+		errs, warnings := cfg.Check(known)
+		if len(errs) != 0 {
+			t.Errorf("got %d errors, want 0: %v", len(errs), errs)
+		}
+		if len(warnings) != 0 {
+			t.Errorf("got %d warnings, want 0: %v", len(warnings), warnings)
+		}
+	})
+
+	t.Run("applies defaults before checking", func(t *testing.T) {
+		// a config with no defaulted keys set. Check must fill them in, and
+		// the clean config above still passes, so defaults don't trip a rule
+		cfg := Config{
+			Server: Server{Mode: "test"},
+			Sources: []Source{{
+				ID:     "can-injector",
+				Port:   "usb:1234:5678:INJECTOR",
+				Format: "usb",
+			}},
+		}
+		cfg.Check(known)
+		if cfg.Sources[0].Baud == nil || *cfg.Sources[0].Baud != 115200 {
+			t.Errorf("Check did not apply the baud default")
+		}
+	})
+
+	t.Run("collects several errors and a warning at once", func(t *testing.T) {
+		// this ops config accumulatse three distinct error rules and a warning:
+		//   - USB_DEBUG source in ops            (checkUSBDebugInOpsConfig)
+		//   - commandable actuator, no operators (checkCommandableActuatorWithoutOperator)
+		//   - unknown board name                 (checkStateNotInRocketCAN)
+		//   - bare COMn port in ops              (warning)
+		cfg := Config{
+			Server: Server{Mode: "ops"}, // no CommandOperators
+			Sources: []Source{{
+				ID:         "can-debug",
+				Connection: "USB_DEBUG",
+				Port:       "COM4",
+				Format:     "usb",
+				Boards:     []string{"INJECTOR/TYPO"},
+				Actuators: []Actuator{{
+					ID:        "ox-injector-valve",
+					RocketCAN: "OX_INJECTOR_VALVE",
+					Command:   true,
+					SafeState: "OFF",
+				}},
+			}},
+		}
+		errs, warnings := cfg.Check(known)
+		if len(errs) != 3 {
+			t.Errorf("got %d errors, want 3: %v", len(errs), errs)
+		}
+		if len(warnings) != 1 {
+			t.Errorf("got %d warnings, want 1: %v", len(warnings), warnings)
+		}
+	})
 }

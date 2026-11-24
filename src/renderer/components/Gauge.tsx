@@ -9,15 +9,16 @@ interface GaugeProps {
   channel: ChannelState;
   min: number;
   max: number;
+  major_intervals?: number; // Max is divided by this to determine the amount of numbers on the gauge, default is 5.
+                            // So for instance, if max = 100 and this is the default value, you get 0, 20, 40, ..., 100.
+  minor_intervals?: number; // Amount of small dashes between numbers, default is 2.
   nowMs: number; // Current time
 }
 
 const STARTING_DEGREES = 210; // Where it rests when it's at 0
-const TOTAL_ROTATION = 240; // Total rotation of the uhh stick or whatever it's called
+const TOTAL_ROTATION = 240; // Total rotation of the needle
 const CENTER_X = 100;
 const CENTER_Y = 100;
-const MAJOR_INTERVALS = 5; // The amount of numbers displayed on the guage. This could be made customizeable pretty easily
-const MINOR_INTERVALS = 2; // Amount of small dashes between numbers. Again could be changed to be custom
 
 function getAngle(value: number, min: number, max: number) {
   // Gauge is from min at 210 to max at -30 degrees from rightward horizontal.
@@ -49,7 +50,7 @@ function armLocationFromPolarCoords(degrees: number, radius: number) {
   };
 }
 
-export function Gauge({ channel, min, max, nowMs }: GaugeProps) {
+export function Gauge({ channel, min, max, major_intervals = 5, minor_intervals = 2, nowMs }: GaugeProps) {
   const { unit, kind } = channel.signal;
   const status = getChannelStatus(channel, nowMs);
   const latest = getLatestReading(channel);
@@ -83,7 +84,7 @@ export function Gauge({ channel, min, max, nowMs }: GaugeProps) {
     value = latest.value;
   }
 
-  // Only display angles that exist. If not, have it be at the min just resting there.
+  // Only display angles that exist. If not, it rests at the minimum angle.
   const angle =
     value == null ? getAngle(min, min, max) : getAngle(value, min, max);
 
@@ -99,19 +100,19 @@ export function Gauge({ channel, min, max, nowMs }: GaugeProps) {
   // Ticks + labels
   // -theta is used because the coordinate logic for the styling is from the top left,
   // but the polar system measures it from the bottom left
-  const totalTicks = MAJOR_INTERVALS * MINOR_INTERVALS;
+  const totalTicks = major_intervals * minor_intervals;
   const ticks = Array.from({ length: totalTicks + 1 }, (_, i) => {
     const theta = STARTING_DEGREES - (TOTAL_ROTATION * i) / totalTicks;
-    const isMajor = i % MINOR_INTERVALS === 0;
+    const isMajor = i % minor_intervals === 0;
     const outer = armLocationFromPolarCoords(-theta, 92);
     const inner = armLocationFromPolarCoords(-theta, isMajor ? 80 : 85);
     return { i, outer, inner, isMajor };
   });
 
-  const labels = Array.from({ length: MAJOR_INTERVALS + 1 }, (_, i) => {
-    const theta = STARTING_DEGREES - (TOTAL_ROTATION * i) / MAJOR_INTERVALS;
+  const labels = Array.from({ length: major_intervals + 1 }, (_, i) => {
+    const theta = STARTING_DEGREES - (TOTAL_ROTATION * i) / major_intervals;
     const pos = armLocationFromPolarCoords(-theta, 66);
-    const labelValue = min + ((max - min) * i) / MAJOR_INTERVALS;
+    const labelValue = min + ((max - min) * i) / major_intervals;
     return {
       i,
       pos,

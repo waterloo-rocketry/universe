@@ -51,7 +51,14 @@ export function TelemetryMonitor({ url }: TelemetryMonitorProps) {
           {pressure && (
             <div>
               <Gauge channel={pressure} min={0} max={100} nowMs={nowMs} />
-              <Gauge channel={pressure} min={40} max={45} nowMs={nowMs} />
+              <Gauge
+                channel={pressure}
+                min={40}
+                max={45}
+                major_intervals={3}
+                minor_intervals={6}
+                nowMs={nowMs}
+              />
             </div>
           )}
         </div>

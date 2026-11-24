@@ -1,0 +1,16 @@
+---
+services:
+  code-server:
+    image: "{{ code_server_image }}"
+    container_name: code-server
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - DEFAULT_WORKSPACE=/data/omnibus-deploy
+    volumes:
+      - ./config:/config
+      - /home/daq:/data
+    ports:
+      - 9443:8443
+    restart: unless-stopped

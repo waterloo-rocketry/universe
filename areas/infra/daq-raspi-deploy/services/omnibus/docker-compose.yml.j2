@@ -1,0 +1,73 @@
+services:
+  omnibus-server:
+    image: "{{ omnibus_server_image }}"
+    network_mode: host
+    restart: unless-stopped
+
+  omnibus-globallog:
+    image: "{{ omnibus_globallog_image }}"
+    network_mode: host
+    restart: unless-stopped
+    depends_on:
+      - omnibus-server
+    volumes:
+      - ./data:/data
+    command: ["--outfolder", "/data"]
+
+  omnibus-source-ljm:
+    image: "{{ omnibus_ljm_image }}"
+    network_mode: host
+    restart: unless-stopped
+    depends_on:
+      - omnibus-server
+    volumes:
+      - ./config:/config
+  
+  omnibus-ws-bridge:
+    image: "{{ omnibus_ws_bridge_image }}"
+    network_mode: host
+    restart: unless-stopped
+    depends_on:
+      - omnibus-server
+      - omnibus-ws-server
+
+  omnibus-ws-server:
+    image: "{{ omnibus_ws_server_image }}"
+    network_mode: host
+    restart: unless-stopped
+    depends_on:
+      - omnibus-server
+
+  daqms:
+    image: "{{ omnibus_daqms_image }}"
+    restart: unless-stopped
+    depends_on:
+      - omnibus-server
+    ports:
+      - 8080:8080
+
+  # /dev/serial/by-path/platform-xhci-hcd.0-usb-0:1.1:1.0 is the Injector CAN support board, USB Port 1 on hub
+  parsley-source-injector:
+    image: "{{ omnibus_parsley_image }}"
+    restart: unless-stopped
+    depends_on:
+      - omnibus-server
+    network_mode: host
+    hostname: EGSE-INJECTOR
+    devices:
+      - source: /dev/serial/by-path/platform-xhci-hcd.0-usb-0:1.1:1.0
+        target: /dev/ttyACM0
+        permissions: rwm
+
+  # /dev/serial/by-path/platform-xhci-hcd.0-usb-0:1.2:1.0 is the Upper CAN support board, USB Port 2 on hub
+  parsley-source-upper:
+    image: "{{ omnibus_parsley_image }}"
+    restart: unless-stopped
+    depends_on:
+      - omnibus-server
+    network_mode: host
+    hostname: EGSE-UPPER
+    devices:
+      - source: /dev/serial/by-path/platform-xhci-hcd.0-usb-0:1.2:1.0
+        target: /dev/ttyACM0
+        permissions: rwm

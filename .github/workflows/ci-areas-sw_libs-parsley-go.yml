@@ -1,0 +1,36 @@
+name: CI
+
+# Runs on pull requests that change parsley-go (it lives at
+# areas/sw_libs/parsley-go in the universe monorepo)
+on:
+  pull_request:
+    paths: ["areas/sw_libs/parsley-go/**"]
+
+defaults:
+  run:
+    working-directory: areas/sw_libs/parsley-go
+
+jobs:
+  min-go:
+    # Build and test on the minimum Go in go.mod, so we don't use anything newer
+    name: Build and test (minimum Go)
+    runs-on: ubuntu-latest
+    env:
+      GOTOOLCHAIN: local # don't let go switch to a newer version
+    steps:
+      - uses: actions/checkout@v4
+      - name: Read minimum Go version from go.mod
+        id: min
+        run: echo "version=$(sed -n 's/^go //p' go.mod)" >> "$GITHUB_OUTPUT"
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ steps.min.outputs.version }}
+          cache: false
+      - name: Check formatting
+        run: test -z "$(gofmt -l .)"
+      - name: Vet
+        run: go vet ./...
+      - name: Build
+        run: go build ./...
+      - name: Test
+        run: go test ./...

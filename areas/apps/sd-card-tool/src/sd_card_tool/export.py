@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import BinaryIO
+from typing import BinaryIO, Callable
 
 from .chunk import ChunkError, decode_chunk
 from .config import FormatConfig
@@ -72,7 +72,12 @@ class ExportedFile:
     size: int
 
 
-def scan(card: BinaryIO, config: FormatConfig) -> ScanResult:
+# Called with the number of bytes scanned so far.
+Progress = Callable[[int], None]
+
+
+def scan(card: BinaryIO, config: FormatConfig,
+         progress: Progress | None = None) -> ScanResult:
     """Check every slot in address order and record where valid chunks are.
 
     Startup counters only go up in card order, so a valid chunk whose counter
@@ -88,8 +93,12 @@ def scan(card: BinaryIO, config: FormatConfig) -> ScanResult:
     size = config.slot_size
     generation = 0
     previous: int | None = None
+    done = 0
 
     while block := card.read(size * SLOTS_PER_READ):
+        done += len(block)
+        if progress:
+            progress(done)
         whole = len(block) - len(block) % size
         result.trailing_bytes = len(block) - whole
         view = memoryview(block)
@@ -144,6 +153,7 @@ def export(
     out_dir: str | Path,
     *,
     overwrite: bool = False,
+    progress: Progress | None = None,
 ) -> tuple[ScanResult, list[ExportedFile]]:
     """Scan the card, then write each file's payloads in segment order.
 
@@ -152,7 +162,7 @@ def export(
     True; otherwise FileExistsError is raised before anything is written.
     """
     card.seek(0)
-    result = scan(card, config)
+    result = scan(card, config, progress)
     out = Path(out_dir)
     targets = [(record, out / output_name(record, config))
                for record in result.files.values()]

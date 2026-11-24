@@ -2,8 +2,8 @@
 
 Command-line tool for Waterloo Rocketry's append-only SD card log format.
 
-Status: it reads card *image files* and rebuilds the logged files. Reading a
-real card, formatting, and importing are not built yet.
+Status: it reads SD cards (macOS) and card image files and rebuilds the
+logged files. Formatting and importing are not built yet.
 
 ## On-card format
 
@@ -48,9 +48,25 @@ uv run sd-card-tool export card.img out/ --format my-format.yaml
 
 ## Export
 
+From a card image file:
+
 ```sh
 uv run sd-card-tool export card.img out/
 ```
+
+From an SD card (macOS). Find the card's disk name, then read it. Reading
+the raw card needs `sudo`; the card is only read, never written, and the
+exported files are handed back to your user:
+
+```sh
+uv run sd-card-tool list
+sudo .venv/bin/python -m sd_card_tool export disk4 out/
+```
+
+Before opening a disk the tool refuses anything that is internal, holds the
+running system, is a partition rather than a whole disk, or is virtual (disk
+images made with `hdiutil attach` are allowed, for testing). Only whole disks
+named like `disk4` are accepted.
 
 Export checks every slot in address order:
 

@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import { Guage } from './Guage';
+import { Gauge } from './Gauge';
 import {
   applyFrame,
   createTelemetryState,
@@ -29,16 +29,16 @@ function channelsAfter(...scenarios: MockScenario[]) {
 }
 
 /** Draws one gauge and returns the parts the tests care about. */
-function renderGuage(channel: ChannelState, min = 0, max = 100, nowMs = NOW) {
+function renderGauge(channel: ChannelState, min = 0, max = 100, nowMs = NOW) {
   const { container } = render(
-    <Guage channel={channel} min={min} max={max} nowMs={nowMs} />,
+    <Gauge channel={channel} min={min} max={max} nowMs={nowMs} />,
   );
   return {
     container,
-    guage: container.querySelector('.guage'),
-    face: container.querySelector('.guage_face'),
-    hand: container.querySelector<HTMLElement>('.guage_circle_hand'),
-    status: container.querySelector('.guage_status_text'),
+    gauge: container.querySelector('.gauge'),
+    face: container.querySelector('.gauge_face'),
+    hand: container.querySelector<HTMLElement>('.gauge_circle_hand'),
+    status: container.querySelector('.gauge_status_text'),
   };
 }
 
@@ -49,9 +49,9 @@ function needleDegrees(hand: HTMLElement | null) {
   return Number(match[1]);
 }
 
-describe('Guage', () => {
+describe('Gauge', () => {
   it('points the needle to where the value sits between min and max', () => {
-    const { hand, face } = renderGuage(
+    const { hand, face } = renderGauge(
       channelsAfter('nominal')['test.pressure'],
     );
 
@@ -63,7 +63,7 @@ describe('Guage', () => {
 
   it('accounts for a min that is not zero', () => {
     // 42 sits 40% of the way from 30 to 55
-    const { hand } = renderGuage(
+    const { hand } = renderGauge(
       channelsAfter('nominal')['test.pressure'],
       30,
       55,
@@ -73,7 +73,7 @@ describe('Guage', () => {
   });
 
   it('pins the needle at max and tints the face when above range', () => {
-    const { hand, face } = renderGuage(
+    const { hand, face } = renderGauge(
       channelsAfter('nominal')['test.pressure'],
       0,
       10,
@@ -85,7 +85,7 @@ describe('Guage', () => {
   });
 
   it('rests the needle at min and tints the face when below range', () => {
-    const { hand, face } = renderGuage(
+    const { hand, face } = renderGauge(
       channelsAfter('nominal')['test.pressure'],
       50,
       100,
@@ -97,23 +97,23 @@ describe('Guage', () => {
   });
 
   it('draws ticks and labels across the range', () => {
-    const { container } = renderGuage(
+    const { container } = renderGauge(
       channelsAfter('nominal')['test.pressure'],
       0,
       10,
     );
 
-    expect(container.querySelectorAll('.guage_tick')).toHaveLength(11);
-    expect(container.querySelectorAll('.guage_tick_major')).toHaveLength(6);
+    expect(container.querySelectorAll('.gauge_tick')).toHaveLength(11);
+    expect(container.querySelectorAll('.gauge_tick_major')).toHaveLength(6);
 
-    const labels = [...container.querySelectorAll('.guage_label')].map(
+    const labels = [...container.querySelectorAll('.gauge_label')].map(
       (el) => el.textContent,
     );
     expect(labels).toEqual(['0', '2', '4', '6', '8', '10']);
   });
 
   it('keeps the last value but shows the status when stale', () => {
-    const { status, hand } = renderGuage(
+    const { status, hand } = renderGauge(
       channelsAfter('stale')['test.pressure'],
     );
 
@@ -123,7 +123,7 @@ describe('Guage', () => {
   });
 
   it('keeps the last value but shows the status when disconnected', () => {
-    const { status } = renderGuage(
+    const { status } = renderGauge(
       channelsAfter('nominal', 'disconnected')['test.pressure'],
     );
 
@@ -134,7 +134,7 @@ describe('Guage', () => {
   it.each(['missing', 'invalid'] as const)(
     'shows N/A and rests the needle at min for %s readings',
     (scenario) => {
-      const { hand, status } = renderGuage(
+      const { hand, status } = renderGauge(
         channelsAfter(scenario)['test.pressure'],
       );
 
@@ -145,7 +145,7 @@ describe('Guage', () => {
   );
 
   it('shows N/A before any reading arrives', () => {
-    const { hand, status } = renderGuage(channelsAfter()['test.pressure']);
+    const { hand, status } = renderGauge(channelsAfter()['test.pressure']);
 
     expect(screen.getByText('N/A')).toBeInTheDocument();
     expect(status).toHaveTextContent('no-data');
@@ -160,7 +160,7 @@ describe('Guage', () => {
       quality: 'good' as const,
       value: NaN,
     };
-    const { hand } = renderGuage({ ...channel, history: [reading] });
+    const { hand } = renderGauge({ ...channel, history: [reading] });
 
     expect(screen.getByText('N/A')).toBeInTheDocument();
     expect(needleDegrees(hand)).toBe(REST);
@@ -174,31 +174,31 @@ describe('Guage', () => {
       quality: 'good' as const,
       value: 42.123456,
     };
-    renderGuage({ ...channel, history: [reading] });
+    renderGauge({ ...channel, history: [reading] });
 
     expect(screen.getByText('42.123 kPa')).toBeInTheDocument();
   });
 
   it('refuses channels that are not numbers', () => {
-    const { guage } = renderGuage(channelsAfter('nominal')['test.enabled']);
+    const { gauge } = renderGauge(channelsAfter('nominal')['test.enabled']);
 
     expect(screen.getByText('Not a numeric channel!')).toBeInTheDocument();
-    expect(guage).not.toBeInTheDocument();
+    expect(gauge).not.toBeInTheDocument();
   });
 
   it('reports a NaN range as invalid', () => {
-    const { guage } = renderGuage(
+    const { gauge } = renderGauge(
       channelsAfter('nominal')['test.pressure'],
       NaN,
       100,
     );
 
     expect(screen.getByText('Invalid range!')).toBeInTheDocument();
-    expect(guage).not.toBeInTheDocument();
+    expect(gauge).not.toBeInTheDocument();
   });
 
   it('reports a min that is not below the max', () => {
-    renderGuage(channelsAfter('nominal')['test.pressure'], 5, 5);
+    renderGauge(channelsAfter('nominal')['test.pressure'], 5, 5);
 
     expect(screen.getByText('Invalid range!')).toBeInTheDocument();
   });

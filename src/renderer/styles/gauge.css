@@ -1,4 +1,4 @@
-.guage {
+.gauge {
   box-sizing: border-box;
   max-width: 24rem;
   padding: 0.75rem 1rem;
@@ -8,38 +8,38 @@
   color: #fff;
   font-variant-numeric: tabular-nums;
 }
-.guage_circle {
+.gauge_circle {
   position: relative;
   width: 100%;
   aspect-ratio: 1 / 1;
 }
-.guage_svg {
+.gauge_svg {
   width: 100%;
   height: 100%;
   display: block;
 }
-.guage_face {
+.gauge_face {
 }
-.guage_tick {
+.gauge_tick {
   stroke: #000;
   stroke-width: 1;
 }
-.guage_tick_major {
+.gauge_tick_major {
   stroke-width: 1.5;
 }
-.guage_label {
+.gauge_label {
   fill: #000;
   font-size: 14px;
   font-style: italic;
 }
-.guage_circle_hand {
+.gauge_circle_hand {
   transform-origin: 100px 100px; /* SVG user units: the dial center */
   transition: transform 0.3s ease-out;
 }
-.guage_needle {
+.gauge_needle {
   fill: #f00;
 }
-.guage_circle_value_display {
+.gauge_circle_value_display {
   position: absolute;
   left: 0;
   right: 0;
@@ -48,10 +48,10 @@
   font-size: 2rem;
   color: #000;
 }
-.guage_status {
+.gauge_status {
   margin-top: 0.5rem;
   text-align: center;
 }
-.guage_status_text {
+.gauge_status_text {
   font-size: 1.1rem;
 }

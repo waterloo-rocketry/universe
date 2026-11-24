@@ -3,9 +3,9 @@ import {
   getLatestReading,
   type ChannelState,
 } from '../data/channel-store';
-import '../styles/guage.css';
+import '../styles/gauge.css';
 
-interface GuageProps {
+interface GaugeProps {
   channel: ChannelState;
   min: number;
   max: number;
@@ -20,7 +20,7 @@ const MAJOR_INTERVALS = 5; //The amount of big dashes. This could be made custom
 const MINTOR_INTERVALS = 2; //Amount of small dashes in between the big ones. Again could be changed to be custom
 
 function getAngle(value: number, min: number, max: number) {
-  //Guage is from min at 210 to max at -30 degrees from rightward horizontal.
+  //Gauge is from min at 210 to max at -30 degrees from rightward horizontal.
   //So 240 total degrees of rotation. The visual has the angle adjustment.
   let range: 'in' | 'below min' | 'above max';
   let angle = 0;
@@ -49,7 +49,7 @@ function armLocationFromPolarCoords(degrees: number, radius: number) {
   };
 }
 
-export function Guage({ channel, min, max, nowMs }: GuageProps) {
+export function Gauge({ channel, min, max, nowMs }: GaugeProps) {
   const { unit, kind } = channel.signal;
   const status = getChannelStatus(channel, nowMs);
   const latest = getLatestReading(channel);
@@ -121,18 +121,18 @@ export function Guage({ channel, min, max, nowMs }: GuageProps) {
   });
 
   return (
-    <div className="guage">
-      <div className="guage_circle">
-        <svg viewBox="0 0 200 200" className="guage_svg">
+    <div className="gauge">
+      <div className="gauge_circle">
+        <svg viewBox="0 0 200 200" className="gauge_svg">
           <circle
             cx={CENTER_X}
             cy={CENTER_Y}
             r="98"
-            className="guage_face"
+            className="gauge_face"
             fill={angle.range == 'in' ? 'white' : '#ffa9a9'}
           />
 
-          <g className="guage_circle_values">
+          <g className="gauge_circle_values">
             {ticks.map((t) => (
               <line
                 key={t.i}
@@ -141,7 +141,7 @@ export function Guage({ channel, min, max, nowMs }: GuageProps) {
                 x2={t.outer.x}
                 y2={t.outer.y}
                 className={
-                  t.isMajor ? 'guage_tick guage_tick_major' : 'guage_tick'
+                  t.isMajor ? 'gauge_tick gauge_tick_major' : 'gauge_tick'
                 }
               />
             ))}
@@ -151,7 +151,7 @@ export function Guage({ channel, min, max, nowMs }: GuageProps) {
                 x={l.pos.x}
                 y={l.pos.y}
                 transform={`rotate(${l.rotation} ${l.pos.x} ${l.pos.y})`}
-                className="guage_label"
+                className="gauge_label"
                 textAnchor="middle"
                 dominantBaseline="central"
               >
@@ -162,29 +162,29 @@ export function Guage({ channel, min, max, nowMs }: GuageProps) {
 
           {/* Needle drawn pointing at +x (right), rotated into place */}
           <g
-            className="guage_circle_hand"
+            className="gauge_circle_hand"
             style={{
               transform: `rotate(${angle.angle - STARTING_DEGREES}deg)`,
             }}
           >
             <polygon
               points="100,95 172,99.5 172,100.5 100,105"
-              className="guage_needle"
+              className="gauge_needle"
             />
             <circle
               cx={CENTER_X}
               cy={CENTER_Y}
               r="6"
-              className="guage_needle"
+              className="gauge_needle"
             />
           </g>
         </svg>
 
-        <div className="guage_circle_value_display">{valueText}</div>
+        <div className="gauge_circle_value_display">{valueText}</div>
       </div>
 
-      <div className="guage_status">
-        <div className="guage_status_text">{status}</div>
+      <div className="gauge_status">
+        <div className="gauge_status_text">{status}</div>
       </div>
     </div>
   );

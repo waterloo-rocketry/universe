@@ -28,9 +28,9 @@ func main() {
 	}
 
 	switch os.Args[1] {
-	case "version": 
+	case "version":
 		fmt.Println("orion", version)
-	case "check-config": 
+	case "check-config":
 		if len(os.Args) != 3 {
 			fmt.Fprintln(os.Stderr, "usage: orion check-config <file>")
 			os.Exit(1)
@@ -41,7 +41,7 @@ func main() {
 			fmt.Fprintf(os.Stderr, "check-config: %s: %v\n", path, err)
 			os.Exit(1)
 		}
-		
+
 		names := allNamesOK{}
 		errs, warnings := cfg.Check(names)
 
@@ -55,7 +55,7 @@ func main() {
 			os.Exit(1)
 		}
 		fmt.Println("check-config: OK")
-	default: 
+	default:
 		fmt.Fprintf(os.Stderr, "unknown command %q\n", os.Args[1])
 		os.Exit(1)
 	}

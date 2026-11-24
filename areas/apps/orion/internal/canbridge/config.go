@@ -81,8 +81,8 @@ func (c *Config) applyDefaults() {
 func checkSerialOrMockWithoutFormat(cfg Config) error {
 	for _, src := range cfg.Sources {
 		port := src.Port
-		if strings.HasPrefix(port, "usb") || strings.HasPrefix(port, "/dev/") || 
-			 strings.HasPrefix(port, "COM") || strings.HasPrefix(port, "mock:") {
+		if strings.HasPrefix(port, "usb") || strings.HasPrefix(port, "/dev/") ||
+			strings.HasPrefix(port, "COM") || strings.HasPrefix(port, "mock:") {
 			if src.Format == "" {
 				return fmt.Errorf("format expected when port is serial or mock")
 			}
@@ -185,7 +185,7 @@ func checkBareCOMnPortInOps(cfg Config) string {
 
 func (c *Config) Check(names RocketCANNames) (errs []error, warnings []string) {
 	c.applyDefaults()
-	
+
 	if err := checkSerialOrMockWithoutFormat(*c); err != nil {
 		errs = append(errs, err)
 	}

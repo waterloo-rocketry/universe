@@ -40,6 +40,9 @@ def main(argv: list[str] | None = None) -> int:
     export_cmd.add_argument(
         "--format", help="format YAML file (default: built-in placeholders)")
     export_cmd.add_argument(
+        "--allow-disk-image", action="store_true",
+        help="also accept a mounted disk image (for testing only)")
+    export_cmd.add_argument(
         "--overwrite", action="store_true",
         help="replace output files that already exist")
 
@@ -49,6 +52,9 @@ def main(argv: list[str] | None = None) -> int:
         "target", help="a card such as disk4 (see `list`), or an image file")
     format_cmd.add_argument(
         "--format", help="format YAML file (default: built-in placeholders)")
+    format_cmd.add_argument(
+        "--allow-disk-image", action="store_true",
+        help="also accept a mounted disk image (for testing only)")
     format_cmd.add_argument(
         "--whole", action="store_true",
         help="zero every byte, not just the start of each slot")
@@ -95,7 +101,8 @@ def _export(args: argparse.Namespace) -> int:
         checked_disk(args.source)  # explains why it isn't a usable disk
     progress = None
     if is_disk:
-        disk = checked_disk(args.source)
+        disk = checked_disk(args.source,
+                            allow_disk_image=args.allow_disk_image)
         print(f"Reading {disk.describe()} "
               f"({disk.size // config.slot_size:,} slots). "
               f"The card is only read, never written.", flush=True)
@@ -153,7 +160,8 @@ def _format(args: argparse.Namespace) -> int:
         print(f"Formatting image {args.target} ({plan.slots:,} slots)",
               flush=True)
     else:
-        disk = checked_disk(args.target)
+        disk = checked_disk(args.target,
+                            allow_disk_image=args.allow_disk_image)
         plan = make_plan(disk.size, config, args.whole, disk.block_size)
         what = ("every byte" if plan.whole else
                 f"the first {plan.clear_bytes:,} bytes of each of "

@@ -111,10 +111,20 @@ def test_missing_internal_flag_counts_as_internal():
         checked_disk("disk4", fake_diskutil({"disk4": info}))
 
 
-def test_disk_images_are_allowed():
+def test_disk_images_are_refused_unless_allowed():
     image = SD_CARD | {"VirtualOrPhysical": "Virtual",
                        "BusProtocol": "Disk Image"}
-    assert checked_disk("disk4", fake_diskutil({"disk4": image}))
+    run = fake_diskutil({"disk4": image})
+    with pytest.raises(DeviceError, match="disk image"):
+        checked_disk("disk4", run)
+    assert checked_disk("disk4", run, allow_disk_image=True)
+
+
+def test_allowing_disk_images_still_refuses_other_virtual_disks():
+    virtual = SD_CARD | {"VirtualOrPhysical": "Virtual"}
+    with pytest.raises(DeviceError, match="virtual"):
+        checked_disk("disk4", fake_diskutil({"disk4": virtual}),
+                     allow_disk_image=True)
 
 
 def test_refuses_partitions_by_name():

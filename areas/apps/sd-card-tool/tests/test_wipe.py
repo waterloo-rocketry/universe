@@ -115,7 +115,7 @@ def fake_card(tmp_path, monkeypatch):
     image = tmp_path / "card.img"
     image.write_bytes(junk_card(4).getvalue())
     calls = []
-    monkeypatch.setattr(cli, "checked_disk", lambda name: CARD)
+    monkeypatch.setattr(cli, "checked_disk", lambda name, **kwargs: CARD)
     monkeypatch.setattr(cli, "unmount_disk",
                         lambda disk: calls.append(("unmount", disk.identifier)))
 

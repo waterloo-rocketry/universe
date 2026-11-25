@@ -93,8 +93,15 @@ def system_disks(run: Runner = _diskutil) -> set[str]:
     return {disk for disk in disks if disk}
 
 
-def problems(disk: Disk, system: set[str]) -> list[str]:
-    """Reasons this disk must not be used; empty if it is safe."""
+def problems(disk: Disk, system: set[str],
+             allow_disk_image: bool = False) -> list[str]:
+    """Reasons this disk must not be used; empty if it is safe.
+
+    Disk images (a mounted .dmg, or a test card made with hdiutil) are
+    refused unless allow_disk_image is set: disk numbers change as things
+    are plugged in, so "disk2" can be a downloaded installer one day and the
+    SD card the next.
+    """
     found = []
     if disk.identifier in system:
         found.append("it holds this computer's system")
@@ -102,7 +109,11 @@ def problems(disk: Disk, system: set[str]) -> list[str]:
         found.append("it is an internal disk")
     if not disk.whole:
         found.append("it is a partition, not a whole disk")
-    if not disk.physical and disk.protocol != "Disk Image":
+    if disk.protocol == "Disk Image":
+        if not allow_disk_image:
+            found.append("it is a disk image, not an SD card "
+                         "(--allow-disk-image is for testing)")
+    elif not disk.physical:
         found.append("it is a virtual disk")
     if disk.size <= 0:
         found.append("its size is unknown")
@@ -115,7 +126,8 @@ def external_disks(run: Runner = _diskutil) -> list[Disk]:
     return [disk_info(name, run) for name in listing.get("WholeDisks", [])]
 
 
-def checked_disk(text: str, run: Runner = _diskutil) -> Disk:
+def checked_disk(text: str, run: Runner = _diskutil,
+                 allow_disk_image: bool = False) -> Disk:
     """Look up a disk by name and refuse anything unsafe."""
     if sys.platform != "darwin":
         raise DeviceError(
@@ -125,7 +137,7 @@ def checked_disk(text: str, run: Runner = _diskutil) -> Disk:
     if identifier is None:
         raise DeviceError(f"{text!r} is not a whole disk like disk4")
     disk = disk_info(identifier, run)
-    found = problems(disk, system_disks(run))
+    found = problems(disk, system_disks(run), allow_disk_image)
     if found:
         raise DeviceError(
             f"Refusing to use {disk.describe()}: " + "; ".join(found))

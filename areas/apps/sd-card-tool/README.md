@@ -64,11 +64,12 @@ sudo .venv/bin/python -m sd_card_tool export disk4 out/
 ```
 
 Before opening a disk the tool refuses anything that is internal, holds the
-running system, is a partition rather than a whole disk, or is virtual (disk
-images made with `hdiutil attach` are allowed, for testing). Only whole disks
-named like `disk4` are accepted.
+running system, is a partition rather than a whole disk, is virtual, or is a
+disk image. Only whole disks named like `disk4` are accepted. Disk numbers
+change as things are plugged in, so run `list` first every time. For testing
+with a fake card made by `hdiutil attach`, pass `--allow-disk-image`.
 
-Export checks every slot in address order:
+Export reads the card once, front to back, checking every slot in order:
 
 - A slot whose first `clear_bytes` bytes are all zero is unused.
 - Other slots must have the right fixed values (such as `HEADER_ID`) and CRC.
@@ -84,6 +85,10 @@ Export checks every slot in address order:
 - Startup counters only go up in card order. If one goes down (for example
   8191 to 0), the 13-bit counter wrapped: later files get a generation
   number, e.g. `00001-1.BIN`, so they never merge with an earlier `00001`.
+- Each file's data is streamed into a `.part` file as it is found and
+  renamed when the whole card has been read. Segments that arrive out of
+  order are put back in order from the `.part` file, not by reading the card
+  again. If export fails partway, no output or `.part` files are left.
 - Existing output files are not replaced unless you pass `--overwrite`.
 
 Payloads are copied in full, including any zero padding at the end of a chunk.

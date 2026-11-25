@@ -2,8 +2,8 @@
 
 Command-line tool for Waterloo Rocketry's append-only SD card log format.
 
-Status: project skeleton. The format, export and format commands
-follow in the next PRs.
+Status: project skeleton with the CRC-16 module. The format and
+commands follow in the next PRs.
 
 ## Development
 

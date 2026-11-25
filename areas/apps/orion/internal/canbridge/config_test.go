@@ -77,6 +77,7 @@ func TestCheckSerialOrMockWithoutFormat(t *testing.T) {
 		{
 			name: "mock with format passes",
 			cfg: Config{Sources: []Source{{
+				Type:   "can",
 				Port:   "mock:cold-flow",
 				Format: "usb",
 			}}},
@@ -85,6 +86,7 @@ func TestCheckSerialOrMockWithoutFormat(t *testing.T) {
 		{
 			name: "mock without format fails",
 			cfg: Config{Sources: []Source{{
+				Type:   "can",
 				Port:   "mock:cold-flow",
 				Format: "",
 			}}},
@@ -93,6 +95,7 @@ func TestCheckSerialOrMockWithoutFormat(t *testing.T) {
 		{
 			name: "usb serial without format fails",
 			cfg: Config{Sources: []Source{{
+				Type:   "can",
 				Port:   "usb:1234:5678:INJECTOR",
 				Format: "",
 			}}},
@@ -101,6 +104,7 @@ func TestCheckSerialOrMockWithoutFormat(t *testing.T) {
 		{
 			name: "COM4 without format fails",
 			cfg: Config{Sources: []Source{{
+				Type:   "can",
 				Port:   "COM4",
 				Format: "",
 			}}},
@@ -109,7 +113,17 @@ func TestCheckSerialOrMockWithoutFormat(t *testing.T) {
 		{
 			name: "file replay without format passes (format is ignored)",
 			cfg: Config{Sources: []Source{{
+				Type:   "can",
 				Port:   "file:flight.canlog",
+				Format: "",
+			}}},
+			wantErr: false,
+		},
+		{
+			name: "non-can source with serial port and no format passes (rule is can-only)",
+			cfg: Config{Sources: []Source{{
+				Type:   "daq",
+				Port:   "usb:1234:5678:INJECTOR",
 				Format: "",
 			}}},
 			wantErr: false,
@@ -134,6 +148,7 @@ func TestCheckNotCommandedOnLiveTelemetry(t *testing.T) {
 		{
 			name: "LTT source with command false passes",
 			cfg: Config{Sources: []Source{{
+				Type:       "can",
 				Connection: "LIVE_TELEMETRY",
 				Actuators:  []Actuator{{ID: "ox-injector-valve", Command: false}},
 			}}},
@@ -142,6 +157,7 @@ func TestCheckNotCommandedOnLiveTelemetry(t *testing.T) {
 		{
 			name: "LTT source with command true fails",
 			cfg: Config{Sources: []Source{{
+				Type:       "can",
 				Connection: "LIVE_TELEMETRY",
 				Actuators:  []Actuator{{ID: "ox-injector-valve", Command: true}},
 			}}},
@@ -150,7 +166,17 @@ func TestCheckNotCommandedOnLiveTelemetry(t *testing.T) {
 		{
 			name: "non-LTT source with command true passes",
 			cfg: Config{Sources: []Source{{
+				Type:       "can",
 				Connection: "UMBILICAL",
+				Actuators:  []Actuator{{ID: "ox-injector-valve", Command: true}},
+			}}},
+			wantErr: false,
+		},
+		{
+			name: "non-can LTT source with command true passes (rule is can-only)",
+			cfg: Config{Sources: []Source{{
+				Type:       "daq",
+				Connection: "LIVE_TELEMETRY",
 				Actuators:  []Actuator{{ID: "ox-injector-valve", Command: true}},
 			}}},
 			wantErr: false,
@@ -176,7 +202,7 @@ func TestCheckUSBDebugInOpsConfig(t *testing.T) {
 			name: "ops mode without USB debug source passes",
 			cfg: Config{
 				Server:  Server{Mode: "ops"},
-				Sources: []Source{{Connection: "LIVE_TELEMETRY"}},
+				Sources: []Source{{Type: "can", Connection: "LIVE_TELEMETRY"}},
 			},
 			wantErr: false,
 		},
@@ -184,7 +210,7 @@ func TestCheckUSBDebugInOpsConfig(t *testing.T) {
 			name: "ops mode with USB debug source fails",
 			cfg: Config{
 				Server:  Server{Mode: "ops"},
-				Sources: []Source{{Connection: "USB_DEBUG"}},
+				Sources: []Source{{Type: "can", Connection: "USB_DEBUG"}},
 			},
 			wantErr: true,
 		},
@@ -192,7 +218,15 @@ func TestCheckUSBDebugInOpsConfig(t *testing.T) {
 			name: "test mode with USB debug source passes",
 			cfg: Config{
 				Server:  Server{Mode: "test"},
-				Sources: []Source{{Connection: "USB_DEBUG"}},
+				Sources: []Source{{Type: "can", Connection: "USB_DEBUG"}},
+			},
+			wantErr: false,
+		},
+		{
+			name: "non-can USB debug source in ops passes (rule is can-only)",
+			cfg: Config{
+				Server:  Server{Mode: "ops"},
+				Sources: []Source{{Type: "daq", Connection: "USB_DEBUG"}},
 			},
 			wantErr: false,
 		},
@@ -217,7 +251,7 @@ func TestCheckMockInOpsConfig(t *testing.T) {
 			name: "ops mode without mock port passes",
 			cfg: Config{
 				Server:  Server{Mode: "ops"},
-				Sources: []Source{{Port: "usb:1234:5678:INJECTOR"}},
+				Sources: []Source{{Type: "can", Port: "usb:1234:5678:INJECTOR"}},
 			},
 			wantErr: false,
 		},
@@ -225,7 +259,7 @@ func TestCheckMockInOpsConfig(t *testing.T) {
 			name: "ops mode with mock port fails",
 			cfg: Config{
 				Server:  Server{Mode: "ops"},
-				Sources: []Source{{Port: "mock:cold-flow"}},
+				Sources: []Source{{Type: "can", Port: "mock:cold-flow"}},
 			},
 			wantErr: true,
 		},
@@ -233,20 +267,28 @@ func TestCheckMockInOpsConfig(t *testing.T) {
 			name: "test mode with mock port passes",
 			cfg: Config{
 				Server:  Server{Mode: "test"},
-				Sources: []Source{{Port: "mock:cold-flow"}},
+				Sources: []Source{{Type: "can", Port: "mock:cold-flow"}},
 			},
 			wantErr: false,
 		},
 		{
 			name: "ops mode with second mock port fails",
 			cfg: Config{
-				Server:  Server{Mode: "ops"},
+				Server: Server{Mode: "ops"},
 				Sources: []Source{
-					{Port: "COM4"},
-					{Port: "mock:cold-flow"},
+					{Type: "can", Port: "COM4"},
+					{Type: "can", Port: "mock:cold-flow"},
 				},
 			},
 			wantErr: true,
+		},
+		{
+			name: "non-can mock port in ops passes (rule is can-only)",
+			cfg: Config{
+				Server:  Server{Mode: "ops"},
+				Sources: []Source{{Type: "daq", Port: "mock:cold-flow"}},
+			},
+			wantErr: false,
 		},
 	}
 	for _, tt := range tests {
@@ -270,6 +312,7 @@ func TestCheckCommandableActuatorWithoutOperator(t *testing.T) {
 			cfg: Config{
 				Server: Server{Mode: "ops", CommandOperators: []string{"mc-laptop-2-*"}},
 				Sources: []Source{{
+					Type:      "can",
 					Actuators: []Actuator{{ID: "ox-injector-valve", Command: true}},
 				}},
 			},
@@ -280,6 +323,7 @@ func TestCheckCommandableActuatorWithoutOperator(t *testing.T) {
 			cfg: Config{
 				Server: Server{Mode: "ops"},
 				Sources: []Source{{
+					Type:      "can",
 					Actuators: []Actuator{{ID: "ox-injector-valve", Command: true}},
 				}},
 			},
@@ -290,6 +334,7 @@ func TestCheckCommandableActuatorWithoutOperator(t *testing.T) {
 			cfg: Config{
 				Server: Server{Mode: "ops"},
 				Sources: []Source{{
+					Type:      "can",
 					Actuators: []Actuator{{ID: "ox-injector-valve", Command: false}},
 				}},
 			},
@@ -300,6 +345,18 @@ func TestCheckCommandableActuatorWithoutOperator(t *testing.T) {
 			cfg: Config{
 				Server: Server{Mode: "test"},
 				Sources: []Source{{
+					Type:      "can",
+					Actuators: []Actuator{{ID: "ox-injector-valve", Command: true}},
+				}},
+			},
+			wantErr: false,
+		},
+		{
+			name: "non-can commandable actuator, no operators passes (rule is can-only)",
+			cfg: Config{
+				Server: Server{Mode: "ops"},
+				Sources: []Source{{
+					Type:      "daq",
 					Actuators: []Actuator{{ID: "ox-injector-valve", Command: true}},
 				}},
 			},
@@ -326,6 +383,7 @@ func TestCheckNotMainSendsCommands(t *testing.T) {
 			name: "no parent, commandable actuator passes",
 			cfg: Config{
 				Sources: []Source{{
+					Type:      "can",
 					Actuators: []Actuator{{ID: "ox-injector-valve", Command: true}},
 				}},
 			},
@@ -336,6 +394,7 @@ func TestCheckNotMainSendsCommands(t *testing.T) {
 			cfg: Config{
 				Parent: &Parent{Address: "pad-orion:9000"},
 				Sources: []Source{{
+					Type:      "can",
 					Actuators: []Actuator{{ID: "ox-injector-valve", Command: true}},
 				}},
 			},
@@ -346,7 +405,19 @@ func TestCheckNotMainSendsCommands(t *testing.T) {
 			cfg: Config{
 				Parent: &Parent{Address: "pad-orion:9000"},
 				Sources: []Source{{
+					Type:      "can",
 					Actuators: []Actuator{{ID: "ox-injector-valve", Command: false}},
+				}},
+			},
+			wantErr: false,
+		},
+		{
+			name: "non-can child source with commandable actuator passes (rule is can-only)",
+			cfg: Config{
+				Parent: &Parent{Address: "pad-orion:9000"},
+				Sources: []Source{{
+					Type:      "daq",
+					Actuators: []Actuator{{ID: "ox-injector-valve", Command: true}},
 				}},
 			},
 			wantErr: false,
@@ -378,6 +449,7 @@ func TestCheckStateNotInRocketCAN(t *testing.T) {
 		{
 			name: "all names known passes",
 			cfg: Config{Sources: []Source{{
+				Type:   "can",
 				Boards: []string{"INJECTOR/ROCKET"},
 				Actuators: []Actuator{{
 					RocketCAN: "OX_INJECTOR_VALVE",
@@ -389,6 +461,7 @@ func TestCheckStateNotInRocketCAN(t *testing.T) {
 		{
 			name: "unknown board fails",
 			cfg: Config{Sources: []Source{{
+				Type:   "can",
 				Boards: []string{"INJECTOR/TYPO"},
 			}}},
 			wantErr: true,
@@ -396,6 +469,7 @@ func TestCheckStateNotInRocketCAN(t *testing.T) {
 		{
 			name: "omitted safe_state passes",
 			cfg: Config{Sources: []Source{{
+				Type:   "can",
 				Boards: []string{"INJECTOR/ROCKET"},
 				Actuators: []Actuator{{
 					RocketCAN: "OX_INJECTOR_VALVE",
@@ -406,6 +480,7 @@ func TestCheckStateNotInRocketCAN(t *testing.T) {
 		{
 			name: "unknown actuator rocketcan fails",
 			cfg: Config{Sources: []Source{{
+				Type:   "can",
 				Boards: []string{"INJECTOR/ROCKET"},
 				Actuators: []Actuator{{
 					RocketCAN: "OX_INJECTOR_TYPO",
@@ -417,6 +492,7 @@ func TestCheckStateNotInRocketCAN(t *testing.T) {
 		{
 			name: "unknown safe_state fails",
 			cfg: Config{Sources: []Source{{
+				Type:   "can",
 				Boards: []string{"INJECTOR/ROCKET"},
 				Actuators: []Actuator{{
 					RocketCAN: "OX_INJECTOR_VALVE",
@@ -424,6 +500,14 @@ func TestCheckStateNotInRocketCAN(t *testing.T) {
 				}},
 			}}},
 			wantErr: true,
+		},
+		{
+			name: "non-can source with unknown board passes (rule is can-only)",
+			cfg: Config{Sources: []Source{{
+				Type:   "daq",
+				Boards: []string{"INJECTOR/TYPO"},
+			}}},
+			wantErr: false,
 		},
 	}
 	for _, tt := range tests {
@@ -447,7 +531,7 @@ func TestCheckBareCOMnPortInOps(t *testing.T) {
 			name: "ops mode with bare COM port warns",
 			cfg: Config{
 				Server:  Server{Mode: "ops"},
-				Sources: []Source{{Port: "COM4"}},
+				Sources: []Source{{Type: "can", Port: "COM4"}},
 			},
 			wantWarn: true,
 		},
@@ -455,7 +539,7 @@ func TestCheckBareCOMnPortInOps(t *testing.T) {
 			name: "ops mode with usb port does not warn",
 			cfg: Config{
 				Server:  Server{Mode: "ops"},
-				Sources: []Source{{Port: "usb:1234:5678:INJECTOR"}},
+				Sources: []Source{{Type: "can", Port: "usb:1234:5678:INJECTOR"}},
 			},
 			wantWarn: false,
 		},
@@ -463,7 +547,15 @@ func TestCheckBareCOMnPortInOps(t *testing.T) {
 			name: "test mode with bare COM port does not warn",
 			cfg: Config{
 				Server:  Server{Mode: "test"},
-				Sources: []Source{{Port: "COM4"}},
+				Sources: []Source{{Type: "can", Port: "COM4"}},
+			},
+			wantWarn: false,
+		},
+		{
+			name: "non-can source with bare COM port does not warn (rule is can-only)",
+			cfg: Config{
+				Server:  Server{Mode: "ops"},
+				Sources: []Source{{Type: "daq", Port: "COM4"}},
 			},
 			wantWarn: false,
 		},
@@ -489,6 +581,7 @@ func TestCheck(t *testing.T) {
 		cfg := Config{
 			Server: Server{Mode: "ops", CommandOperators: []string{"mc-laptop-2-*"}},
 			Sources: []Source{{
+				Type:       "can",
 				ID:         "can-injector",
 				Connection: "UMBILICAL",
 				Port:       "usb:1234:5678:INJECTOR",
@@ -517,6 +610,7 @@ func TestCheck(t *testing.T) {
 		cfg := Config{
 			Server: Server{Mode: "test"},
 			Sources: []Source{{
+				Type:   "can",
 				ID:     "can-injector",
 				Port:   "usb:1234:5678:INJECTOR",
 				Format: "usb",
@@ -537,6 +631,7 @@ func TestCheck(t *testing.T) {
 		cfg := Config{
 			Server: Server{Mode: "ops"}, // no CommandOperators
 			Sources: []Source{{
+				Type:       "can",
 				ID:         "can-debug",
 				Connection: "USB_DEBUG",
 				Port:       "COM4",
@@ -556,6 +651,33 @@ func TestCheck(t *testing.T) {
 		}
 		if len(warnings) != 1 {
 			t.Errorf("got %d warnings, want 1: %v", len(warnings), warnings)
+		}
+	})
+
+	t.Run("non-can source skips all can rules", func(t *testing.T) {
+		// since rules are scoped to type = "can", daq sources will never produce errors or warnings
+		cfg := Config{
+			Server: Server{Mode: "ops"}, // no CommandOperators
+			Sources: []Source{{
+				Type:       "daq",
+				ID:         "daq-main",
+				Connection: "USB_DEBUG",
+				Port:       "COM4",
+				Boards:     []string{"INJECTOR/TYPO"},
+				Actuators:  []Actuator{{
+					ID:        "ox-injector-valve",
+					RocketCAN: "OX_INJECTOR_TYPO",
+					Command:   true,
+					SafeState: "TYPO",
+				}},
+			}},
+		}
+		errs, warnings := cfg.Check(known)
+		if len(errs) != 0 {
+			t.Errorf("got %d errors, want 0: %v", len(errs), errs)
+		}
+		if len(warnings) != 0 {
+			t.Errorf("got %d warnings, want 0: %v", len(warnings), warnings)
 		}
 	})
 }

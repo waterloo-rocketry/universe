@@ -2,8 +2,8 @@
 
 Command-line tool for Waterloo Rocketry's append-only SD card log format.
 
-Status: chunks can be encoded and decoded. Scanning a card follows in
-the next PR.
+Status: rebuilds the logged files from a card image (as a library).
+The command line follows in the next PR.
 
 ## On-card format
 
@@ -38,6 +38,32 @@ the data type enum. Values marked `PLACEHOLDER` are not decided yet.
 - `crc.algorithm` is a named CRC-16 (such as `CRC-16/CCITT-FALSE` or
   `CRC-16/MODBUS`) or `custom` with `poly`, `init`, `reflect_in`,
   `reflect_out` and `xor_out`.
+
+## Export
+
+Export reads the card once, front to back, checking every slot in order:
+
+- A slot whose first `clear_bytes` bytes are all zero is unused.
+- Other slots must have the right fixed values (such as `HEADER_ID`) and CRC.
+  Slots that fail are reported and skipped, and the scan continues.
+- Valid chunks are grouped by file, sorted by segment counter, and their
+  payloads concatenated. The segment counter is only used for sorting, so it
+  can start at 0 or 1. Missing segments are skipped and reported; each chunk
+  is self-contained, so the rest of the file is still usable. If a segment
+  appears twice, the first copy is kept.
+- Files are named from the startup counter and type, e.g. `00001.BIN`,
+  `00001.ERR`, `00001.TXT`. An unknown type is still exported, as
+  `00001.TYPE6`.
+- Startup counters only go up in card order. If one goes down (for example
+  8191 to 0), the 13-bit counter wrapped: later files get a generation
+  number, e.g. `00001-1.BIN`, so they never merge with an earlier `00001`.
+- Each file's data is streamed into a `.part` file as it is found and
+  renamed when the whole card has been read. Segments that arrive out of
+  order are put back in order from the `.part` file, not by reading the card
+  again. If export fails partway, no output or `.part` files are left.
+- Existing output files are not replaced unless you pass `--overwrite`.
+
+Payloads are copied in full, including any zero padding at the end of a chunk.
 
 ## Development
 

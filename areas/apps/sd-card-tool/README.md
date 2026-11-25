@@ -2,8 +2,8 @@
 
 Command-line tool for Waterloo Rocketry's append-only SD card log format.
 
-Status: the on-card format is defined in YAML. Reading and writing
-chunks follows in the next PR.
+Status: chunks can be encoded and decoded. Scanning a card follows in
+the next PR.
 
 ## On-card format
 

@@ -44,10 +44,10 @@ type Source struct {
 type Actuator struct {
 	ID              string  `toml:"id"`
 	RocketCAN       string  `toml:"rocketcan"`
-	Critical        bool    `toml:"critical"` 				 // whether this needs the operator to arm first
-	Command         bool    `toml:"command"`  				 // whether this connection can command it
+	Critical        bool    `toml:"critical"` // whether this needs the operator to arm first
+	Command         bool    `toml:"command"`  // whether this connection can command it
 	SafeState       string  `toml:"safe_state"`
-	ConfirmSettleMs *uint32 `toml:"confirm_settle_ms"` // min ms after a write before a status frame can confirm command 
+	ConfirmSettleMs *uint32 `toml:"confirm_settle_ms"` // min ms after a write before a status frame can confirm command
 }
 
 // allNamesOK is a placeholder for RocketCANNames that accepts every name
@@ -167,7 +167,8 @@ func checkStateNotInRocketCAN(cfg Config, names RocketCANNames) error {
 			if !names.HasActuator(act.RocketCAN) {
 				return fmt.Errorf("actuator RocketCAN %q in source %q is not in RocketCAN names", act.RocketCAN, src.ID)
 			}
-			if !names.HasState(act.SafeState) {
+			// safe_state is optional, so check only when it's set
+			if act.SafeState != "" && !names.HasState(act.SafeState) {
 				return fmt.Errorf("safe state %q in source %q is not in RocketCAN names", act.SafeState, src.ID)
 			}
 		}

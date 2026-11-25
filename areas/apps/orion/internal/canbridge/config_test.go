@@ -383,6 +383,16 @@ func TestCheckStateNotInRocketCAN(t *testing.T) {
 			wantErr: true,
 		},
 		{
+			name: "omitted safe_state passes",
+			cfg: Config{Sources: []Source{{
+				Boards: []string{"INJECTOR/ROCKET"},
+				Actuators: []Actuator{{
+					RocketCAN: "OX_INJECTOR_VALVE",
+				}},
+			}}},
+			wantErr: false,
+		},
+		{
 			name: "unknown actuator rocketcan fails",
 			cfg: Config{Sources: []Source{{
 				Boards: []string{"INJECTOR/ROCKET"},

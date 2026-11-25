@@ -13,11 +13,16 @@ areas/            Code, organized by kind
   apps/            Deployable applications
   sw_libs/         Shared software libraries
   apis/            API/schema definitions (protobuf, etc.)
-  ...
+  infra/           Deployment and setup for machines we run (e.g. the DAQ Pi)
+  dev_tools/       Tools for building and testing our projects, not shipped (e.g. mock hardware)
 tools/            Scripts that manage the monorepo itself
 ```
 
-Each project lives at `areas/<apps|sw_libs|apis|...>/<project>/`, and may keep its
+`areas/dev_tools/` is for tools that help develop our projects, like fake
+hardware for testing Orion. `tools/` is only for scripts that manage the
+monorepo itself, like `build_ci`.
+
+Each project lives at `areas/<kind>/<project>/`, and may keep its
 own GitHub Actions workflows at `areas/<...>/.github/workflows/*.yml`, right
 next to the code they build. GitHub itself only runs workflows found under
 the repo-root `.github/workflows/`, so `tools/build_ci` bridges the two by
@@ -44,6 +49,14 @@ What it does by default:
 - Warns if a workflow's `on:` triggers aren't scoped to its own area via a
   `paths:` filter (e.g. `paths: ["areas/apps/omnibus/**"]`) — an unscoped
   workflow runs on every push to the repo, not just changes to its own area.
+- Lets that filter also list the other projects and shared root files the
+  area depends on, so a change there re-runs its CI. Dependencies are listed
+  by hand, e.g. a project using parsley adds `areas/sw_libs/parsley/**` (and
+  `uv.lock` if it builds from the root lockfile). Anything else (an unknown
+  project, a `../` path, a broad glob like `areas/**`) is flagged.
+- To reuse another project's CI steps, call its root copy as a reusable
+  workflow (`on: workflow_call` in the source), e.g.
+  `uses: ./.github/workflows/ci-areas-sw_libs-parsley.yml`.
 
 `--validate` turns both of those checks into hard failures (exit code 1),
 for use in CI: an area added or changed a workflow without running the tool

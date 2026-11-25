@@ -9,6 +9,9 @@ Waterloo Rocketry's 2026 monorepo. This file is symlinked to
   - `areas/apps/<name>/` — deployable applications
   - `areas/sw_libs/<name>/` — shared software libraries
   - `areas/apis/<name>/` — API/schema definitions (protobuf, etc.)
+  - `areas/infra/<name>/` — deployment and setup for machines we run
+  - `areas/dev_tools/<name>/` — tools for developing and testing projects,
+    not shipped
 - `tools/` — scripts that manage the monorepo itself, not shipped as part of
   any product. These are plain Python packages (no per-tool `pyproject.toml`
   or build backend) run in place with `uv run tools/<name>` or
@@ -39,6 +42,8 @@ Waterloo Rocketry's 2026 monorepo. This file is symlinked to
 - Workflow depth under `areas/` is capped at 3 path segments before
   `.github/` (e.g. `areas/apps/omnibus/.github/...` is fine; a 4th nested
   level is not discovered).
+- PR descriptions follow `.github/pull_request_template.md`: fill in every
+  section (or write N/A / None) instead of replacing it with free-form text.
 - The root `pyproject.toml` (`package = false`) holds the Python
   dependencies for everything under `tools/`; it is not itself an
   installable package, and tools under `tools/` don't get their own

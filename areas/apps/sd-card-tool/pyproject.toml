@@ -18,6 +18,9 @@ dependencies = [
     "pyyaml>=6.0",
 ]
 
+[project.scripts]
+sd-card-tool = "sd_card_tool.cli:main"
+
 [dependency-groups]
 dev = [
     "flake8>=7.0",

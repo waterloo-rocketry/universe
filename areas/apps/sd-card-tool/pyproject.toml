@@ -14,7 +14,9 @@ authors = [
     { name = "Waterloo Rocketry", email = "contact@waterloorocketry.com" }
 ]
 requires-python = ">=3.11"
-dependencies = []
+dependencies = [
+    "pyyaml>=6.0",
+]
 
 [dependency-groups]
 dev = [

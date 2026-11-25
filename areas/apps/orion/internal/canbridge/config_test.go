@@ -4,16 +4,6 @@ import (
 	"testing"
 )
 
-type fakeRocketCAN struct {
-	boards    map[string]bool
-	actuators map[string]bool
-	states    map[string]bool
-}
-
-func (f fakeRocketCAN) HasBoard(name string) bool    { return f.boards[name] }
-func (f fakeRocketCAN) HasActuator(name string) bool { return f.actuators[name] }
-func (f fakeRocketCAN) HasState(name string) bool    { return f.states[name] }
-
 func TestApplyDefaults(t *testing.T) {
 	// A source and actuator with none of the defaulted keys set, so
 	// applyDefaults has something to fill in.
@@ -29,9 +19,6 @@ func TestApplyDefaults(t *testing.T) {
 	}
 	if src.TxBoard != "DAQ/GROUND" {
 		t.Errorf("TxBoard = %q, want %q", src.TxBoard, "DAQ/GROUND")
-	}
-	if src.TxPrio != "HIGHEST" {
-		t.Errorf("TxPrio = %q, want %q", src.TxPrio, "HIGHEST")
 	}
 	if src.DefaultStaleAfterMs == nil || *src.DefaultStaleAfterMs != 1000 {
 		t.Errorf("DefaultStaleAfterMs = %v, want 1000", src.DefaultStaleAfterMs)
@@ -51,7 +38,6 @@ func TestApplyDefaultsKeepsSetValues(t *testing.T) {
 		ID:                  "can-injector",
 		Baud:                &baud,
 		TxBoard:             "INJECTOR/ROCKET",
-		TxPrio:              "LOW",
 		DefaultStaleAfterMs: &stale,
 		Actuators:           []Actuator{{ID: "ox-injector-valve", ConfirmSettleMs: &settle}},
 	}}}
@@ -63,9 +49,6 @@ func TestApplyDefaultsKeepsSetValues(t *testing.T) {
 	}
 	if src.TxBoard != "INJECTOR/ROCKET" {
 		t.Errorf("TxBoard = %q, want it left unchanged", src.TxBoard)
-	}
-	if src.TxPrio != "LOW" {
-		t.Errorf("TxPrio = %q, want it left unchanged", src.TxPrio)
 	}
 	if *src.DefaultStaleAfterMs != 5000 {
 		t.Errorf("DefaultStaleAfterMs = %d, want it left unchanged", *src.DefaultStaleAfterMs)
@@ -515,7 +498,7 @@ func TestCheck(t *testing.T) {
 	})
 
 	t.Run("collects several errors and a warning at once", func(t *testing.T) {
-		// this ops config accumulatse three distinct error rules and a warning:
+		// this ops config accumulates three distinct error rules and a warning:
 		//   - USB_DEBUG source in ops            (checkUSBDebugInOpsConfig)
 		//   - commandable actuator, no operators (checkCommandableActuatorWithoutOperator)
 		//   - unknown board name                 (checkStateNotInRocketCAN)

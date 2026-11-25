@@ -36,7 +36,6 @@ type Source struct {
 	Baud                *int              `toml:"baud"`
 	Boards              []string          `toml:"boards"`
 	TxBoard             string            `toml:"tx_board"` // board our own commands go out as
-	TxPrio              string            `toml:"tx_prio"`  // priority our own commands go out as
 	DefaultStaleAfterMs *uint32           `toml:"default_stale_after_ms"`
 	StaleAfterMs        map[string]uint32 `toml:"stale_after_ms"`
 	Actuators           []Actuator        `toml:"actuator"`
@@ -45,11 +44,21 @@ type Source struct {
 type Actuator struct {
 	ID              string  `toml:"id"`
 	RocketCAN       string  `toml:"rocketcan"`
-	Critical        bool    `toml:"critical"` // whether this needs the operator to arm first
-	Command         bool    `toml:"command"`  // whether this connection can command it
+	Critical        bool    `toml:"critical"` 				 // whether this needs the operator to arm first
+	Command         bool    `toml:"command"`  				 // whether this connection can command it
 	SafeState       string  `toml:"safe_state"`
-	ConfirmSettleMs *uint32 `toml:"confirm_settle_ms"`
+	ConfirmSettleMs *uint32 `toml:"confirm_settle_ms"` // min ms after a write before a status frame can confirm command 
 }
+
+type fakeRocketCAN struct {
+	boards    map[string]bool
+	actuators map[string]bool
+	states    map[string]bool
+}
+
+func (f fakeRocketCAN) HasBoard(name string) bool    { return f.boards[name] }
+func (f fakeRocketCAN) HasActuator(name string) bool { return f.actuators[name] }
+func (f fakeRocketCAN) HasState(name string) bool    { return f.states[name] }
 
 func (c *Config) applyDefaults() {
 	for i := range c.Sources {
@@ -60,9 +69,6 @@ func (c *Config) applyDefaults() {
 		}
 		if src.TxBoard == "" {
 			src.TxBoard = "DAQ/GROUND"
-		}
-		if src.TxPrio == "" {
-			src.TxPrio = "HIGHEST"
 		}
 		if src.DefaultStaleAfterMs == nil {
 			defaultStaleAfterMs := uint32(1000)

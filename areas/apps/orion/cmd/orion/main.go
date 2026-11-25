@@ -28,9 +28,9 @@ func main() {
 	}
 
 	switch os.Args[1] {
-	case "version":
+	case "--version":
 		fmt.Println("orion", version)
-	case "check-config":
+	case "--check-config":
 		if len(os.Args) != 3 {
 			fmt.Fprintln(os.Stderr, "usage: orion check-config <file>")
 			os.Exit(1)

@@ -237,6 +237,17 @@ func TestCheckMockInOpsConfig(t *testing.T) {
 			},
 			wantErr: false,
 		},
+		{
+			name: "ops mode with second mock port fails",
+			cfg: Config{
+				Server:  Server{Mode: "ops"},
+				Sources: []Source{
+					{Port: "COM4"},
+					{Port: "mock:cold-flow"},
+				},
+			},
+			wantErr: true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

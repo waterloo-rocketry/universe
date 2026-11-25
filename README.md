@@ -13,11 +13,16 @@ areas/            Code, organized by kind
   apps/            Deployable applications
   sw_libs/         Shared software libraries
   apis/            API/schema definitions (protobuf, etc.)
-  ...
+  infra/           Deployment and setup for machines we run (e.g. the DAQ Pi)
+  dev_tools/       Tools for building and testing our projects, not shipped (e.g. mock hardware)
 tools/            Scripts that manage the monorepo itself
 ```
 
-Each project lives at `areas/<apps|sw_libs|apis|...>/<project>/`, and may keep its
+`areas/dev_tools/` is for tools that help develop our projects, like fake
+hardware for testing Orion. `tools/` is only for scripts that manage the
+monorepo itself, like `build_ci`.
+
+Each project lives at `areas/<kind>/<project>/`, and may keep its
 own GitHub Actions workflows at `areas/<...>/.github/workflows/*.yml`, right
 next to the code they build. GitHub itself only runs workflows found under
 the repo-root `.github/workflows/`, so `tools/build_ci` bridges the two by

@@ -9,6 +9,9 @@ Waterloo Rocketry's 2026 monorepo. This file is symlinked to
   - `areas/apps/<name>/` — deployable applications
   - `areas/sw_libs/<name>/` — shared software libraries
   - `areas/apis/<name>/` — API/schema definitions (protobuf, etc.)
+  - `areas/infra/<name>/` — deployment and setup for machines we run
+  - `areas/dev_tools/<name>/` — tools for developing and testing projects,
+    not shipped
 - `tools/` — scripts that manage the monorepo itself, not shipped as part of
   any product. These are plain Python packages (no per-tool `pyproject.toml`
   or build backend) run in place with `uv run tools/<name>` or

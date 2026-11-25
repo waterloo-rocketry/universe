@@ -1,0 +1,9 @@
+[server]
+mode = "test"
+
+[[source]]
+type = "can"
+id = "can-injector"
+connection = "USB_DEBUG"
+port = "COM4"
+format = "usb"

@@ -147,7 +147,9 @@ def checked_disk(text: str, run: Runner = _diskutil,
 class RawDisk:
     """A raw disk device opened unbuffered.
 
-    read(n) returns n bytes unless at the end.
+    read(n) returns n bytes unless at the end, write() is retried by the
+    caller until everything is written, and flush() makes sure the card has
+    actually stored what was written.
     """
 
     def __init__(self, raw: BinaryIO) -> None:
@@ -163,8 +165,24 @@ class RawDisk:
             size -= len(part)
         return b"".join(parts)
 
+    def write(self, data) -> int:
+        return self._raw.write(data)
+
     def seek(self, offset: int, whence: int = 0) -> int:
         return self._raw.seek(offset, whence)
+
+    def flush(self) -> None:
+        self._raw.flush()
+        try:
+            fd = self._raw.fileno()
+        except (AttributeError, OSError, ValueError):
+            return
+        try:
+            import fcntl
+            # On macOS, fsync alone may leave data in the drive's cache.
+            fcntl.fcntl(fd, fcntl.F_FULLFSYNC)
+        except (ImportError, AttributeError, OSError):
+            os.fsync(fd)
 
     def close(self) -> None:
         self._raw.close()
@@ -176,15 +194,21 @@ class RawDisk:
         self.close()
 
 
-def open_disk(disk: Disk) -> RawDisk:
-    """Open a checked disk read-only."""
+def open_disk(disk: Disk, writable: bool = False) -> RawDisk:
+    """Open a checked disk, read-only unless writable is True."""
     try:
-        raw = open(disk.raw_path, "rb", buffering=0)
+        raw = open(disk.raw_path, "r+b" if writable else "rb", buffering=0)
     except PermissionError as error:
         raise DeviceError(
-            f"No permission to read {disk.raw_path}. Run the command with "
-            f"sudo (see the README).") from error
+            f"No permission to {'write' if writable else 'read'} "
+            f"{disk.raw_path}. Run the command with sudo (see the README).") \
+            from error
     return RawDisk(raw)
+
+
+def unmount_disk(disk: Disk, run: Runner = _diskutil) -> None:
+    """Unmount every volume on the disk so nothing else writes to it."""
+    run(["unmountDisk", disk.identifier])
 
 
 def give_back_to_user(paths: list[str]) -> None:

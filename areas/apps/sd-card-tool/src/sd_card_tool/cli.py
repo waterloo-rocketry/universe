@@ -18,8 +18,10 @@ from .device import (
     parse_disk_name,
     problems,
     system_disks,
+    unmount_disk,
 )
 from .export import corrupt_runs, export
+from .wipe import find_leftovers, make_plan, write_zeros
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -44,6 +46,22 @@ def main(argv: list[str] | None = None) -> int:
         "--overwrite", action="store_true",
         help="replace output files that already exist")
 
+    format_cmd = commands.add_parser(
+        "format", help="erase a card so it is ready for logging")
+    format_cmd.add_argument(
+        "target", help="a card such as disk4 (see `list`), or an image file")
+    format_cmd.add_argument(
+        "--format", help="format YAML file (default: built-in placeholders)")
+    format_cmd.add_argument(
+        "--allow-disk-image", action="store_true",
+        help="also accept a mounted disk image (for testing only)")
+    format_cmd.add_argument(
+        "--whole", action="store_true",
+        help="zero every byte, not just the start of each slot")
+    format_cmd.add_argument(
+        "--confirm", metavar="DISK",
+        help="skip the prompt by giving the disk name (e.g. disk4) again")
+
     commands.add_parser(
         "default-format", help="print the built-in format file")
 
@@ -54,6 +72,8 @@ def main(argv: list[str] | None = None) -> int:
     try:
         if args.command == "list":
             return _list()
+        if args.command == "format":
+            return _format(args)
         return _export(args)
     except (ConfigError, DeviceError, OSError, ValueError) as error:
         print(f"error: {error}", file=sys.stderr)
@@ -128,6 +148,53 @@ def _export(args: argparse.Namespace) -> int:
         print(line)
     if not files:
         print("No log files found.")
+    return 0
+
+
+def _format(args: argparse.Namespace) -> int:
+    config = load_config(args.format)
+    is_file = os.path.isfile(args.target)
+    if is_file:
+        size = os.path.getsize(args.target)
+        plan = make_plan(size, config, args.whole)
+        print(f"Formatting image {args.target} ({plan.slots:,} slots)",
+              flush=True)
+    else:
+        disk = checked_disk(args.target,
+                            allow_disk_image=args.allow_disk_image)
+        plan = make_plan(disk.size, config, args.whole, disk.block_size)
+        what = ("every byte" if plan.whole else
+                f"the first {plan.clear_bytes:,} bytes of each of "
+                f"{plan.slots:,} slots")
+        print(f"This ERASES {disk.describe()}.")
+        print(f"It writes zeros to {what} ({format_size(plan.total)}), then "
+              f"reads them back to check.", flush=True)
+        answer = args.confirm
+        if answer is None:
+            answer = input(f"Type {disk.identifier} to continue: ").strip()
+        if parse_disk_name(answer) != disk.identifier:
+            print("Not confirmed; nothing was written.")
+            return 1
+        unmount_disk(disk)
+
+    card = open(args.target, "r+b") if is_file else open_disk(
+        disk, writable=True)
+    with card:
+        progress = _Progress(plan.total, "Writing zeros")
+        write_zeros(card, plan, progress)
+        progress.finish()
+        progress = _Progress(plan.total, "Checking")
+        bad = find_leftovers(card, plan, progress)
+        progress.finish()
+
+    if bad:
+        shown = ", ".join(f"{slot:,}" for slot in bad[:10])
+        more = f" and {len(bad) - 10:,} more" if len(bad) > 10 else ""
+        print(f"FAILED: {len(bad):,} slots are not blank after formatting "
+              f"(slots {shown}{more}). The card may be failing or "
+              f"write-protected.")
+        return 1
+    print(f"Done. All {plan.slots:,} slots are blank and ready for logging.")
     return 0
 
 

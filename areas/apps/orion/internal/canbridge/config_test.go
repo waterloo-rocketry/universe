@@ -664,7 +664,7 @@ func TestCheck(t *testing.T) {
 				Connection: "USB_DEBUG",
 				Port:       "COM4",
 				Boards:     []string{"INJECTOR/TYPO"},
-				Actuators:  []Actuator{{
+				Actuators: []Actuator{{
 					ID:        "ox-injector-valve",
 					RocketCAN: "OX_INJECTOR_TYPO",
 					Command:   true,

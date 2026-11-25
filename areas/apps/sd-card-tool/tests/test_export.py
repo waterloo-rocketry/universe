@@ -1,3 +1,4 @@
+import importlib
 import io
 
 import pytest
@@ -8,6 +9,8 @@ from sd_card_tool.cli import main
 from sd_card_tool.config import load_config
 from sd_card_tool.export import corrupt_runs, export, scan
 
+# The module, not the export() function the package also exposes.
+export_module = importlib.import_module("sd_card_tool.export")
 CONFIG = load_config()
 SIZE = CONFIG.slot_size
 EMPTY = bytes(SIZE)
@@ -151,7 +154,9 @@ def test_does_not_overwrite_by_default(tmp_path):
     with pytest.raises(FileExistsError):
         export(card, CONFIG, tmp_path)
     assert (tmp_path / "00001.BIN").read_bytes() == b"keep me"
+    assert sorted(p.name for p in tmp_path.iterdir()) == ["00001.BIN"]
 
+    card.seek(0)
     export(card, CONFIG, tmp_path, overwrite=True)
     assert (tmp_path / "00001.BIN").read_bytes() == payload("d0")
 
@@ -212,3 +217,76 @@ def test_cli_groups_corrupt_slots(tmp_path, capsys):
     assert main(["export", str(image), str(tmp_path / "out")]) == 0
     assert "slots 1-3 (3 slots) skipped: HEADER_ID is 0xffffffff" in \
         capsys.readouterr().out
+
+
+class ReadOnce(io.RawIOBase):
+    """A card that can only be read front to back, once."""
+
+    def __init__(self, data: bytes) -> None:
+        self.data = io.BytesIO(data)
+        self.bytes_read = 0
+
+    def readable(self) -> bool:
+        return True
+
+    def read(self, size: int = -1) -> bytes:
+        chunk = self.data.read(size)
+        self.bytes_read += len(chunk)
+        return chunk
+
+    def seek(self, *args):
+        raise AssertionError("export must not seek the card")
+
+
+def test_reads_the_card_exactly_once(tmp_path):
+    image = b"".join([slot(1, DATA, 1, "d1"), slot(1, TEXT, 0, "t0"),
+                      slot(1, DATA, 0, "d0"), EMPTY])
+    card = ReadOnce(image)
+    _, files = export(card, CONFIG, tmp_path)
+    assert card.bytes_read == len(image)
+    # Out of order on the card, put back in order from the .part file.
+    assert (tmp_path / "00001.BIN").read_bytes() == payload("d0") + payload("d1")
+    assert {f.path.name: f.size for f in files} == {
+        "00001.BIN": 2 * CONFIG.data_size, "00001.TXT": CONFIG.data_size}
+
+
+def test_leaves_no_part_files(tmp_path):
+    export(io.BytesIO(slot(1, DATA, 1, "d1") + slot(1, DATA, 0, "d0")),
+           CONFIG, tmp_path)
+    assert sorted(p.name for p in tmp_path.iterdir()) == ["00001.BIN"]
+
+
+class FailsHalfway(io.BytesIO):
+    def read(self, size: int = -1) -> bytes:
+        if self.tell() > 0:
+            raise OSError(5, "Input/output error")
+        return super().read(size)
+
+
+def test_a_failed_read_leaves_no_files(tmp_path, monkeypatch):
+    monkeypatch.setattr(export_module, "SLOTS_PER_READ", 2)
+    card = FailsHalfway(b"".join(slot(1, DATA, i, f"d{i}") for i in range(4)))
+    with pytest.raises(OSError):
+        export(card, CONFIG, tmp_path)
+    assert list(tmp_path.iterdir()) == []
+
+
+def test_replaces_a_part_file_left_by_an_interrupted_export(tmp_path):
+    (tmp_path / "00001.BIN.part").write_bytes(b"stale")
+    export(io.BytesIO(slot(1, DATA, 0, "d0")), CONFIG, tmp_path)
+    assert (tmp_path / "00001.BIN").read_bytes() == payload("d0")
+    assert not (tmp_path / "00001.BIN.part").exists()
+
+
+def test_more_files_than_open_handles(tmp_path, monkeypatch):
+    monkeypatch.setattr(export_module, "MAX_OPEN_FILES", 2)
+    # One startup writing four types at once, so handles are closed and
+    # reopened as the chunks interleave.
+    slots = [slot(1, kind, seg, f"{kind}-{seg}") for seg in range(3)
+             for kind in range(4)]
+    _, files = export(io.BytesIO(b"".join(slots)), CONFIG, tmp_path)
+    assert [f.path.name for f in files] == [
+        "00001.BIN", "00001.ERR", "00001.TXT", "00001.TYPE3"]
+    for kind, file in enumerate(files):
+        assert file.path.read_bytes() == b"".join(
+            payload(f"{kind}-{seg}") for seg in range(3))

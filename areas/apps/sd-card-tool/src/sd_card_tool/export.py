@@ -1,16 +1,28 @@
-"""Scans a card (or card image) and rebuilds the logged files."""
+"""Scans a card (or card image) and rebuilds the logged files.
+
+The card is read once, front to back. Each valid chunk's payload goes
+straight into a temporary `.part` file on the computer, and each `.part`
+file is renamed to its final name at the end. If a file's segments arrived
+out of order, it is put back in order from the `.part` file, never by
+reading the card again.
+"""
 
 from __future__ import annotations
 
+import os
+from collections import OrderedDict
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import BinaryIO, Callable
 
-from .chunk import ChunkError, decode_chunk
+from .chunk import Chunk, ChunkError, decode_chunk
 from .config import FormatConfig
 
 # Read this many slots per call; large reads are much faster on raw devices.
 SLOTS_PER_READ = 32
+# Most `.part` files kept open at once; others are reopened when needed.
+MAX_OPEN_FILES = 64
+PART_SUFFIX = ".part"
 
 
 @dataclass(frozen=True)
@@ -74,17 +86,20 @@ class ExportedFile:
 
 # Called with the number of bytes scanned so far.
 Progress = Callable[[int], None]
+# Called with each accepted chunk (not empty, corrupt or a duplicate).
+OnChunk = Callable[[FileRecord, Chunk], None]
 
 
 def scan(card: BinaryIO, config: FormatConfig,
-         progress: Progress | None = None) -> ScanResult:
+         progress: Progress | None = None,
+         on_chunk: OnChunk | None = None) -> ScanResult:
     """Check every slot in address order and record where valid chunks are.
 
     Startup counters only go up in card order, so a valid chunk whose counter
     is lower than the previous valid chunk's means the counter wrapped. Files
     after a wrap get the next generation, so two startups that share a counter
-    are never merged. Payloads are not kept in memory; export() reads them
-    again by slot.
+    are never merged. Payloads are not kept; pass on_chunk to use them as the
+    scan finds them.
     """
     result = ScanResult()
     blank = bytes(config.clear_bytes)
@@ -130,6 +145,8 @@ def scan(card: BinaryIO, config: FormatConfig,
                 key[:3],
                 FileRecord(generation, chunk.counter, chunk.data_type))
             record.chunks.append(location)
+            if on_chunk:
+                on_chunk(record, chunk)
         if result.trailing_bytes:
             break
 
@@ -172,41 +189,115 @@ def export(
     overwrite: bool = False,
     progress: Progress | None = None,
 ) -> tuple[ScanResult, list[ExportedFile]]:
-    """Scan the card, then write each file's payloads in segment order.
+    """Read the card once and write each file's payloads in segment order.
 
-    The card stream must be seekable. Each chunk's CRC is checked again as it
-    is copied. Existing output files are only replaced when overwrite is
-    True; otherwise FileExistsError is raised before anything is written.
+    Existing output files are only replaced when overwrite is True;
+    otherwise FileExistsError is raised. Final files only appear once the
+    whole card has been read, so a failed export leaves no output files and
+    no `.part` files behind.
     """
-    card.seek(0)
-    result = scan(card, config, progress)
     out = Path(out_dir)
-    targets = [(record, out / output_name(record, config))
-               for record in result.files.values()]
-    names = [path.name for _, path in targets]
-    if len(set(names)) != len(names):
-        raise ValueError(
-            "The output filename patterns give two files the same name")
-    if not overwrite:
-        existing = [str(path) for _, path in targets if path.exists()]
-        if existing:
-            raise FileExistsError(
-                "Output files already exist: " + ", ".join(existing))
-
     out.mkdir(parents=True, exist_ok=True)
-    exported = []
-    for record, path in targets:
-        with path.open("wb") as file:
-            for location in record.chunks:
-                card.seek(location.slot * config.slot_size)
-                # Check the CRC again, in case the second read differs.
-                try:
-                    chunk = decode_chunk(card.read(config.slot_size), config)
-                except ChunkError as error:
-                    raise ChunkError(
-                        f"slot {location.slot} changed between reads: "
-                        f"{error}") from error
-                file.write(chunk.data)
-        exported.append(ExportedFile(
-            record, path, len(record.chunks) * config.data_size))
+    writer = _PartFiles(out, config, overwrite)
+    try:
+        result = scan(card, config, progress, writer.add)
+        exported = writer.finish(result)
+    except BaseException:
+        writer.discard()
+        raise
     return result, exported
+
+
+@dataclass
+class _Part:
+    """A file being rebuilt in a `.part` file."""
+    final: Path
+    part: Path
+    # (segment, byte offset in the .part file), in the order chunks arrived.
+    pieces: list[tuple[int, int]] = field(default_factory=list)
+    size: int = 0
+
+
+class _PartFiles:
+    """Streams payloads into `.part` files and renames them at the end."""
+
+    def __init__(self, out: Path, config: FormatConfig, overwrite: bool):
+        self.out = out
+        self.config = config
+        self.overwrite = overwrite
+        self.parts: dict[tuple[int, int, int], _Part] = {}
+        self.names: set[str] = set()
+        self.open: OrderedDict[Path, BinaryIO] = OrderedDict()
+
+    def add(self, record: FileRecord, chunk: Chunk) -> None:
+        key = (record.generation, record.counter, record.data_type)
+        part = self.parts.get(key)
+        if part is None:
+            part = self._start(record)
+            self.parts[key] = part
+        handle = self._handle(part.part)
+        part.pieces.append((chunk.segment, part.size))
+        part.size += handle.write(chunk.data)
+
+    def finish(self, result: ScanResult) -> list[ExportedFile]:
+        self._close_all()
+        exported = []
+        for key, record in result.files.items():
+            part = self.parts[key]
+            if [seg for seg, _ in part.pieces] != sorted(
+                    seg for seg, _ in part.pieces):
+                self._reorder(part)
+            os.replace(part.part, part.final)
+            exported.append(ExportedFile(record, part.final, part.size))
+        return exported
+
+    def discard(self) -> None:
+        """Remove every `.part` file after a failure."""
+        self._close_all()
+        for part in self.parts.values():
+            part.part.unlink(missing_ok=True)
+
+    def _start(self, record: FileRecord) -> _Part:
+        name = output_name(record, self.config)
+        if name in self.names:
+            raise ValueError(
+                "The output filename patterns give two files the same name: "
+                + name)
+        self.names.add(name)
+        final = self.out / name
+        if final.exists() and not self.overwrite:
+            raise FileExistsError(f"Output file already exists: {final}")
+        part = self.out / (name + PART_SUFFIX)
+        part.unlink(missing_ok=True)  # left over from an interrupted export
+        return _Part(final, part)
+
+    def _handle(self, path: Path) -> BinaryIO:
+        handle = self.open.get(path)
+        if handle is not None:
+            self.open.move_to_end(path)
+            return handle
+        if len(self.open) >= MAX_OPEN_FILES:
+            _, oldest = self.open.popitem(last=False)
+            oldest.close()
+        handle = path.open("ab")
+        self.open[path] = handle
+        return handle
+
+    def _close_all(self) -> None:
+        while self.open:
+            _, handle = self.open.popitem()
+            handle.close()
+
+    def _reorder(self, part: _Part) -> None:
+        """Rewrite a `.part` file in segment order, reading from the disk."""
+        ordered = sorted(part.pieces)
+        sizes = {}
+        offsets = sorted(offset for _, offset in part.pieces) + [part.size]
+        for here, after in zip(offsets, offsets[1:]):
+            sizes[here] = after - here
+        sorted_path = part.part.with_name(part.part.name + ".sorted")
+        with part.part.open("rb") as source, sorted_path.open("wb") as target:
+            for _, offset in ordered:
+                source.seek(offset)
+                target.write(source.read(sizes[offset]))
+        os.replace(sorted_path, part.part)

@@ -3,7 +3,13 @@ name: Test
 on:
   push:
     branches: [main]
+    paths: ["areas/apps/omnibus/**"]
   pull_request:
+    paths: ["areas/apps/omnibus/**"]
+
+defaults:
+  run:
+    working-directory: areas/apps/omnibus
 
 jobs:
   test:
@@ -18,7 +24,7 @@ jobs:
         uses: actions/setup-python@v5
         id: setup_python
         with:
-          python-version-file: ".python-version"
+          python-version-file: "areas/apps/omnibus/.python-version"
 
       - name: Install uv
         uses: astral-sh/setup-uv@v6

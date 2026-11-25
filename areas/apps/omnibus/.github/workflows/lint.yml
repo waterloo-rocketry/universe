@@ -1,7 +1,13 @@
 name: Run Lint
 
-# Runs on pushes to pull request
-on: pull_request
+# Runs on pull requests that touch omnibus
+on:
+  pull_request:
+    paths: ["areas/apps/omnibus/**"]
+
+defaults:
+  run:
+    working-directory: areas/apps/omnibus
 
 jobs:
   run_autopep8:

@@ -3,11 +3,11 @@ on:
   push:
     branches:
       - main
-        # Publish semver tags as releases.
-    tags: [ 'v*.*.*' ]
+    paths: ["areas/apps/omnibus/**"]
   pull_request:
     branches:
       - main
+    paths: ["areas/apps/omnibus/**"]
 env:
   REGISTRY: ghcr.io
 
@@ -18,22 +18,22 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - dockerfile: ./src/omnibus/Dockerfile
+          - dockerfile: ./areas/apps/omnibus/src/omnibus/Dockerfile
             image: ghcr.io/waterloo-rocketry/omnibus-server
             name: omnibus-server
-          - dockerfile: ./src/sources/ljm/Dockerfile
+          - dockerfile: ./areas/apps/omnibus/src/sources/ljm/Dockerfile
             image: ghcr.io/waterloo-rocketry/omnibus-source-ljm
             name: omnibus-source-ljm
-          - dockerfile: ./src/globallog/Dockerfile
+          - dockerfile: ./areas/apps/omnibus/src/globallog/Dockerfile
             image: ghcr.io/waterloo-rocketry/omnibus-globallog
             name: omnibus-globallog
-          - dockerfile: ./src/websocket_server/Dockerfile
+          - dockerfile: ./areas/apps/omnibus/src/websocket_server/Dockerfile
             image: ghcr.io/waterloo-rocketry/omnibus-ws-server
             name: omnibus-ws-server
-          - dockerfile: ./src/bridge/Dockerfile
+          - dockerfile: ./areas/apps/omnibus/src/bridge/Dockerfile
             image: ghcr.io/waterloo-rocketry/omnibus-ws-bridge
             name: omnibus-ws-bridge
-          - dockerfile: ./src/sources/parsley/Dockerfile
+          - dockerfile: ./areas/apps/omnibus/src/sources/parsley/Dockerfile
             image: ghcr.io/waterloo-rocketry/omnibus-source-parsley
             name: omnibus-source-parsley
     permissions:
@@ -66,7 +66,7 @@ jobs:
       - name: Build and push Docker images
         uses: docker/build-push-action@v6.18.0
         with:
-          context: .
+          context: areas/apps/omnibus
           platforms: linux/amd64,linux/arm64
           file: ${{ matrix.dockerfile }}
           push: true

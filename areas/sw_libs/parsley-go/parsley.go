@@ -4,7 +4,3 @@ package parsley
 
 // Version is the Parsley-go version.
 const Version = "0.0.0"
-
-func init() {
-	println("Hello, Parsley-go!")
-}

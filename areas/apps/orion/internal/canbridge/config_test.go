@@ -4,6 +4,16 @@ import (
 	"testing"
 )
 
+type fakeRocketCAN struct {
+	boards    map[string]bool
+	actuators map[string]bool
+	states    map[string]bool
+}
+
+func (f fakeRocketCAN) HasBoard(name string) bool    { return f.boards[name] }
+func (f fakeRocketCAN) HasActuator(name string) bool { return f.actuators[name] }
+func (f fakeRocketCAN) HasState(name string) bool    { return f.states[name] }
+
 func TestApplyDefaults(t *testing.T) {
 	// A source and actuator with none of the defaulted keys set, so
 	// applyDefaults has something to fill in.

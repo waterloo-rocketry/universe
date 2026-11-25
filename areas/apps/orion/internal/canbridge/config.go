@@ -50,15 +50,13 @@ type Actuator struct {
 	ConfirmSettleMs *uint32 `toml:"confirm_settle_ms"` // min ms after a write before a status frame can confirm command 
 }
 
-type fakeRocketCAN struct {
-	boards    map[string]bool
-	actuators map[string]bool
-	states    map[string]bool
-}
+// allNamesOK is a placeholder for RocketCANNames that accepts every name
+// the real names tables will be available once issue #117 is complete
+type AllNamesOK struct{}
 
-func (f fakeRocketCAN) HasBoard(name string) bool    { return f.boards[name] }
-func (f fakeRocketCAN) HasActuator(name string) bool { return f.actuators[name] }
-func (f fakeRocketCAN) HasState(name string) bool    { return f.states[name] }
+func (AllNamesOK) HasActuator(string) bool { return true }
+func (AllNamesOK) HasBoard(string) bool    { return true }
+func (AllNamesOK) HasState(string) bool    { return true }
 
 func (c *Config) applyDefaults() {
 	for i := range c.Sources {

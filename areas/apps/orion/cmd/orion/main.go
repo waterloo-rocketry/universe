@@ -13,14 +13,6 @@ import (
 // version is the Orion version.
 const version = "0.0.0"
 
-// allNamesOK is a placeholder for RocketCANNames that accepts every name
-// the real names tables will be available once issue #117 is complete
-type allNamesOK struct{}
-
-func (allNamesOK) HasActuator(string) bool { return true }
-func (allNamesOK) HasBoard(string) bool    { return true }
-func (allNamesOK) HasState(string) bool    { return true }
-
 func main() {
 	if len(os.Args) < 2 {
 		fmt.Fprintln(os.Stderr, "usage: orion <version|check-config>")
@@ -42,8 +34,7 @@ func main() {
 			os.Exit(1)
 		}
 
-		names := allNamesOK{}
-		errs, warnings := cfg.Check(names)
+		errs, warnings := cfg.Check(canbridge.AllNamesOK{})
 
 		for _, w := range warnings {
 			fmt.Fprintln(os.Stderr, "warning:", w)

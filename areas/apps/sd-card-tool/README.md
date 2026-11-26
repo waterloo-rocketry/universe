@@ -2,8 +2,8 @@
 
 Command-line tool for Waterloo Rocketry's append-only SD card log format.
 
-Status: rebuilds the logged files from a card image (as a library).
-The command line follows in the next PR.
+Status: exports the logged files from card image files. Reading real
+cards and formatting are not built yet.
 
 ## On-card format
 
@@ -39,7 +39,20 @@ the data type enum. Values marked `PLACEHOLDER` are not decided yet.
   `CRC-16/MODBUS`) or `custom` with `poly`, `init`, `reflect_in`,
   `reflect_out` and `xor_out`.
 
+To try other values, copy the file, edit it, and pass `--format`:
+
+```sh
+uv run sd-card-tool default-format > my-format.yaml
+uv run sd-card-tool export card.img out/ --format my-format.yaml
+```
+
 ## Export
+
+From a card image file:
+
+```sh
+uv run sd-card-tool export card.img out/
+```
 
 Export reads the card once, front to back, checking every slot in order:
 

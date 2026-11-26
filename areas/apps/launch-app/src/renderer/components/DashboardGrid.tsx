@@ -73,22 +73,26 @@ const clamp = (value: number, min: number, max: number) =>
  * Draws one widget. Widgets read their data from the surrounding
  * TelemetryProvider, so the grid only decides where they go.
  */
-function renderWidget(id: string, config: widgetConfig) {
-  switch (config.kind) {
-    case 'progress-bar': {
-      const { signalId, min, max } = config;
-      return (
-        <BaseComponent
-          id={id}
-          componentType="progress-bar"
-          channels={[signalId]}
-          config={{ min, max }}
-          updateConfig={() => {}}
-          setOverlay={() => {}}
-        />
-      );
-    }
-  }
+function renderWidget(
+  id: string,
+  config: widgetConfig,
+  w: number,
+  h: number,
+  updateWidget: (id: string, config?: object) => void,
+  requestOverlay: (callback?: () => void) => void,
+) {
+  return (
+    <BaseComponent
+      id={id}
+      componentType={config.kind}
+      channels={config.signalId}
+      config={config.config}
+      width={w}
+      height={h}
+      updateConfig={(config) => updateWidget(id, config)}
+      requestOverlay={requestOverlay}
+    />
+  );
 }
 
 /** CSS grid placement for an item: "start / span size", 1-based lines. */
@@ -127,6 +131,26 @@ export function DashboardGrid({
   }
   const gridRef = useRef<HTMLDivElement>(null);
   const { numberOfCols, numberOfRows, items } = layout;
+
+  const updateWidget = (id: string, config?: object) => {
+    if (!layout.items.find((i) => i.id == id)) {
+      console.error(`Unable to find widget with ID ${id}`);
+      return;
+    }
+    setDrag(null);
+    if (!config)
+      setLayout((layout) => ({
+        ...layout,
+        items: layout.items.filter((i) => i.id != id),
+      }));
+    else
+      setLayout((layout) => ({
+        ...layout,
+        items: layout.items.map((i) =>
+          i.id == id ? { ...i, config: config } : i,
+        ),
+      }));
+  };
 
   /** Cell and gap sizes in pixels. Cells are 1fr, so measure them right now. */
   const measure = () => {
@@ -320,31 +344,31 @@ export function DashboardGrid({
       })
     : [];
 
+  // this only records a callback function.
+  // recording the overlay itself is an antipattern because we don't want
+  // to store a live react component in state.
+  // therefore we only provide an orchestration system to make sure there
+  // is only one active overlay.
+  // and unfortunately whether it works or not depends on if each individual
+  // widget honors the callback.
+  const [overlay, setOverlay] = useState<(() => void) | undefined>(undefined);
+  const updateOverlay = (callback?: () => void) => {
+    if (overlay) overlay();
+    setOverlay(() => callback);
+  };
+
   return (
     <div
       ref={gridRef}
-      className={`dashboard-grid${plan ? ' dashboard-grid--dragging' : ''}`}
+      className={`dashboard-grid${plan ? ' dashboard-grid--dragging' : ''} dashboard-background`}
       style={{
         // minmax(0, 1fr), not plain 1fr: every column and row keeps exactly the
         // same size no matter what is inside (plain 1fr grows to fit content).
         gridTemplateColumns: `repeat(${numberOfCols}, minmax(0, 1fr))`,
         gridTemplateRows: `repeat(${numberOfRows}, minmax(0, 1fr))`,
+        backgroundSize: `${100 / numberOfCols}% ${100 / numberOfRows}%`,
       }}
     >
-      {/* One faint outline per grid cell, drawn first so widgets cover it. */}
-      {Array.from({ length: numberOfCols * numberOfRows }, (_, i) => (
-        <div
-          key={`slot-${i}`}
-          className="dashboard-slot"
-          aria-hidden="true"
-          style={placement({
-            x: i % numberOfCols,
-            y: Math.floor(i / numberOfCols),
-            w: 1,
-            h: 1,
-          })}
-        />
-      ))}
       {items.map((item) => (
         <div
           key={item.id}
@@ -357,7 +381,14 @@ export function DashboardGrid({
           onPointerCancel={() => setDrag(null)}
         >
           <div className="dashboard-cell__content">
-            {renderWidget(item.id, item.widgetConfig)}
+            {renderWidget(
+              item.id,
+              item.widgetConfig,
+              item.w,
+              item.h,
+              updateWidget,
+              updateOverlay,
+            )}
           </div>
           {HANDLES.map(({ axis, label }) => (
             <div

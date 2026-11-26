@@ -49,3 +49,21 @@
 .widget--no-data .widget__overlay {
   color: #555555;
 }
+
+.dashboard-popup {
+  background-color: #eee;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  padding: 10px;
+  z-index: 1000;
+}
+
+.dashboard-popup-item {
+  padding: 4px 8px;
+  cursor: pointer;
+}
+
+.dashboard-popup-not-implemented {
+  cursor: no-drop;
+}

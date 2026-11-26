@@ -246,6 +246,8 @@ export default function BaseComponent(config: BaseComponentProp) {
   }, [menu.visible, config]);
 
   const removeWidget = () => {
+    setMenu((prev) => ({ ...prev, visible: false }));
+    config.requestOverlay(() => {});
     if (confirm('Are you sure you want to remove this widget?'))
       config.updateConfig();
   };
@@ -317,13 +319,15 @@ export default function BaseComponent(config: BaseComponentProp) {
                       key={`action-${config.id}-${action[0].replace(' ', '')}`}
                       className="dashboard-popup-item"
                       onPointerDown={(e) => e.stopPropagation()}
-                      onClick={() =>
+                      onClick={() => {
+                        setMenu((prev) => ({ ...prev, visible: false }));
+                        config.requestOverlay(() => {});
                         action[1](
                           config.config ?? {},
                           config.updateConfig,
                           config.requestOverlay,
-                        )
-                      }
+                        );
+                      }}
                     >
                       {action[0]}
                     </li>

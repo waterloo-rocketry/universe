@@ -1,7 +1,10 @@
-[server]
+config_version = 1
+
+[orion]
+server = "http://127.0.0.1:7400"
 mode = "test"
 
-[[source]]
+[source]
 type = "can"
 id = "can-injector"
 connection = "USB_DEBUG"

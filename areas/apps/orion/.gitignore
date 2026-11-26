@@ -1,3 +1,5 @@
 # go build output
 /orion
 /orion.exe
+# go test -coverprofile output
+/coverage.out

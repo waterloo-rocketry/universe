@@ -1,0 +1,39 @@
+// Demo only: an example of how a contract file is laid out and built, with a
+// unary call and a bidirectional stream. It isn't part of the Orion contract,
+// and it's removed once the real contract lands; the contract's messages and
+// services go in proto/orion/v1.
+syntax = "proto3";
+
+package orion.example.v1;
+
+option go_package = "github.com/waterloo-rocketry/universe/areas/apis/orion/gen/go/orion/example/v1;examplev1";
+
+// ExampleService answers messages, one call at a time or on a stream. The
+// server's logic decides each answer.
+service ExampleService {
+  // Send answers one message.
+  rpc Send(SendRequest) returns (SendResponse);
+  // Stream is a bidirectional stream: on one open stream, the client sends
+  // messages and the server answers each one as it arrives.
+  rpc Stream(stream StreamRequest) returns (stream StreamResponse);
+}
+
+// SendRequest is one message for the server.
+message SendRequest {
+  string message = 1;
+}
+
+// SendResponse is the server's answer.
+message SendResponse {
+  string reply = 1;
+}
+
+// StreamRequest is one message the client sends on the stream.
+message StreamRequest {
+  string message = 1;
+}
+
+// StreamResponse is the server's answer to one StreamRequest.
+message StreamResponse {
+  string reply = 1;
+}

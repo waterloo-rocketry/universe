@@ -1,0 +1,32 @@
+name: CI
+
+# Runs on pull requests that change the Orion API (it lives at areas/apis/orion
+# in the universe monorepo)
+on:
+  pull_request:
+    paths: ["areas/apis/orion/**"]
+
+defaults:
+  run:
+    working-directory: areas/apis/orion
+
+jobs:
+  check:
+    name: Lint, build and generate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: areas/apis/orion/go.mod
+          cache: false
+      - name: Lint
+        run: go tool buf lint
+      - name: Build
+        run: go tool buf build
+      - name: Generate
+        run: go tool buf generate
+      - name: Vet
+        run: go vet ./...
+      - name: Build generated code
+        run: go build ./...

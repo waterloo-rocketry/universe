@@ -102,6 +102,19 @@ describe('DashboardGrid', () => {
     expect(preview()).not.toBeInTheDocument();
   });
 
+  it('removes only the selected widget after confirmation', () => {
+    vi.spyOn(window, 'confirm').mockReturnValue(true);
+    renderGrid();
+
+    fireEvent.contextMenu(
+      screen.getByTestId('widget-bar').querySelector('section')!,
+    );
+    fireEvent.click(screen.getByText('Remove'));
+
+    expect(screen.queryByTestId('widget-bar')).not.toBeInTheDocument();
+    expect(screen.getByTestId('widget-list')).toBeInTheDocument();
+  });
+
   it('shows a message for a channel that does not exist', () => {
     renderGrid({
       ...LAYOUT,

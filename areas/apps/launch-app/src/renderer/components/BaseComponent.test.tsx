@@ -1,5 +1,5 @@
-import { render, screen } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { fireEvent, render, screen, within } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import BaseComponent, { type BaseComponentProp } from './BaseComponent';
 import { applyFrame, createTelemetryState } from '../data/channel-store';
 import { TelemetryContext } from '../data/telemetry-context';
@@ -38,6 +38,9 @@ function renderBase(value: Telemetry, props: Partial<BaseComponentProp> = {}) {
 }
 
 describe('BaseComponent', () => {
+  beforeEach(() => vi.clearAllMocks());
+  afterEach(() => vi.restoreAllMocks());
+
   it('renders the registered widget from its channels and config', () => {
     const { container } = renderBase(telemetry(['nominal']), {
       config: { min: 30, max: 50 },
@@ -177,4 +180,49 @@ describe('BaseComponent', () => {
       'false',
     );
   });
+
+  it('opens the widget action list at the pointer and shows the available built-in actions', () => {
+    renderBase(telemetry(['nominal']));
+    const widget = screen.getByRole('region', { name: 'Test pressure' });
+    const event = fireEvent.contextMenu(widget, { clientX: 35, clientY: 70 });
+
+    expect(event).toBe(false); // The browser context menu is suppressed.
+    const menu = document.querySelector('.dashboard-popup')!;
+    expect(menu).toHaveStyle({ top: '70px', left: '35px' });
+    expect(within(menu as HTMLElement).getAllByRole('listitem')).toHaveLength(
+      3,
+    );
+    expect(
+      within(menu as HTMLElement).getByText('Change Type'),
+    ).toBeInTheDocument();
+    expect(within(menu as HTMLElement).getByText('Hide')).toBeInTheDocument();
+    expect(within(menu as HTMLElement).getByText('Remove')).toBeInTheDocument();
+    expect(requestOverlay).toHaveBeenCalledWith(expect.any(Function));
+  });
+
+  it.each([
+    ['accepting', true],
+    ['cancelling', false],
+  ] as const)(
+    'closes the menu after %s removal confirmation',
+    (_choice, confirmed) => {
+      const confirm = vi.spyOn(window, 'confirm').mockReturnValue(confirmed);
+      renderBase(telemetry(['nominal']));
+      fireEvent.contextMenu(
+        screen.getByRole('region', { name: 'Test pressure' }),
+      );
+      requestOverlay.mockClear();
+
+      fireEvent.click(screen.getByText('Remove'));
+
+      expect(confirm).toHaveBeenCalledWith(
+        'Are you sure you want to remove this widget?',
+      );
+      expect(screen.queryByText('Remove')).not.toBeInTheDocument();
+      expect(requestOverlay).toHaveBeenCalledWith(expect.any(Function));
+      if (confirmed) expect(updateConfig).toHaveBeenCalledOnce();
+      else expect(updateConfig).not.toHaveBeenCalled();
+      if (confirmed) expect(updateConfig).toHaveBeenCalledWith();
+    },
+  );
 });

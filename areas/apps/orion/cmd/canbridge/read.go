@@ -42,6 +42,15 @@ func (f *LineFramer) Feed(chunk []byte) [][]byte {
 			if len(f.buffer) <= maxLine {
 				line := append([]byte{}, f.buffer...)
 				lines = append(lines, line)
+				// TODO: The USB read-loop caller should parse each returned line
+				// once Parsley-go is available:
+				// sid, data, parseErr := parsley.SplitUSBDebug(string(line))
+				// if parseErr != nil {
+				//     // Report or skip this malformed protocol line.
+				// } else {
+				//     frame := Frame{SID: sid, Data: data}
+				//     // Pass frame to downstream processing.
+				// }
 			} else {
 				if !f.discardLine {
 					f.AddError()

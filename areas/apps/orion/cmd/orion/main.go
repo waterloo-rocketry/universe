@@ -2,7 +2,6 @@
 // for now.
 package main
 
-import "fmt"
 import (
 	"fmt"
 	"os"

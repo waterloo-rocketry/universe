@@ -28,6 +28,12 @@ class SIDField(ConfigItem):
 class SID(YAMLObject):
     fields: list[SIDField] = field(default_factory=list)
 
+    def get_field(self, name: str) -> SIDField:
+        matches = [item for item in self.fields if item.name == name]
+        if len(matches) != 1:
+            raise KeyError(name)
+        return matches[0]
+
 
 @dataclass(frozen=True, kw_only=True)
 class Field(ConfigItem):

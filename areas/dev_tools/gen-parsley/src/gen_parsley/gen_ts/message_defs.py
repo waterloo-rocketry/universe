@@ -114,28 +114,28 @@ export type ParsleyMessage = {
 
 
 def _field(
-    field: Field | RefField, data: RocketCAN, *, byte_width: int | None = None
+    field: Field | RefField, data: RocketCAN, *, bit_width: int | None = None
 ) -> str:
     if isinstance(field, Field):
         name = field.name.lower()
-        size = cast(int, field.bytes if byte_width is None else byte_width)
+        size = cast(int, field.bytes) * 8 if bit_width is None else bit_width
         match field.type:
             case "ascii":
-                return f"new ASCII('{name}', {size * 8})"
+                return f"new ASCII('{name}', {size})"
             case "bitfield":
                 bitfield = data.get_bitfield(cast(str, field.bitfield))
                 # TODO: assuming default bitfield string is *_NOMINAL
                 bitfield_default = f"{bitfield.prefix}_NOMINAL"
-                return f"new Bitfield('{name}', {size * 8}, '{bitfield_default}', {field.bitfield}_offset)"
+                return f"new Bitfield('{name}', {size}, '{bitfield_default}', {field.bitfield}_offset)"
             case "enum":
-                return f"new Enum('{name}', {size * 8}, {field.enum})"
+                return f"new Enum('{name}', {size}, {field.enum})"
             case "int":
-                return f"new Numeric('{name}', {size * 8}, 1, true)"
+                return f"new Numeric('{name}', {size}, 1, true)"
             case "uint":
                 # TODO: TIMESTAMP_2 requiers the `scale` ctor parameter
-                return f"new Numeric('{name}', {size * 8}, 1, false)"
+                return f"new Numeric('{name}', {size}, 1, false)"
             case "raw":
-                return f"new ASCII('{name}', {size * 8})"
+                return f"new ASCII('{name}', {size})"
             case _:
                 assert_never(field.type)
     elif isinstance(field, RefField):
@@ -153,31 +153,41 @@ def render(data: RocketCAN) -> str:
     msg_types.extend(f"{bitfield.name}_offset" for bitfield in data.bitfields)
     import_msg_types = "\n".join(f"    {name}," for name in msg_types)
 
-    # TODO: these are hardcoded, see if there is some smart way to get these from message types
-    names["msg_prio"] = "prio"
-    names["board_type_id"] = "board_type"
-    names["board_inst_id"] = "board_inst"
+    sid = sorted(data.sid.fields, key=lambda f: f.index)
+    expected = [("prio", "enum"), ("message_type", "message_type"),
+                ("board_type", "enum"), ("board_inst", "enum"), ("metadata", "metadata")]
+    if [(f.name, f.type) for f in sid] != expected:
+        raise RocketCANError(f"{data.sid.yaml_path}.fields", "SID fields must match parsley-ts order and roles")
+    if any(f.bits <= 0 for f in sid):
+        raise RocketCANError(f"{data.sid.yaml_path}.fields", "SID field widths must be positive")
 
+    names["msg_prio"] = data.sid.get_field("prio").enum
+    names["board_type_id"] = data.sid.get_field("board_type").enum
+    names["board_inst_id"] = data.sid.get_field("board_inst").enum
+    metadata_sid = data.sid.get_field("metadata")
+
+    # TODO: update parsley-ts imports MESSAGE_PRIO, BOARD_TYPE_ID,
+    # BOARD_INST_ID, and MESSAGE_METADATA to use RocketCAN field names.
+    # Parsed message properties still use the old parsley-ts names as well.
     sid_field_defs = []
-    for field in data.sid.fields:
-        sid_field_def = f"export const {field.name.upper()} = "
-        if field.enum is None:
-            # one-byte placeholder when enum type not given
-            sid_field_def += f"new Numeric('{field.name}', 8)"
+    exports = [field.name.upper() for field in sid]
+    for field, export in zip(sid, exports):
+        sid_field_def = f"export const {export} = "
+        if field.type == "metadata":
+            sid_field_def += f"new Numeric('{field.name}', {field.bits})"
         else:
-            # TODO: message_type is not hooked up to msg_types in rocketcan.yaml
-            sid_field_def += f"new Enum('{field.name}', {field.bits}, {field.enum})"
+            mapping = "msg_type" if field.type == "message_type" else field.enum
+            sid_field_def += f"new Enum('{field.name}', {field.bits}, {mapping})"
         sid_field_defs.append(sid_field_def)
     sid_len_sum = " +\n".join(
-        f"    {field.name.upper()}.length" for field in data.sid.fields
+        f"    {name}.length" for name in exports
     )
     sid_fields = f"""\
 {"\n".join(sid_field_defs)}
 export const MESSAGE_SID_LEN =
 {sid_len_sum}"""
 
-    # HACK: assuming last SID field is metadata
-    names["MESSAGE_METADATA"] = data.sid.fields[-1].name.upper()
+    names["MESSAGE_METADATA"] = metadata_sid.name.upper()
 
     shared_fields = []
     for field in data.message_fields:
@@ -186,6 +196,7 @@ export const MESSAGE_SID_LEN =
         if field.id == "timestamp":
             # rocketcan does not specify the output name or scale.
             # as a result this is hard-coded into the generator.
+            # TODO: reconcile the legacy time name and scaling with RocketCAN.
             definition = "new Numeric('time', 16, 1 / 1000, false, true, 's')"
         else:
             definition = _field(field, data)
@@ -206,9 +217,12 @@ export const MESSAGE_SID_LEN =
         metadata = ""
         if message.metadata is not None:
             meta_field = message.metadata
-            # Metadata defaults to one byte when its width is omitted.
+            if meta_field.bytes is not None and meta_field.bytes * 8 != metadata_sid.bits:
+                raise RocketCANError(f"{meta_field.yaml_path}.bytes", "metadata width must match SID metadata width")
+            if meta_field.type in ("ascii", "raw") and metadata_sid.bits % 8:
+                raise RocketCANError(f"{meta_field.yaml_path}.type", "ASCII metadata requires a whole-byte width")
             metadata = ", " + _field(
-                meta_field, data, byte_width=1 if meta_field.bytes is None else None
+                meta_field, data, bit_width=metadata_sid.bits
             )
 
         msg_defs.append(

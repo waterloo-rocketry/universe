@@ -36,6 +36,8 @@ def _hex_entries(items: Iterable[tuple[str, int]]) -> str:
 
 
 def render(data: RocketCAN) -> str:
+    # TODO: update parsley-ts imports msg_prio, board_type_id, and board_inst_id
+    # to use the RocketCAN enum names generated here.
     blocks: list[dict] = []
 
     # message types

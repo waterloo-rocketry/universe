@@ -8,7 +8,7 @@ from strictyaml.exceptions import StrictYAMLError
 
 from gen_parsley import models
 from gen_parsley.errors import RocketCANError
-from gen_parsley.gen_ts import message_defs
+from gen_parsley.gen_ts import message_defs, message_types
 from gen_parsley.parse import _convert, _validate_rocketcan, load_rocketcan
 
 
@@ -306,14 +306,20 @@ def _message_doc(**overrides):
 
 def _rocketcan_doc(**overrides):
     doc = {
-        "sid": {"fields": [{"name": "priority", "index": "1", "bits": "4", "type": "enum", "enum": "STATE"}]},
+        "sid": {"fields": [
+            {"name": "prio", "index": "1", "bits": "2", "type": "enum", "enum": "STATE"},
+            {"name": "message_type", "index": "2", "bits": "7", "type": "message_type"},
+            {"name": "board_type", "index": "3", "bits": "6", "type": "enum", "enum": "STATE"},
+            {"name": "board_inst", "index": "4", "bits": "6", "type": "enum", "enum": "STATE"},
+            {"name": "metadata", "index": "5", "bits": "8", "type": "metadata"},
+        ]},
         "message_fields": [{"id": "ts", "name": "state", "type": "enum", "enum": "STATE", "bytes": "1"}],
         "messages": [
             {
                 "name": "LEDS_OFF",
                 "desc": "turn off",
                 "id": "0x20",
-                "metadata": {"name": "ts", "type": "uint", "bytes": "4"},
+                "metadata": {"name": "ts", "type": "uint", "bytes": "1"},
                 "fields": [
                     {"name": "state", "type": "enum", "enum": "STATE", "bytes": "1", "index": "1"},
                     {"ref": "ts", "index": "2"},
@@ -334,14 +340,20 @@ def _rocketcan_doc(**overrides):
 
 
 EXPECTED_DOC_ROCKETCAN = models.RocketCAN(
-    sid=models.SID(fields=[models.SIDField(name="priority", index=1, bits=4, type="enum", enum="STATE")]),
+    sid=models.SID(fields=[
+        models.SIDField(name="prio", index=1, bits=2, type="enum", enum="STATE"),
+        models.SIDField(name="message_type", index=2, bits=7, type="message_type"),
+        models.SIDField(name="board_type", index=3, bits=6, type="enum", enum="STATE"),
+        models.SIDField(name="board_inst", index=4, bits=6, type="enum", enum="STATE"),
+        models.SIDField(name="metadata", index=5, bits=8, type="metadata"),
+    ]),
     message_fields=[models.Field(id="ts", name="state", type="enum", enum="STATE", bytes=1)],
     messages=[
         models.Message(
             name="LEDS_OFF",
             desc="turn off",
             id=32,
-            metadata=models.Field(name="ts", type="uint", bytes=4),
+            metadata=models.Field(name="ts", type="uint", bytes=1),
             fields=[
                 models.Field(name="state", type="enum", enum="STATE", bytes=1, index=1),
                 models.RefField(ref="ts", index=2),
@@ -494,11 +506,29 @@ def test_bit_with_explicit_offset_key_is_rejected():
 ROCKETCAN_YAML = """\
 sid:
   fields:
-    - name: priority
+    - name: prio
       index: 1
-      bits: 4
+      bits: 2
       type: enum
       enum: STATE
+    - name: message_type
+      index: 2
+      bits: 7
+      type: message_type
+    - name: board_type
+      index: 3
+      bits: 6
+      type: enum
+      enum: STATE
+    - name: board_inst
+      index: 4
+      bits: 6
+      type: enum
+      enum: STATE
+    - name: metadata
+      index: 5
+      bits: 8
+      type: metadata
 message-fields:
   - id: ts
     name: state
@@ -512,7 +542,7 @@ messages:
     metadata:
       name: ts
       type: uint
-      bytes: 4
+      bytes: 1
     fields:
       - name: state
         index: 1
@@ -557,7 +587,7 @@ def test_load_rocketcan_accepts_path_object(tmp_path):
 
 def test_load_rocketcan_accepts_null_metadata(tmp_path):
     text = ROCKETCAN_YAML.replace(
-        "    metadata:\n      name: ts\n      type: uint\n      bytes: 4",
+        "    metadata:\n      name: ts\n      type: uint\n      bytes: 1",
         "    metadata: null",
     )
     data = load_rocketcan(_write_yaml(tmp_path, text))
@@ -589,6 +619,42 @@ def test_renderer_orders_fields_by_index():
     assert result.index("new Enum('state', 8, STATE)") < result.index("    MSG_FIELD_TS,")
 
 
+def test_renderer_uses_sid_types_indexes_and_widths():
+    doc = _rocketcan_doc()
+    doc["sid"]["fields"][4]["bits"] = "12"
+    doc["sid"]["fields"].reverse()
+    del doc["messages"][0]["metadata"]["bytes"]
+    data = _convert(models.RocketCAN, doc)
+    _validate_rocketcan(data)
+    result = message_defs.render(data)
+    assert "PRIO = new Enum('prio', 2, STATE)" in result
+    assert "MESSAGE_TYPE = new Enum('message_type', 7, msg_type)" in result
+    assert "METADATA = new Numeric('metadata', 12)" in result
+    assert "new Numeric('ts', 12, 1, false)" in result
+    assert result.index("PRIO =") < result.index("MESSAGE_TYPE =") < result.index("METADATA =")
+    types = message_types.render(data)
+    assert "export const msg_prio = STATE" not in types
+
+
+def test_renderer_rejects_unsupported_sid_order():
+    doc = _rocketcan_doc()
+    doc["sid"]["fields"][0]["index"] = "2"
+    doc["sid"]["fields"][1]["index"] = "1"
+    data = _convert(models.RocketCAN, doc)
+    _validate_rocketcan(data)
+    with pytest.raises(RocketCANError, match="SID fields must match parsley-ts order and roles"):
+        message_defs.render(data)
+
+
+def test_renderer_rejects_metadata_width_mismatch():
+    doc = _rocketcan_doc()
+    doc["messages"][0]["metadata"]["bytes"] = "2"
+    data = _convert(models.RocketCAN, doc)
+    _validate_rocketcan(data)
+    with pytest.raises(RocketCANError, match="metadata width must match SID metadata width"):
+        message_defs.render(data)
+
+
 def test_validation_rejects_missing_sid_enum():
     doc = _rocketcan_doc()
     doc["sid"]["fields"][0]["enum"] = "MISSING"
@@ -605,7 +671,7 @@ def test_load_rocketcan_validates_before_generation(tmp_path):
 
 
 def test_renderer_uses_validated_metadata_default(tmp_path):
-    text = ROCKETCAN_YAML.replace("      bytes: 4\n    fields:", "    fields:")
+    text = ROCKETCAN_YAML.replace("      bytes: 1\n    fields:", "    fields:")
     data = load_rocketcan(_write_yaml(tmp_path, text))
 
     assert "new Numeric('ts', 8, 1, false)" in message_defs.render(data)
@@ -650,7 +716,7 @@ def test_strictyaml_returns_scalars_as_strings():
     data = strict_load(ROCKETCAN_YAML).data
 
     assert data["messages"][0]["id"] == "0x20"
-    assert data["sid"]["fields"][0]["bits"] == "4"
+    assert data["sid"]["fields"][0]["bits"] == "2"
 
 
 def test_load_rocketcan_rejects_unknown_key_with_path(tmp_path):

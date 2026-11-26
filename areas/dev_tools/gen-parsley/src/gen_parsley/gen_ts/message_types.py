@@ -52,7 +52,7 @@ def render(data: RocketCAN) -> str:
             {
                 "title": snake_to_title_case(enum.name),
                 "name": enum.name,
-                "entries": _hex_entries((f"{enum.prefix}_{v.name}", v.id) for v in enum.value),
+                "entries": _hex_entries((f"{enum.prefix}_{v.name}", v.value) for v in enum.members),
             }
         )
 

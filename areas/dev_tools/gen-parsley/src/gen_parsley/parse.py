@@ -80,10 +80,25 @@ def _validate_rocketcan(data: RocketCAN) -> None:
             f"{data.sid.yaml_path}.fields", "at least one SID field is required"
         )
 
+    _check_unique(data.sid.fields, "index")
+    for field in data.sid.fields:
+        if field.index <= 0:
+            raise RocketCANError(f"{field.yaml_path}.index", "index must be positive")
+        if field.type == "enum":
+            if field.enum is None:
+                raise RocketCANError(f"{field.yaml_path}.enum", "enum field requires an enum name")
+            try:
+                data.get_enum(field.enum)
+            except KeyError:
+                raise RocketCANError(f"{field.yaml_path}.enum", f"cannot find enum named {field.enum!r}") from None
+
     for field in data.message_fields:
         _validate_field(field, data)
     for message in data.messages:
-        for item in (*message.metadata, *message.field):
+        _check_unique(message.fields, "index")
+        for item in message.fields:
+            if item.index is None or item.index <= 0:
+                raise RocketCANError(f"{item.yaml_path}.index", "index must be positive")
             if isinstance(item, RefField):
                 try:
                     data.get_message_field(item.ref)
@@ -92,10 +107,9 @@ def _validate_rocketcan(data: RocketCAN) -> None:
                         f"{item.yaml_path}.ref",
                         f"cannot find message field {item.ref!r}",
                     ) from None
-        for field in message.metadata:
-            if isinstance(field, Field):
-                _validate_field(field, data, metadata=True)
-        for field in message.field:
+        if message.metadata is not None:
+            _validate_field(message.metadata, data, metadata=True)
+        for field in message.fields:
             if isinstance(field, Field):
                 _validate_field(field, data)
 
@@ -172,7 +186,10 @@ def _from_dict(cls: type, data, where: str = "root"):
             )
         if present:
             key = present[0]
-            kwargs[f.name] = _convert(hints[f.name], data[key], f"{where}.{key}")
+            value = data[key]
+            if cls.__name__ == "Message" and f.name == "metadata" and value == "null":
+                value = None
+            kwargs[f.name] = _convert(hints[f.name], value, f"{where}.{key}")
         elif f.default is MISSING and f.default_factory is MISSING:
             raise RocketCANError(where, f"missing required key {hyphenated!r}")
     unknown = sorted(str(k) for k in data if k not in accepted)

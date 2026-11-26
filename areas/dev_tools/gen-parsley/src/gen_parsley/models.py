@@ -18,7 +18,9 @@ class ConfigItem(YAMLObject):
 
 @dataclass(frozen=True, kw_only=True)
 class SIDField(ConfigItem):
+    index: int
     bits: int
+    type: Literal["enum", "message_type", "metadata"]
     enum: str | None = None
 
 
@@ -30,6 +32,7 @@ class SID(YAMLObject):
 @dataclass(frozen=True, kw_only=True)
 class Field(ConfigItem):
     id: str | None = None
+    index: int | None = None
     bytes: int | None = None
     type: Literal["ascii", "bitfield", "enum", "int", "uint", "raw"]
     unit: str | None = None
@@ -40,25 +43,26 @@ class Field(ConfigItem):
 @dataclass(frozen=True, kw_only=True)
 class RefField(YAMLObject):
     ref: str
+    index: int
 
 
 @dataclass(frozen=True, kw_only=True)
 class Message(ConfigItem):
     id: int
-    metadata: list[Field | RefField] = field(default_factory=list)
-    field: list[Field | RefField] = field(default_factory=list)
+    metadata: Field | None = None
+    fields: list[Field | RefField] = field(default_factory=list)
 
 
 @dataclass(frozen=True, kw_only=True)
 class EnumValue(ConfigItem):
-    id: int
+    value: int
     doc_link: str | None = None
 
 
 @dataclass(frozen=True, kw_only=True)
 class Enum(ConfigItem):
     prefix: str
-    value: list[EnumValue]
+    members: list[EnumValue]
 
 
 @dataclass(frozen=True, kw_only=True)

@@ -199,33 +199,17 @@ export const MESSAGE_SID_LEN =
     for message in data.messages:
         msg_name_list.append(f"    {message.name},")
 
-        msg_fields = "\n".join(f"    {_field(field, data)}," for field in message.field)
+        msg_fields = "\n".join(f"    {_field(field, data)}," for field in sorted(message.fields, key=lambda f: f.index))
         if msg_fields:
             msg_fields = f"\n{msg_fields}\n"
 
         metadata = ""
-        if len(message.metadata) > 1:
-            raise RocketCANError(
-                f"{message.yaml_path}.metadata",
-                "parsley-ts only supports one metadata field in Messages",
+        if message.metadata is not None:
+            meta_field = message.metadata
+            # Metadata defaults to one byte when its width is omitted.
+            metadata = ", " + _field(
+                meta_field, data, byte_width=1 if meta_field.bytes is None else None
             )
-        if message.metadata:
-            meta_field = message.metadata[0]
-            is_unused = False
-            if isinstance(meta_field, Field):
-                is_unused = meta_field.name == "UNUSED"
-
-            if not is_unused:
-                # Metadata defaults to one byte when its width is omitted.
-                metadata = ", " + _field(
-                    meta_field,
-                    data,
-                    byte_width=(
-                        1
-                        if isinstance(meta_field, Field) and meta_field.bytes is None
-                        else None
-                    ),
-                )
 
         msg_defs.append(
             f"export const {message.name} = defineMessage([{msg_fields}]{metadata})"

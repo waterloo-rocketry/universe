@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"math/rand"
 	"net"
 	"net/http"
 	"os"
@@ -36,7 +37,9 @@ func answer(message string) string {
 	if message == "ping" {
 		return "pong"
 	}
-	return fmt.Sprintf("server got %q at %s", message, time.Now().Format("15:04:05"))
+	msg := fmt.Sprintf("server got %q at %s", message, time.Now().Format("15:04:05"))
+	println(msg)
+	return msg
 }
 
 // exampleServer implements the example ExampleService.
@@ -119,6 +122,10 @@ func streamExample(ctx context.Context, addr string, messages []string, out io.W
 			return err
 		}
 		fmt.Fprintln(out, res.GetReply())
+
+		// Wait for a random 300ms to 3s before sending the next message, to show the server's timed replies.
+		delay := time.Duration(300+rand.Intn(2700)) * time.Millisecond
+		time.Sleep(delay)
 	}
 	if err := stream.CloseRequest(); err != nil {
 		return err

@@ -307,7 +307,7 @@ def _message_doc(**overrides):
 def _rocketcan_doc(**overrides):
     doc = {
         "sid": {"fields": [{"name": "priority", "bits": "4", "enum": "PRIO"}]},
-        "message_fields": [{"name": "state", "type": "enum", "enum": "STATE", "bytes": "1"}],
+        "message_fields": [{"id": "ts", "name": "state", "type": "enum", "enum": "STATE", "bytes": "1"}],
         "messages": [
             {
                 "name": "LEDS_OFF",
@@ -335,7 +335,7 @@ def _rocketcan_doc(**overrides):
 
 EXPECTED_DOC_ROCKETCAN = models.RocketCAN(
     sid=models.SID(fields=[models.SIDField(name="priority", bits=4, enum="PRIO")]),
-    message_fields=[models.Field(name="state", type="enum", enum="STATE", bytes=1)],
+    message_fields=[models.Field(id="ts", name="state", type="enum", enum="STATE", bytes=1)],
     messages=[
         models.Message(
             name="LEDS_OFF",
@@ -507,7 +507,8 @@ sid:
       bits: 4
       enum: PRIO
 message-fields:
-  - name: state
+  - id: ts
+    name: state
     type: enum
     enum: STATE
     bytes: 1
@@ -572,6 +573,29 @@ def test_renderer_uses_validated_metadata_default(tmp_path):
     data = load_rocketcan(_write_yaml(tmp_path, text))
 
     assert "new Numeric('ts', 8, 1, false)" in message_defs.render(data)
+
+
+def test_renderer_generates_shared_fields():
+    doc = _rocketcan_doc()
+    doc["message_fields"].extend([
+        {"id": "timestamp", "name": "TIMESTAMP", "type": "uint", "bytes": "2"},
+        {"id": "count", "name": "COUNT", "type": "uint", "bytes": "1"},
+    ])
+    doc["messages"][0]["field"] = [{"ref": "timestamp"}, {"ref": "count"}]
+    data = _convert(models.RocketCAN, doc)
+    _validate_rocketcan(data)
+
+    result = message_defs.render(data)
+    assert "MSG_FIELD_TIMESTAMP = new Numeric('time', 16, 1 / 1000, false, true, 's')" in result
+    assert "MSG_FIELD_COUNT = new Numeric('count', 8, 1, false)" in result
+    assert "    MSG_FIELD_TIMESTAMP,\n    MSG_FIELD_COUNT," in result
+
+
+def test_validation_reports_missing_shared_field_reference():
+    doc = _rocketcan_doc()
+    doc["messages"][0]["field"] = [{"ref": "missing"}]
+    with pytest.raises(RocketCANError, match=r"root\.messages\[0\]\.field\[0\]\.ref: cannot find message field"):
+        _validate_rocketcan(_convert(models.RocketCAN, doc))
 
 
 def test_strictyaml_returns_scalars_as_strings():

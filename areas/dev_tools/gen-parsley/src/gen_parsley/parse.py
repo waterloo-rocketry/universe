@@ -7,7 +7,7 @@ from typing import Literal, Union, get_args, get_origin, get_type_hints
 from strictyaml import load
 
 from gen_parsley.errors import RocketCANError
-from gen_parsley.models import Field, RocketCAN, YAMLObject
+from gen_parsley.models import Field, RefField, RocketCAN, YAMLObject
 
 _INT_PATTERN = re.compile(r"-?(0|[1-9][0-9]*|0[xX][0-9a-fA-F]+)")
 
@@ -83,6 +83,15 @@ def _validate_rocketcan(data: RocketCAN) -> None:
     for field in data.message_fields:
         _validate_field(field, data)
     for message in data.messages:
+        for item in (*message.metadata, *message.field):
+            if isinstance(item, RefField):
+                try:
+                    data.get_message_field(item.ref)
+                except KeyError:
+                    raise RocketCANError(
+                        f"{item.yaml_path}.ref",
+                        f"cannot find message field {item.ref!r}",
+                    ) from None
         for field in message.metadata:
             if isinstance(field, Field):
                 _validate_field(field, data, metadata=True)

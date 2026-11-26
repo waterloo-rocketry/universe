@@ -179,10 +179,20 @@ export const MESSAGE_SID_LEN =
     # HACK: assuming last SID field is metadata
     names["MESSAGE_METADATA"] = data.sid.fields[-1].name.upper()
 
-    # HACK: currently hard-coding timestamp field because RocketCAN has no config for Numeric scale
-    msg_shared_fields = """\
-// 16-bit millisecond timestamp, scaled to seconds.
-export const MSG_FIELD_TIMESTAMP = new Numeric('time', 16, 1 / 1000, false, true, 's')"""
+    shared_fields = []
+    for field in data.message_fields:
+        if field.id is None:
+            continue
+        if field.id == "timestamp":
+            # rocketcan does not specify the output name or scale.
+            # as a result this is hard-coded into the generator.
+            definition = "new Numeric('time', 16, 1 / 1000, false, true, 's')"
+        else:
+            definition = _field(field, data)
+        shared_fields.append(
+            f"export const MSG_FIELD_{field.id.upper()} = {definition}"
+        )
+    msg_shared_fields = "\n".join(shared_fields)
 
     msg_defs = []
     msg_name_list = []

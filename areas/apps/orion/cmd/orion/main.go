@@ -14,6 +14,7 @@ import (
 const version = "0.0.0"
 
 func main() {
+	fmt.Println("orion", version)
 	if len(os.Args) < 2 {
 		fmt.Fprintln(os.Stderr, "usage: orion <version|check-config>")
 		os.Exit(1)

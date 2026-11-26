@@ -1,18 +1,12 @@
-import {
-  getChannelStatus,
-  getLatestReading,
-  type ChannelState,
-} from '../data/channel-store';
 import '../styles/gauge.css';
+import { WidgetProps } from './BaseComponent';
 
 interface GaugeProps {
-  channel: ChannelState;
   min: number;
   max: number;
   major_intervals?: number; // Max is divided by this to determine the amount of numbers on the gauge, default is 5.
   // So for instance, if max = 100 and this is the default value, you get 0, 20, 40, ..., 100.
   minor_intervals?: number; // Amount of small dashes between numbers, default is 2.
-  nowMs: number; // Current time
 }
 
 const STARTING_DEGREES = 210; // Where it rests when it's at 0
@@ -50,17 +44,36 @@ function armLocationFromPolarCoords(degrees: number, radius: number) {
   };
 }
 
-export function Gauge({
-  channel,
-  min,
-  max,
-  major_intervals = 5,
-  minor_intervals = 2,
-  nowMs,
-}: GaugeProps) {
-  const { unit, kind } = channel.signal;
-  const status = getChannelStatus(channel, nowMs);
-  const latest = getLatestReading(channel);
+export function Gauge({ channels, config }: WidgetProps) {
+  if (channels.length != 1) {
+    return (
+      <div>
+        <span>Incorrect Number of Channels!</span>
+      </div>
+    );
+  }
+
+  const channel = channels[0];
+  if (!channel) {
+    return (
+      <div>
+        <span>Unknown Channel</span>
+      </div>
+    );
+  }
+
+  const { unit, kind } = channel.channel.signal;
+  const status = channel.status;
+  const latest = channel.latest;
+
+  if (!(config as GaugeProps))
+    config = { min: 0, max: 100, major_intervals: 5, minor_intervals: 2 };
+
+  let { major_intervals, minor_intervals } = config as GaugeProps;
+  const { min, max } = config as GaugeProps;
+
+  if (!major_intervals) major_intervals = 5;
+  if (!minor_intervals) minor_intervals = 2;
 
   // Rejects non numeric channels
   if (kind != 'number') {

@@ -1,9 +1,11 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import { ProgressBar } from './ProgressBar';
+import ProgressBar from './ProgressBar';
 import {
   applyFrame,
   createTelemetryState,
+  getChannelStatus,
+  getLatestReading,
   type ChannelState,
 } from '../data/channel-store';
 import {
@@ -26,9 +28,20 @@ function channelsAfter(...scenarios: MockScenario[]) {
 }
 
 /** Draws one bar and returns its outer box and its fill (null if no fill). */
-function renderBar(channel: ChannelState, min = 0, max = 100) {
+function renderBar(channel: ChannelState, min = 0, max = 100, nowMs = NOW) {
   const { container } = render(
-    <ProgressBar channel={channel} min={min} max={max} nowMs={NOW} />,
+    <ProgressBar
+      channels={[
+        {
+          channel,
+          latest: getLatestReading(channel),
+          history: channel.history,
+          status: getChannelStatus(channel, nowMs),
+          nowMs,
+        },
+      ]}
+      config={{ min, max }}
+    />,
   );
   return {
     bar: container.querySelector('.progress-bar'),
@@ -85,14 +98,7 @@ describe('ProgressBar', () => {
   });
 
   it('starts the last updated tag just after 3 s', () => {
-    render(
-      <ProgressBar
-        channel={channelsAfter('nominal')['test.pressure']}
-        min={0}
-        max={100}
-        nowMs={NOW + 3_100}
-      />,
-    );
+    renderBar(channelsAfter('nominal')['test.pressure'], 0, 100, NOW + 3_100);
 
     expect(screen.getByText('updated 3.1 s ago')).toBeInTheDocument();
   });

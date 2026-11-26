@@ -1,9 +1,10 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import { Gauge } from './Gauge';
 import {
   applyFrame,
   createTelemetryState,
+  getLatestReading,
+  getChannelStatus,
   type ChannelState,
 } from '../data/channel-store';
 import {
@@ -11,6 +12,9 @@ import {
   MOCK_SIGNALS,
   type MockScenario,
 } from '../data/mock/fixtures';
+import BaseComponent from './BaseComponent';
+import { ChannelData } from '../data/telemetry-context';
+import { TelemetryProvider } from '../data/TelemetryProvider';
 
 // "Now" is the fixture's own time, so nominal readings count as fresh.
 const NOW = getMockFixture().timestampMs;
@@ -28,10 +32,30 @@ function channelsAfter(...scenarios: MockScenario[]) {
   return state.channels;
 }
 
+function toChannelData(channel: ChannelState): ChannelData {
+  return {
+    channel,
+    latest: getLatestReading(channel),
+    history: channel.history,
+    status: getChannelStatus(channel, NOW),
+    nowMs: NOW,
+  };
+}
+
 /** Draws one gauge and returns the parts the tests care about. */
-function renderGauge(channel: ChannelState, min = 0, max = 100, nowMs = NOW) {
+function renderGauge(channel: ChannelState, min = 0, max = 100) {
   const { container } = render(
-    <Gauge channel={channel} min={min} max={max} nowMs={nowMs} />,
+    <TelemetryProvider url={''}>
+      <BaseComponent
+        id="gauge-test"
+        componentType="gauge"
+        channels={[]}
+        overrideChannels={[toChannelData(channel)]}
+        config={{ min, max }}
+        updateConfig={() => {}}
+        setOverlay={() => {}}
+      />
+    </TelemetryProvider>,
   );
   return {
     container,

@@ -1,14 +1,9 @@
-import {
-  getChannelStatus,
-  getLatestReading,
-  type ChannelState,
-} from '../data/channel-store';
+import type { ReactNode } from 'react';
+import type { WidgetProps } from './BaseComponent';
 
 interface ProgressBarProps {
-  channel: ChannelState; // Which sensor?
   min: number;
   max: number;
-  nowMs: number; // Current time
 }
 
 const LAST_UPDATED_AFTER_MS = 3_000; // Starting showing a timer if there hasn't been an update in 3s. Might be changed later.
@@ -32,10 +27,19 @@ function getFill(value: number, min: number, max: number) {
 }
 
 /** Draws the progress bar */
-export function ProgressBar({ channel, min, max, nowMs }: ProgressBarProps) {
-  const { label, unit, kind } = channel.signal;
-  const status = getChannelStatus(channel, nowMs);
-  const latest = getLatestReading(channel);
+export default function ProgressBar(prop: WidgetProps): ReactNode {
+  const channel = prop.channels[0];
+  if (!channel) return 'No Channel Connected';
+
+  const { label, unit, kind } = channel.channel.signal;
+  const status = channel.status;
+  const nowMs = channel.nowMs;
+  const latest = channel.latest;
+
+  const config = (prop.config as ProgressBarProps) ?? { min: 0, max: 100 };
+
+  const min = config.min;
+  const max = config.max;
 
   // A true/false or text channel can't be drawn as a bar.
   if (kind !== 'number') {

@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "sourceId": "mock-sensors",
+  "sequence": 0,
+  "timestampMs": 1790899200000,
+  "connection": "connected",
+  "readings": [
+    {
+      "signalId": "test.pressure",
+      "timestampMs": 1790899200000,
+      "quality": "good",
+      "value": 42
+    },
+    {
+      "signalId": "test.temperature",
+      "timestampMs": 1790899200000,
+      "quality": "good",
+      "value": 21
+    },
+    {
+      "signalId": "test.enabled",
+      "timestampMs": 1790899200000,
+      "quality": "good",
+      "value": true
+    },
+    {
+      "signalId": "test.status",
+      "timestampMs": 1790899200000,
+      "quality": "good",
+      "value": "idle"
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+.gauge {
+  box-sizing: border-box;
+  max-width: 24rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid #dfe3e8;
+  border-radius: 8px;
+  background: #222222;
+  color: #fff;
+  font-variant-numeric: tabular-nums;
+}
+.gauge_circle {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+}
+.gauge_svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.gauge_face {
+}
+.gauge_tick {
+  stroke: #000;
+  stroke-width: 1;
+}
+.gauge_tick_major {
+  stroke-width: 1.5;
+}
+.gauge_label {
+  fill: #000;
+  font-size: 14px;
+  font-style: italic;
+}
+.gauge_circle_hand {
+  transform-origin: 100px 100px; /* SVG user units: the dial center */
+  transition: transform 0.3s ease-out;
+}
+.gauge_needle {
+  fill: #f00;
+}
+.gauge_circle_value_display {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 66%;
+  text-align: center;
+  font-size: 2rem;
+  color: #000;
+}
+.gauge_status {
+  margin-top: 0.5rem;
+  text-align: center;
+}
+.gauge_status_text {
+  font-size: 1.1rem;
+}

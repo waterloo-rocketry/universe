@@ -49,7 +49,7 @@ func GetError(errorType string) error {
 func TestFrameError(t *testing.T) {
 	frameError := GetError("FrameError")
 	if frameError.Error() != "Frame Error: Test Frame Error (Error Code: 67)" {
-		t.Fatalf("Incorrect error formatting. Found: %s", frameError.Error())
+		t.Errorf("Incorrect error formatting. Found: %s", frameError.Error())
 	}
 }
 
@@ -57,7 +57,7 @@ func TestFrameError(t *testing.T) {
 func TestDecodeError(t *testing.T) {
 	decodeError := GetError("DecodeError")
 	if decodeError.Error() != "Decode Error for message type test message. Priority: high. Reason: Test Decode Error" {
-		t.Fatalf("Incorrect error formatting. Found: %s", decodeError.Error())
+		t.Errorf("Incorrect error formatting. Found: %s", decodeError.Error())
 	}
 }
 
@@ -71,6 +71,6 @@ func TestDecodeErrorOnIncompleteBody(t *testing.T) {
 func TestTypedNil(t *testing.T) {
 	nilError := GetError("no error")
 	if nilError != nil {
-		t.Fatal("Typed nill trap triggered")
+		t.Error("Typed nill trap triggered")
 	}
 }

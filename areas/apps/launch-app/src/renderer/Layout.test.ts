@@ -16,7 +16,7 @@ const WIDGET = {
   config: {
     min: 0,
     max: 100,
-  }
+  },
 };
 
 const area = (x: number, y: number, w: number, h: number) => ({ x, y, w, h });

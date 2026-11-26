@@ -7,6 +7,7 @@ type Frame struct {
 	Data []byte
 }
 
+// LineFramer joins chunks into newline-delimited lines
 type LineFramer struct {
 	buffer       []byte
 	errorCount   uint64
@@ -31,11 +32,13 @@ func (f *LineFramer) AddError() {
 	f.errorCount++
 }
 
+// Feed adds a chunk and returns complete lines.
 func (f *LineFramer) Feed(chunk []byte) [][]byte {
 	var lines [][]byte
 
 	for _, b := range chunk {
 		if b == '\n' {
+			// Emit valid lines, drop oversized lines
 			if len(f.buffer) <= maxLine {
 				line := append([]byte{}, f.buffer...)
 				lines = append(lines, line)
@@ -52,6 +55,7 @@ func (f *LineFramer) Feed(chunk []byte) [][]byte {
 			if len(f.buffer) < maxLine {
 				f.buffer = append(f.buffer, b)
 			} else {
+				// Record only first error in oversized line
 				if !f.discardLine {
 					f.discardLine = true
 					f.buffer = append(f.buffer, b)

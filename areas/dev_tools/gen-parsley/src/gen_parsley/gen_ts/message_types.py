@@ -48,22 +48,20 @@ def render(data: RocketCAN) -> str:
     )
 
     for enum in data.enums:
-        field_bits = [f"{enum.prefix}_{v.name}" for v in enum.value]
         blocks.append(
             {
                 "title": snake_to_title_case(enum.name),
                 "name": enum.name,
-                "entries": _hex_entries(zip(field_bits, range(len(field_bits)))),
+                "entries": _hex_entries((f"{enum.prefix}_{v.name}", v.id) for v in enum.value),
             }
         )
 
     for bitfield in data.bitfields:
-        field_bits = [f"{bitfield.prefix}_{v.name}" for v in bitfield.bits]
         blocks.append(
             {
                 "title": f"{snake_to_title_case(bitfield.name)} Offset (bitfield positions)",
                 "name": f"{bitfield.name}_offset",
-                "entries": _hex_entries(zip(field_bits, range(len(field_bits)))),
+                "entries": _hex_entries((f"{bitfield.prefix}_{v.name}", v.bit) for v in bitfield.bits),
             }
         )
 

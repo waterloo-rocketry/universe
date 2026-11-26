@@ -1,0 +1,272 @@
+:root {
+  font-family: system-ui, sans-serif;
+  color: #20242a;
+  background: #f7f8fa;
+}
+
+body {
+  margin: 0;
+}
+header {
+  padding: 1.5rem 2rem;
+  background: white;
+  border-bottom: 1px solid #dfe3e8;
+}
+h1 {
+  margin: 0;
+  font-size: 1.75rem;
+}
+main {
+  padding: 2rem;
+}
+h2 {
+  font-size: 1.25rem;
+}
+.channel-list {
+  border-collapse: collapse;
+  background: white;
+  font-variant-numeric: tabular-nums;
+}
+.channel-list th,
+.channel-list td {
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid #dfe3e8;
+  text-align: left;
+}
+.channel-list thead th {
+  font-size: 0.875rem;
+  color: #5b6470;
+}
+.channel-status {
+  display: inline-block;
+  padding: 0.125rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.875rem;
+  background: #eef0f3;
+  color: #5b6470;
+}
+.channel-status--active {
+  background: #e3f4e8;
+  color: #1d6b35;
+}
+.channel-status--stale {
+  background: #fdf3dc;
+  color: #855c00;
+}
+.channel-status--missing,
+.channel-status--invalid,
+.channel-status--disconnected {
+  background: #fbe5e5;
+  color: #a32020;
+}
+.channel-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+.channel-filters input[type='search'] {
+  min-width: 16rem;
+  padding: 0.375rem 0.5rem;
+  border: 1px solid #c9ced6;
+  border-radius: 6px;
+  font: inherit;
+}
+.channel-filters label {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+.channel-filters button,
+.channel-list button {
+  padding: 0.25rem 0.625rem;
+  border: 1px solid #c9ced6;
+  border-radius: 6px;
+  background: white;
+  color: inherit;
+  font: inherit;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+.progress-bar {
+  box-sizing: border-box;
+  max-width: 24rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid #dfe3e8;
+  border-radius: 8px;
+  background: white;
+  font-variant-numeric: tabular-nums;
+}
+.progress-bar__header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+.progress-bar__track {
+  height: 10px;
+  border-radius: 999px;
+  background: #eef0f3;
+  overflow: hidden;
+}
+.progress-bar__fill {
+  height: 100%;
+  border-radius: 999px;
+  background: #1d6b35;
+}
+.progress-bar__fill--above,
+.progress-bar__fill--below {
+  background: #a32020;
+}
+.progress-bar--stale .progress-bar__fill {
+  background: #855c00;
+}
+.progress-bar--disconnected .progress-bar__fill {
+  background: #5b6470;
+}
+.progress-bar--stale .progress-bar__value {
+  color: #855c00;
+  opacity: 0.75;
+}
+.progress-bar--missing .progress-bar__value,
+.progress-bar--invalid .progress-bar__value,
+.progress-bar--disconnected .progress-bar__value,
+.progress-bar--error .progress-bar__value {
+  color: #a32020;
+}
+.progress-bar--no-data .progress-bar__value {
+  color: #5b6470;
+}
+.progress-bar__scale {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+  color: #5b6470;
+}
+.progress-bar-demo {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+.dashboard-grid {
+  display: grid;
+  height: calc(100vh - 250px);
+  /* No gap: cells touch, so their lines form one spreadsheet-like grid. */
+  gap: 0;
+  margin-top: 1.5rem;
+  /* Top and left edge of the grid; each slot draws its own right and bottom. */
+  box-shadow: inset 1px 1px 0 rgb(0 0 0 / 12%);
+}
+/* The cell clips; only the inner content scrolls, so the handle stays put. */
+.dashboard-cell {
+  position: relative;
+  box-sizing: border-box;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  background: white;
+  border: 1px solid #dfe3e8;
+  border-radius: 0;
+}
+/* Faint outline of every grid cell, empty or not. Sits behind the widgets. */
+.dashboard-slot {
+  box-sizing: border-box;
+  /* Only right and bottom, so neighbouring cells share one line, not two. */
+  border-right: 1px solid rgb(0 0 0 / 12%);
+  border-bottom: 1px solid rgb(0 0 0 / 12%);
+  pointer-events: none;
+}
+.dashboard-cell__content {
+  box-sizing: border-box;
+  height: 100%;
+  overflow: auto;
+  padding: 0.75rem;
+}
+/* While dragging, the widget floats above its neighbours. */
+.dashboard-cell--resizing {
+  z-index: 2;
+  box-shadow: 0 4px 16px rgb(32 36 42 / 18%);
+}
+.dashboard-cell__resize {
+  position: absolute;
+  touch-action: none; /* stop touch screens from scrolling while dragging */
+}
+/* Right edge: width only. */
+.dashboard-cell__resize--x {
+  top: 0;
+  right: 0;
+  bottom: 14px;
+  width: 8px;
+  cursor: ew-resize;
+}
+/* Bottom edge: height only. */
+.dashboard-cell__resize--y {
+  left: 0;
+  right: 14px;
+  bottom: 0;
+  height: 8px;
+  cursor: ns-resize;
+}
+/* Corner: both. */
+.dashboard-cell__resize--xy {
+  right: 0;
+  bottom: 0;
+  width: 14px;
+  height: 14px;
+  cursor: nwse-resize;
+  /* Two faint diagonal lines in the corner. */
+  background: linear-gradient(
+    135deg,
+    transparent 45%,
+    #c9ced6 45%,
+    #c9ced6 55%,
+    transparent 55%,
+    transparent 70%,
+    #c9ced6 70%,
+    #c9ced6 80%,
+    transparent 80%
+  );
+}
+/* Blue outline of the size the widget snaps to when the pointer is released. */
+.dashboard-preview {
+  z-index: 3;
+  box-sizing: border-box;
+  /* 1px dashed: thinner, and the browser draws shorter, more frequent dashes. */
+  border: 1px dashed rgb(47 111 237 / 55%);
+  border-radius: 0;
+  background: rgb(47 111 237 / 4%);
+  pointer-events: none;
+}
+/* Widgets can be picked up anywhere that isn't a button, input or handle. */
+.dashboard-cell {
+  cursor: grab;
+}
+.dashboard-cell button,
+.dashboard-cell input,
+.dashboard-cell select,
+.dashboard-cell label {
+  cursor: auto;
+}
+.dashboard-grid--dragging {
+  user-select: none;
+}
+/* While moving, the widget floats above the others under the pointer. */
+.dashboard-cell--moving {
+  z-index: 2;
+  cursor: grabbing;
+  opacity: 0.9;
+  box-shadow: 0 8px 24px rgb(32 36 42 / 22%);
+}
+/* Where widgets in the way will be pushed to. */
+.dashboard-preview--pushed {
+  border-style: dotted;
+  border-color: rgb(47 111 237 / 40%);
+  background: rgb(47 111 237 / 2%);
+}
+/* The drop spot can't be used: releasing here puts the widget back. */
+.dashboard-preview--invalid {
+  border-color: rgb(194 59 59 / 55%);
+  background: rgb(194 59 59 / 4%);
+}

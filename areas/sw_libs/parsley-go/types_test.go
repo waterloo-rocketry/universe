@@ -74,3 +74,20 @@ func TestTypedNil(t *testing.T) {
 		t.Error("Typed nill trap triggered")
 	}
 }
+
+func TestTypeString(t *testing.T) {
+	i := Int(67)
+	if i.String() != "Int 67" {
+		t.Error("Int.String() failed to format value")
+	}
+
+	u := UInt(67)
+	if u.String() != "Uint 67" {
+		t.Error("Uint.String() failed to format value")
+	}
+
+	te := Text("test")
+	if te.String() != "test" {
+		t.Error("Text.String() failed to format value")
+	}
+}

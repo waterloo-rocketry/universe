@@ -8,8 +8,22 @@ type Value interface {
 	String() string // what FormatLine and the CAN log print
 }
 
-type Int int64   // uint and int fields
+type Int int64 // uint and int fields
+type UInt uint64
 type Text string // ascii fields
+
+func (i Int) String() string {
+	return fmt.Sprintf("Int %d", i)
+}
+
+func (i UInt) String() string {
+	return fmt.Sprintf("Uint %d", i)
+}
+
+func (t Text) String() string {
+	return string(t)
+}
+
 // Raw (#116), Bitfield (#115) and every generated enum type also implement Value.
 
 // Every generated enum type (ActuatorState, BoardType, ...) implements Enum,

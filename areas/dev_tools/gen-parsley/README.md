@@ -21,4 +21,11 @@ uv run --project areas/dev_tools/gen-parsley gen-parsley path/to/rocketcan.yaml 
 
 By default, files are written to `areas/dev_tools/gen-parsley/out/ts`. To use another existing directory, pass `--out path/to/output`.
 
-Run tests from the project directory with `uv run pytest`. To include TypeScript checks, install the dependencies in `areas/sw_libs/parsley-ts` first.
+Run tests from the project directory with `uv run pytest`.
+
+To type-check the full parsley-ts package and run its tests against generated files, install its dependencies, then set `GEN_PARSLEY_ROCKETCAN` to the path of a RocketCAN YAML file before running pytest. For example, in PowerShell:
+
+```powershell
+$env:GEN_PARSLEY_ROCKETCAN = 'path/to/rocketcan.yaml'
+uv run pytest
+```

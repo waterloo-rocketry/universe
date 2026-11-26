@@ -27,9 +27,11 @@ const LAYOUT: dashboardLayout = {
       h: 1,
       widgetConfig: {
         kind: 'progress-bar',
-        signalId: 'test.pressure',
-        min: 0,
-        max: 100,
+        signalId: ['test.pressure'],
+        config: {
+          min: 0,
+          max: 100,
+        },
       },
     },
     {
@@ -40,9 +42,11 @@ const LAYOUT: dashboardLayout = {
       h: 1,
       widgetConfig: {
         kind: 'progress-bar',
-        signalId: 'test.temperature',
-        min: -20,
-        max: 20,
+        signalId: ['test.temperature'],
+        config: {
+          min: -20,
+          max: 20,
+        },
       },
     },
   ],
@@ -98,6 +102,19 @@ describe('DashboardGrid', () => {
     expect(preview()).not.toBeInTheDocument();
   });
 
+  it('removes only the selected widget after confirmation', () => {
+    vi.spyOn(window, 'confirm').mockReturnValue(true);
+    renderGrid();
+
+    fireEvent.contextMenu(
+      screen.getByTestId('widget-bar').querySelector('section')!,
+    );
+    fireEvent.click(screen.getByText('Remove'));
+
+    expect(screen.queryByTestId('widget-bar')).not.toBeInTheDocument();
+    expect(screen.getByTestId('widget-list')).toBeInTheDocument();
+  });
+
   it('shows a message for a channel that does not exist', () => {
     renderGrid({
       ...LAYOUT,
@@ -106,9 +123,11 @@ describe('DashboardGrid', () => {
           ...LAYOUT.items[0],
           widgetConfig: {
             kind: 'progress-bar',
-            signalId: 'nope',
-            min: 0,
-            max: 1,
+            signalId: ['nope'],
+            config: {
+              min: 0,
+              max: 1,
+            },
           },
         },
       ],

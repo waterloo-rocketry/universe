@@ -13,7 +13,7 @@ function setup(signalId = 'test.pressure') {
         componentType={'numeric'}
         channels={[signalId]}
         updateConfig={() => {}}
-        setOverlay={() => {}}
+        requestOverlay={() => {}}
       />
     </TelemetryProvider>,
   );

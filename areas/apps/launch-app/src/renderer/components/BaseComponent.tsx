@@ -1,4 +1,5 @@
 import type { ComponentType as ReactComponentType } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import '../styles/baseComponent.css';
 import type { ChannelData } from '../data/telemetry-context';
 import { useWidgetDataHandler } from '../data/WidgetDataHandler';
@@ -92,7 +93,7 @@ export interface WidgetProps {
 /**
  * The properties that will be passed to BaseComponent to render the widget
  */
-export interface WidgetConfig {
+export interface BaseComponentProp {
   /** The globally unique ID of the widget */
   id: string;
   /** The component type of the widget. Used for styling and rendering */
@@ -117,14 +118,25 @@ export interface WidgetConfig {
    * For convenience the parameter is the entire `WidgetConfig`. The function may
    * assume width and height are readonly.
    */
-  updateConfig: (config: WidgetConfig) => void;
+  updateConfig: (config?: object) => void;
   /**
-   * Widgets need a uniformed way to display their settings pannel, and hence we have
-   * an interface for that.
+   * Unfortunately we cannot provide a way for uniformed overlay rendering
+   * because that requires storing a react component as a state, which is an anti-pattern
+   * However, we can provide a subscription so we can still ensure only one overlay is present
+   * the widget is then responsible for managing the overlay itself.
    *
-   * Set to null to close the overlay
+   * When another component requests to display an overlay, the callback will be invoked
+   * and the current widget must honor the callback and close its overlay
+   *
+   * To cancel the overlay, invoke this without parameters
    */
-  setOverlay: (overlay?: ReactComponentType) => void;
+  requestOverlay: (callback?: () => void) => void;
+}
+
+interface MenuPosition {
+  visible: boolean;
+  x: number;
+  y: number;
 }
 
 /**
@@ -148,9 +160,9 @@ interface WidgetRegistry {
   availableActions: Record<
     string,
     (
-      config: WidgetConfig,
-      updateConfig: (config: WidgetConfig) => void,
-      setOverlay: (overlay?: ReactComponentType) => void,
+      config: object,
+      updateConfig: (config: object) => void,
+      requestOverlay: (callback?: () => void) => void,
     ) => void
   >;
   /** The widget can chose an override message when chanenl errors */
@@ -168,7 +180,7 @@ const registeredWidgets: Record<ComponentType, WidgetRegistry | undefined> = {
   undefined: undefined,
 };
 
-export default function BaseComponent(config: WidgetConfig) {
+export default function BaseComponent(config: BaseComponentProp) {
   const widget = registeredWidgets[config.componentType];
   const Widget = widget?.renderingFunction;
   const dataRead = useWidgetDataHandler(
@@ -193,11 +205,59 @@ export default function BaseComponent(config: WidgetConfig) {
       : '';
   const heading = config.title ?? channelLabels.join(' | ');
 
+  const [menu, setMenu] = useState<MenuPosition>({
+    visible: false,
+    x: 0,
+    y: 0,
+  });
+  const menuRef = useRef<HTMLDivElement | null>(null);
+
+  const handleContextMenu = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.preventDefault(); // Prevent the browser's default right-click menu
+    setMenu({
+      visible: true,
+      x: e.clientX,
+      y: e.clientY,
+    });
+    config.requestOverlay(() =>
+      setMenu({
+        visible: false,
+        x: 0,
+        y: 0,
+      }),
+    );
+  };
+
+  // Close the popup when clicking anywhere outside of it
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenu((prev) => ({ ...prev, visible: false }));
+        config.requestOverlay(() => {});
+      }
+    };
+
+    if (menu.visible) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [menu.visible, config]);
+
+  const removeWidget = () => {
+    setMenu((prev) => ({ ...prev, visible: false }));
+    config.requestOverlay(() => {});
+    if (confirm('Are you sure you want to remove this widget?'))
+      config.updateConfig();
+  };
+
   return (
     <section
       className={`widget widget--${config.componentType} widget--${componentStatus}`}
       data-widget-id={config.id}
       aria-label={heading}
+      onContextMenu={handleContextMenu}
     >
       <h3>{heading + suffix}</h3>
       <div className="widget__body">
@@ -223,6 +283,61 @@ export default function BaseComponent(config: WidgetConfig) {
           </p>
         )}
       </div>
+      {menu.visible && (
+        <div
+          onClick={(e) => e.stopPropagation()}
+          ref={menuRef}
+          style={{
+            position: 'fixed',
+            top: menu.y,
+            left: menu.x,
+          }}
+          className="dashboard-popup"
+        >
+          <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+            <li className="dashboard-popup-item dashboard-popup-not-implemented">
+              Change Type
+            </li>
+            <li className="dashboard-popup-item dashboard-popup-not-implemented">
+              Hide
+            </li>
+            <li
+              className="dashboard-popup-item"
+              onPointerDown={(e) => e.stopPropagation()}
+              onClick={removeWidget}
+            >
+              Remove
+            </li>
+          </ul>
+          {Object.keys(widget?.availableActions ?? {}).length > 0 && (
+            <>
+              <hr />
+              <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+                {Object.entries(widget?.availableActions ?? {}).map(
+                  (action) => (
+                    <li
+                      key={`action-${config.id}-${action[0].replace(' ', '')}`}
+                      className="dashboard-popup-item"
+                      onPointerDown={(e) => e.stopPropagation()}
+                      onClick={() => {
+                        setMenu((prev) => ({ ...prev, visible: false }));
+                        config.requestOverlay(() => {});
+                        action[1](
+                          config.config ?? {},
+                          config.updateConfig,
+                          config.requestOverlay,
+                        );
+                      }}
+                    >
+                      {action[0]}
+                    </li>
+                  ),
+                )}
+              </ul>
+            </>
+          )}
+        </div>
+      )}
     </section>
   );
 }

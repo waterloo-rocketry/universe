@@ -53,7 +53,7 @@ function renderGauge(channel: ChannelState, min = 0, max = 100) {
         overrideChannels={[toChannelData(channel)]}
         config={{ min, max }}
         updateConfig={() => {}}
-        setOverlay={() => {}}
+        requestOverlay={() => {}}
       />
     </TelemetryProvider>,
   );

@@ -12,9 +12,11 @@ import {
 /** Any widget will do: these tests are about positions, not content. */
 const WIDGET = {
   kind: 'progress-bar' as const,
-  signalId: 'test.pressure',
-  min: 0,
-  max: 100,
+  signalId: ['test.pressure'],
+  config: {
+    min: 0,
+    max: 100,
+  },
 };
 
 const area = (x: number, y: number, w: number, h: number) => ({ x, y, w, h });

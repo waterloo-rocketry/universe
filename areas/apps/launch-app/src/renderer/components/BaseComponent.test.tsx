@@ -1,6 +1,6 @@
-import { render, screen } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
-import BaseComponent, { type WidgetConfig } from './BaseComponent';
+import { fireEvent, render, screen, within } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import BaseComponent, { type BaseComponentProp } from './BaseComponent';
 import { applyFrame, createTelemetryState } from '../data/channel-store';
 import { TelemetryContext } from '../data/telemetry-context';
 import type { Telemetry } from '../data/useTelemetry';
@@ -12,7 +12,7 @@ import {
 
 const NOW = getMockFixture().timestampMs;
 const updateConfig = vi.fn();
-const setOverlay = vi.fn();
+const requestOverlay = vi.fn();
 
 function telemetry(scenarios: MockScenario[] = [], nowMs = NOW): Telemetry {
   let state = createTelemetryState(MOCK_SIGNALS);
@@ -21,13 +21,13 @@ function telemetry(scenarios: MockScenario[] = [], nowMs = NOW): Telemetry {
   return { state, nowMs, stream: 'connected' };
 }
 
-function renderBase(value: Telemetry, props: Partial<WidgetConfig> = {}) {
-  const config: WidgetConfig = {
+function renderBase(value: Telemetry, props: Partial<BaseComponentProp> = {}) {
+  const config: BaseComponentProp = {
     id: 'w1',
     componentType: 'progress-bar',
     channels: ['test.pressure'],
     updateConfig,
-    setOverlay,
+    requestOverlay,
     ...props,
   };
   return render(
@@ -38,6 +38,9 @@ function renderBase(value: Telemetry, props: Partial<WidgetConfig> = {}) {
 }
 
 describe('BaseComponent', () => {
+  beforeEach(() => vi.clearAllMocks());
+  afterEach(() => vi.restoreAllMocks());
+
   it('renders the registered widget from its channels and config', () => {
     const { container } = renderBase(telemetry(['nominal']), {
       config: { min: 30, max: 50 },
@@ -60,13 +63,13 @@ describe('BaseComponent', () => {
   });
 
   it('uses an explicit title and keeps the widget mounted through status changes', () => {
-    const config: WidgetConfig = {
+    const config: BaseComponentProp = {
       id: 'w1',
       componentType: 'progress-bar',
       channels: ['test.pressure'],
       title: 'Pressure',
       updateConfig,
-      setOverlay,
+      requestOverlay,
     };
     const { rerender } = render(
       <TelemetryContext.Provider value={telemetry(['nominal'])}>
@@ -177,4 +180,49 @@ describe('BaseComponent', () => {
       'false',
     );
   });
+
+  it('opens the widget action list at the pointer and shows the available built-in actions', () => {
+    renderBase(telemetry(['nominal']));
+    const widget = screen.getByRole('region', { name: 'Test pressure' });
+    const event = fireEvent.contextMenu(widget, { clientX: 35, clientY: 70 });
+
+    expect(event).toBe(false); // The browser context menu is suppressed.
+    const menu = document.querySelector('.dashboard-popup')!;
+    expect(menu).toHaveStyle({ top: '70px', left: '35px' });
+    expect(within(menu as HTMLElement).getAllByRole('listitem')).toHaveLength(
+      3,
+    );
+    expect(
+      within(menu as HTMLElement).getByText('Change Type'),
+    ).toBeInTheDocument();
+    expect(within(menu as HTMLElement).getByText('Hide')).toBeInTheDocument();
+    expect(within(menu as HTMLElement).getByText('Remove')).toBeInTheDocument();
+    expect(requestOverlay).toHaveBeenCalledWith(expect.any(Function));
+  });
+
+  it.each([
+    ['accepting', true],
+    ['cancelling', false],
+  ] as const)(
+    'closes the menu after %s removal confirmation',
+    (_choice, confirmed) => {
+      const confirm = vi.spyOn(window, 'confirm').mockReturnValue(confirmed);
+      renderBase(telemetry(['nominal']));
+      fireEvent.contextMenu(
+        screen.getByRole('region', { name: 'Test pressure' }),
+      );
+      requestOverlay.mockClear();
+
+      fireEvent.click(screen.getByText('Remove'));
+
+      expect(confirm).toHaveBeenCalledWith(
+        'Are you sure you want to remove this widget?',
+      );
+      expect(screen.queryByText('Remove')).not.toBeInTheDocument();
+      expect(requestOverlay).toHaveBeenCalledWith(expect.any(Function));
+      if (confirmed) expect(updateConfig).toHaveBeenCalledOnce();
+      else expect(updateConfig).not.toHaveBeenCalled();
+      if (confirmed) expect(updateConfig).toHaveBeenCalledWith();
+    },
+  );
 });

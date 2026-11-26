@@ -3,13 +3,14 @@ create GridItem to store the type of widget at the specified index
 Create a list to save them so they can be saved/exported
 */
 
+import { ComponentType } from './components/BaseComponent';
+
 // when there is more widget they should be added into widgetconfig type
-export type widgetConfig = {
-  kind: 'progress-bar';
-  signalId: string;
-  min: number;
-  max: number;
-};
+export interface widgetConfig {
+  kind: ComponentType;
+  signalId: string[];
+  config: object;
+}
 
 export interface gridItem {
   id: string;
@@ -40,9 +41,8 @@ export const DEFAULT_LAYOUT: dashboardLayout = {
       h: 10,
       widgetConfig: {
         kind: 'progress-bar',
-        signalId: 'test.temperature',
-        min: -20,
-        max: 20,
+        signalId: ['test.temperature'],
+        config: { min: -20, max: 20 },
       },
     },
   ],

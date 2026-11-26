@@ -1,31 +1,24 @@
 # gen-parsley
 
-A code generator that reads the `rocketcan.yaml` CAN message definition and produces TypeScript 
+A code generator that reads a `rocketcan.yaml` CAN message definition and produces TypeScript.
 
 ## Setup
 
-You must have the [uv](https://docs.astral.sh/uv/getting-started/installation/) package manager installed to run `gen-parsley`.
-
-From repo root:
+Install [uv](https://docs.astral.sh/uv/getting-started/installation/), then run from the repository root:
 
 ```bash
-cd areas/scripts/gen-parsley
+cd areas/dev_tools/gen-parsley
 uv sync
 ```
 
-This creates `.venv/` and installs locked dependencies.
-
 ## Running
 
-From `areas/scripts/gen-parsley/`:
+From the repository root, provide the path to the RocketCAN YAML file:
 
 ```bash
-uv run gen-parsley
+uv run --project areas/dev_tools/gen-parsley gen-parsley path/to/rocketcan.yaml --target ts
 ```
 
-Or from the repo root:
+By default, files are written to `areas/dev_tools/gen-parsley/out/ts`. To use another existing directory, pass `--out path/to/output`.
 
-```bash
-uv run --project areas/scripts/gen-parsley gen-parsley
-```
-
+Run tests from the project directory with `uv run pytest`. To include TypeScript checks, install the dependencies in `areas/sw_libs/parsley-ts` first.

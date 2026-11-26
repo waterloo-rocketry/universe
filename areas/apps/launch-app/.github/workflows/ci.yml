@@ -1,17 +1,25 @@
 name: CI
 
+# Runs when launch-app changes (it lives at areas/apps/launch-app in the
+# universe monorepo)
 on:
   pull_request:
+    paths: ['areas/apps/launch-app/**']
   push:
     branches: [main]
+    paths: ['areas/apps/launch-app/**']
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: launch-app-ci-${{ github.ref }}
   cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: areas/apps/launch-app
 
 jobs:
   lint:
@@ -24,8 +32,9 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
-          node-version-file: .nvmrc
+          node-version-file: areas/apps/launch-app/.nvmrc
           cache: npm
+          cache-dependency-path: areas/apps/launch-app/package-lock.json
       - name: Install dependencies
         run: npm ci
       - name: Check formatting
@@ -42,8 +51,9 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
-          node-version-file: .nvmrc
+          node-version-file: areas/apps/launch-app/.nvmrc
           cache: npm
+          cache-dependency-path: areas/apps/launch-app/package-lock.json
       - name: Install dependencies
         run: npm ci
       - name: Test with coverage
@@ -53,7 +63,7 @@ jobs:
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: coverage
-          path: coverage/
+          path: areas/apps/launch-app/coverage/
           if-no-files-found: ignore
           retention-days: 14
   build:
@@ -66,8 +76,9 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
-          node-version-file: .nvmrc
+          node-version-file: areas/apps/launch-app/.nvmrc
           cache: npm
+          cache-dependency-path: areas/apps/launch-app/package-lock.json
       - name: Install dependencies
         run: npm ci
       - name: Type check and build

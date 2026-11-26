@@ -13,3 +13,4 @@ Needs the Go version in `go.mod` (https://go.dev/dl).
 
 - `cmd/orion`: the one Orion binary. What it runs comes from the TOML you start it with (`orion --config <file>`), so bench testing is just a bench config. Empty for now.
 - `internal/canbridge`: the part of Orion that talks to CAN hardware.
+- `docs/`: design notes. [`docs/stack.md`](docs/stack.md) says what Orion is built with.

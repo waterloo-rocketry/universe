@@ -121,7 +121,7 @@ def _field(
         size = cast(int, field.bytes if byte_width is None else byte_width)
         match field.type:
             case "ascii":
-                return f"new ASCII('{name}', {size})"
+                return f"new ASCII('{name}', {size * 8})"
             case "bitfield":
                 bitfield = data.get_bitfield(cast(str, field.bitfield))
                 # TODO: assuming default bitfield string is *_NOMINAL
@@ -135,7 +135,7 @@ def _field(
                 # TODO: TIMESTAMP_2 requiers the `scale` ctor parameter
                 return f"new Numeric('{name}', {size * 8}, 1, false)"
             case "raw":
-                return f"new ASCII('{name}', {size})"
+                return f"new ASCII('{name}', {size * 8})"
             case _:
                 assert_never(field.type)
     elif isinstance(field, RefField):

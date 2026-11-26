@@ -591,6 +591,18 @@ def test_renderer_generates_shared_fields():
     assert "    MSG_FIELD_TIMESTAMP,\n    MSG_FIELD_COUNT," in result
 
 
+@pytest.mark.parametrize("field_type", ["ascii", "raw"])
+def test_renderer_uses_bits_for_ascii_fields(field_type):
+    doc = _rocketcan_doc()
+    doc["messages"][0]["field"] = [
+        {"name": "text", "type": field_type, "bytes": "6"}
+    ]
+    data = _convert(models.RocketCAN, doc)
+    _validate_rocketcan(data)
+
+    assert "new ASCII('text', 48)" in message_defs.render(data)
+
+
 def test_validation_reports_missing_shared_field_reference():
     doc = _rocketcan_doc()
     doc["messages"][0]["field"] = [{"ref": "missing"}]

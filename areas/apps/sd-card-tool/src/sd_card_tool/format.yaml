@@ -1,0 +1,71 @@
+# On-card format for Waterloo Rocketry's append-only SD card logs.
+#
+# Values marked PLACEHOLDER are not decided yet. Change them here (or pass
+# --format with your own copy); no code changes are needed.
+
+layout:
+  slot_size: 32768        # bytes per chunk slot
+  clear_bytes: 512        # leading bytes of each slot zeroed by formatting.
+                          # A slot whose first clear_bytes bytes are all zero
+                          # is unused.
+  byte_order: little      # confirmed by firmware
+
+# Fields at the start of every chunk, in this order. Widths are in bits, and
+# each top-level field must be a whole number of bytes. The payload fills the
+# rest of the slot between the header and the footer.
+#
+# The tool needs fields (or subfields) named HEADER_ID, STARTUP_COUNTER,
+# DATA_TYPE and SEGMENT_COUNTER. Other fields may be added; a field with a
+# value must hold exactly that value for the chunk to count as valid.
+header:
+  - name: HEADER_ID
+    desc: Magic value marking a log chunk
+    width: 32
+    value: 0x5D5D5D5D     # PLACEHOLDER
+  - name: FILE_ID
+    desc: Startup counter + data type
+    width: 16
+    # Subfields are listed from the most significant bits down.
+    subfields:
+      - name: STARTUP_COUNTER
+        desc: Increments on each startup and wraps to 0 after its maximum
+        width: 13
+      - name: DATA_TYPE
+        width: 3
+        enum: data_type
+  - name: SEGMENT_COUNTER
+    desc: >-
+      Chunk position within its file. Only used for sorting, so it may start
+      at 0 or 1; missing segments are skipped.
+    width: 32
+
+footer:
+  - name: CRC
+    desc: Checksum over header + data
+    width: 16
+
+crc:
+  # One of the named CRC-16 algorithms (see crc.py), or "custom" with
+  # poly, init, reflect_in, reflect_out and xor_out.
+  algorithm: CRC-16/CCITT-FALSE   # PLACEHOLDER
+  covers: header+data             # or "data"
+
+output:
+  # {counter} is the startup counter and {ext} the data type's extension.
+  filename: "{counter:05d}{ext}"
+  # Used once the startup counter has wrapped; {generation} counts the wraps.
+  wrapped_filename: "{counter:05d}-{generation}{ext}"
+
+enums:
+  - name: data_type
+    desc: Chunk data types
+    value:
+      - name: DATA
+        id: 0x0           # PLACEHOLDER
+        ext: .BIN
+      - name: ERROR
+        id: 0x1           # PLACEHOLDER
+        ext: .ERR
+      - name: TEXT
+        id: 0x2           # PLACEHOLDER
+        ext: .TXT

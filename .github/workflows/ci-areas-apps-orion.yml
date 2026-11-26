@@ -1,10 +1,10 @@
 name: CI
 
 # Runs on pull requests that change orion (it lives at areas/apps/orion in the
-# universe monorepo)
+# universe monorepo) or the Orion API it builds against (areas/apis/orion)
 on:
   pull_request:
-    paths: ["areas/apps/orion/**"]
+    paths: ["areas/apps/orion/**", "areas/apis/orion/**"]
 
 defaults:
   run:
@@ -20,6 +20,9 @@ jobs:
         with:
           go-version-file: areas/apps/orion/go.mod # uses the pinned toolchain
           cache: false
+      - name: Generate the Orion API code
+        working-directory: areas/apis/orion # the generated code isn't committed
+        run: go tool buf generate
       - name: Check formatting
         run: test -z "$(gofmt -l .)"
       - name: Vet

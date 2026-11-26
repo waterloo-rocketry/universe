@@ -30,6 +30,7 @@ No hardware is needed for anything here.
 | --- | --- | --- |
 | Go | 1.27.4 (1.27.0 minimum) | `go.mod` |
 | `github.com/BurntSushi/toml` | v1.6.0 | `go.mod`, `go.sum` |
+| `connectrpc.com/connect`, `google.golang.org/protobuf` | v1.21.1, v1.36.12 | `go.mod`, `go.sum` |
 | `buf`, `protoc-gen-go`, `protoc-gen-connect-go` (the contract's tools) | v1.74.0, v1.36.12, v1.21.1 | `tool`s in `areas/apis/orion/go.mod` |
 
 ## Setup
@@ -38,11 +39,13 @@ No hardware is needed for anything here.
 git clone https://github.com/waterloo-rocketry/universe.git
 cd universe/areas/apps/orion
 go version        # should print go1.27.4 (it may download it first)
-go mod download   # optional: go build and go test fetch modules anyway
+(cd ../../apis/orion && go tool buf generate)   # generate the Orion API code Orion imports
 ```
 
-Run every command below from `areas/apps/orion`. The config paths are
-relative to it.
+The generated code isn't committed, so run that generate step again whenever
+a `.proto` file in `areas/apis/orion` changes (see
+[The contract](#the-contract)). Run every other command below from
+`areas/apps/orion`. The config paths are relative to it.
 
 ## Command line
 
@@ -50,6 +53,15 @@ relative to it.
 orion <role> <file.toml>                   run the role with that file
 orion <role> <file.toml> --verify-config   check the file and exit (short form: -t)
 orion version                              print the version
+```
+
+Demo only, removed once the real Orion API lands (see
+[Example: a server and a client](#example-a-server-and-a-client)):
+
+```text
+orion example-server [--addr <address>]                      serve the example service until Ctrl-C
+orion example-client [--addr <address>] <message>            send one message, print the answer
+orion example-stream-client [--addr <address>] <message>...  send each message on one stream, print each answer
 ```
 
 ```sh
@@ -75,12 +87,73 @@ go run ./cmd/orion fake configs/fake-source.toml
 **Exit codes:** `0` for success, `1` for a runtime failure (or something that
 isn't built yet), `2` for a config error, a failed check or bad arguments.
 
+### Example: a server and a client
+
+**Demo only.** These commands show how Orion code uses the generated API: a
+server that implements a service, a client that makes a unary call, and a
+client that keeps a bidirectional stream open, each as its own process. They
+use the example service in `areas/apis/orion`, not the real contract, and
+they're removed once the real Orion API lands. The code is in
+[`cmd/orion/example.go`](cmd/orion/example.go).
+
+Run the server in one terminal and the clients in another. The server listens
+on `127.0.0.1:8080`; pass `--addr <host:port>` to the server and the clients to
+use another address.
+
+```sh
+# terminal 1: the server
+go run ./cmd/orion example-server
+# serving the example service on http://127.0.0.1:8080 (Ctrl-C to stop)
+
+# terminal 2: the clients
+go run ./cmd/orion example-client ping
+# pong
+go run ./cmd/orion example-client "hello orion"
+# server got "hello orion" at 11:18:52
+go run ./cmd/orion example-stream-client ping one two
+# pong
+# server got "one" at 11:18:52
+# server got "two" at 11:18:52
+```
+
+Stop the server with Ctrl-C. Without a running server, a client fails with
+`connection refused` and exits 1.
+
+**The server's logic** decides every answer, the same way for both clients
+(`answer` in `example.go`): `ping` gets `pong`, and anything else gets the
+server's own reply, saying what it got and when.
+
+| Command | Call | Kind | What happens |
+| --- | --- | --- | --- |
+| `example-server` | | | Serves `ExampleService` until Ctrl-C |
+| `example-client` | `Send` | unary | One request, one response: the client sends a message and prints the server's answer |
+| `example-stream-client` | `Stream` | bidirectional stream | The client opens one stream and keeps it open. It sends each message and waits for the server's answer on the same stream before sending the next, then closes its side. The server answers each message as it arrives, and stops when the client closes |
+
+How it works:
+
+- **The server** (`exampleServer`) implements the generated
+  `ExampleServiceHandler` interface, one method per call.
+  `examplev1connect.NewExampleServiceHandler` turns it into a URL path prefix
+  (`/orion.example.v1.ExampleService/`) and an `http.Handler`, mounted on a plain
+  `net/http` server.
+- **The unary client** uses the generated `ExampleServiceClient` on top of Go's
+  ordinary HTTP/1.1 client. A unary call is one HTTP POST to
+  `/orion.example.v1.ExampleService/Send` with the request encoded as
+  Protobuf, answered by one response.
+- **The stream client** needs HTTP/2, because both sides send on the same
+  request at once. Without TLS, that's HTTP/2 over plain TCP ("h2c"), which
+  Go's `net/http` supports through `http.Protocols`. Only the stream client
+  uses it; the server enables it next to HTTP/1.1, so it serves both clients.
+  The real Orion sources will use bidirectional streams like this to publish
+  data and receive acknowledgements.
+
 ## Check
 
 These are the commands CI runs ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)),
 so if they pass here, CI's checks pass too:
 
 ```sh
+(cd ../../apis/orion && go tool buf generate)   # the Orion API code Orion imports
 test -z "$(gofmt -l .)"   # formatting: gofmt -l lists unformatted files; go fmt ./... fixes them
 go vet ./...              # static checks
 go build ./...            # build
@@ -151,10 +224,12 @@ generated Go code isn't committed: `go tool buf generate` writes it there
 (why, when and how: "Generating the Go code" in
 [that README](../../apis/orion/README.md#generating-the-go-code)).
 
-Orion doesn't import it yet. The first code that does adds a `replace`
-directive to `go.mod`, lists `areas/apis/orion/**` in Orion's CI `paths:`,
-and runs `go tool buf generate` before building, in CI and in the setup steps
-above.
+Orion imports it: the demo `example-*` commands
+([`cmd/orion/example.go`](cmd/orion/example.go)) use the example's generated
+packages. That's why `go.mod` has a `replace`
+directive pointing at `../../apis/orion`, Orion's CI `paths:` include
+`areas/apis/orion/**`, and both the setup steps above and CI run
+`go tool buf generate` before building.
 
 To check a change to the contract:
 
@@ -172,7 +247,7 @@ goes in them.
 
 | Path | What it holds |
 | --- | --- |
-| `cmd/orion` | The one binary and its command line |
+| `cmd/orion` | The one binary and its command line; `example.go` is the demo server, client and stream client for the generated API code |
 | `configs/` | One TOML per process |
 | `internal/canbridge` | The CAN source: its config and checks, and the shared types |
 | `internal/config` | The shared config check: reads a file as its role's config type and runs that role's rules |
@@ -207,6 +282,17 @@ real binary go in `tests/<area>/`.
   `orion can configs/bench.toml -t`.
 - **`orion fake: not built yet (tracker #60)`, exit code 1**: that role isn't
   in the binary yet. The issue named builds it.
+- **`no required module provides package github.com/waterloo-rocketry/universe/areas/apis/orion/gen/go/…`**:
+  the generated API code is missing. Run `go tool buf generate` in
+  `areas/apis/orion`, not the `go get` the message suggests.
+- **Your editor shows errors in `cmd/orion/example.go`** (for example
+  `could not import …/gen/go/…`, `undefined: examplev1connect`, or
+  `not enough arguments in call to …`) **while `go build` works, or before
+  you've generated**: the editor's Go language server can't see the
+  generated code. Run `go tool buf generate` in `areas/apis/orion`, then
+  restart the language server (in VS Code: "Go: Restart Language Server").
+  If your editor opens the whole repo, open `areas/apps/orion` on its own
+  instead, since the repo holds several Go modules.
 - **CI fails "Check formatting"**: run `go fmt ./...` and commit the result.
 - **You changed a `.github/workflows/ci.yml`**: run `uv run tools/build_ci`
   from the repo root and commit the copy it makes.

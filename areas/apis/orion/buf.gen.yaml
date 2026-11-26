@@ -1,0 +1,12 @@
+# Generates the Go messages and ConnectRPC handlers/clients into gen/go.
+# Run from this directory: go tool buf generate
+# The plugins are the versions pinned as tools in go.mod.
+version: v2
+clean: true
+plugins:
+  - local: [go, tool, protoc-gen-go]
+    out: gen/go
+    opt: paths=source_relative
+  - local: [go, tool, protoc-gen-connect-go]
+    out: gen/go
+    opt: paths=source_relative

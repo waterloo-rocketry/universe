@@ -9,9 +9,9 @@ type Frame struct {
 
 // LineFramer joins chunks into newline-delimited lines
 type LineFramer struct {
-	buffer       []byte
-	errorCount   uint64
-	discardLine  bool
+	buffer      []byte
+	errorCount  uint64
+	discardLine bool
 }
 
 func NewLineFramer() *LineFramer {

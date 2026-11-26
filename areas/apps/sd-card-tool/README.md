@@ -2,8 +2,8 @@
 
 Command-line tool for Waterloo Rocketry's append-only SD card log format.
 
-Status: exports the logged files from SD cards (macOS) or card image
-files. Formatting and importing are not built yet.
+Status: it formats SD cards and exports the logged files from them (macOS),
+or from card image files. Importing is not built yet.
 
 ## On-card format
 
@@ -92,6 +92,23 @@ Export reads the card once, front to back, checking every slot in order:
 - Existing output files are not replaced unless you pass `--overwrite`.
 
 Payloads are copied in full, including any zero padding at the end of a chunk.
+
+## Format
+
+```sh
+uv run sd-card-tool list
+sudo .venv/bin/python -m sd_card_tool format disk4
+```
+
+Formatting writes zeros to the first `clear_bytes` bytes of every slot, or to
+every byte with `--whole`. It then reads those bytes back and fails if any
+slot is not blank. It does not use the card's own erase command, because
+some cards read back 0xFF rather than 0x00 after an erase.
+
+The same safety checks as export apply. The tool also shows the card's name
+and size and asks you to type the disk name (e.g. `disk4`) before it writes
+anything; pass `--confirm disk4` to answer in advance. The card is unmounted
+first so nothing else writes to it.
 
 ## Development
 

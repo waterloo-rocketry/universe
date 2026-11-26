@@ -1,9 +1,10 @@
 # Launch App
 
-Launch App lives in the standalone
-[waterloo-rocketry/launch-app](https://github.com/waterloo-rocketry/launch-app)
-repository. Use this repository for development and open pull requests against
-`main`.
+Launch App lives at `areas/apps/launch-app/` in the
+[waterloo-rocketry/universe](https://github.com/waterloo-rocketry/universe)
+monorepo. Develop it there and open pull requests against universe's `main`. The
+standalone `waterloo-rocketry/launch-app` repository is no longer used for new
+work; its history was carried into universe.
 
 Minimal React + TypeScript + Electron foundation. The dashboard is a placeholder;
 there is no backend telemetry or Omnibus integration. Local fake data sources are
@@ -14,9 +15,10 @@ installation, repository setup, and the branch-to-pull-request workflow.
 
 ## Setup
 
-Use **Node.js 24** (matching the repository's root `.nvmrc`) and npm.
-This Electron app is a standalone npm project with its own lockfile.
-Run all commands from the repository root:
+Use **Node.js 24** (matching this app's `.nvmrc`) and npm.
+This Electron app is a standalone npm project with its own `package.json` and
+`package-lock.json`; it is not part of a shared npm workspace. Run all commands
+from this app's folder, `areas/apps/launch-app/`, not the universe root:
 
 ```sh
 npm install
@@ -59,7 +61,11 @@ npm run start        # open Electron using the built renderer
 ```
 
 GitHub Actions runs formatting, lint, tests with coverage, and the build (including
-TypeScript checks) on pull requests and pushes to `main`. The coverage job requires
+TypeScript checks) on pull requests and pushes to `main` that change
+`areas/apps/launch-app/`. The workflow lives in this app's
+`.github/workflows/ci.yml`; after editing it, run `uv run tools/build_ci` from the
+universe root and commit the regenerated
+`.github/workflows/ci-areas-apps-launch-app.yml`. The coverage job requires
 at least 85% statements, branches, functions, and lines. It measures application
 logic and excludes the Electron, mock server, and renderer startup entry points,
 which are integration-test concerns. Coverage reports are available as a

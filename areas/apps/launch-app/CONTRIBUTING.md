@@ -1,8 +1,10 @@
 # Contributing to Launch App
 
 Welcome! This guide takes you from installing the tools to opening your first
-pull request (PR). Read the [README](README.md) for the application's architecture
-and development commands.
+pull request (PR). Launch App lives at `areas/apps/launch-app/` in the
+[universe](https://github.com/waterloo-rocketry/universe) monorepo. Read the
+[README](README.md) for the application's architecture and development commands,
+and universe's [CLAUDE.md](../../../CLAUDE.md) for monorepo-wide conventions.
 
 ## 1. Install the tools
 
@@ -13,10 +15,14 @@ and development commands.
   also explains authentication. For HTTPS, use Git Credential Manager or follow
   GitHub's authentication instructions; your GitHub password does not authenticate
   Git pushes.
-- Install **Node.js 24**, matching the root `.nvmrc`. Node runs JavaScript tools;
+- Install **Node.js 24**, matching this app's `.nvmrc`. Node runs JavaScript tools;
   **npm** installs dependencies and runs project scripts. npm comes with Node;
   see the [Node/npm installation guide](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm/).
   You do not need an npm account to work on this app.
+- Install [uv](https://docs.astral.sh/uv/getting-started/installation/), the Python
+  tool universe uses for its repo tooling (choose the "Standalone Installer" if
+  unsure). You only need it if you change a GitHub Actions workflow (see
+  [section 5](#5-make-and-check-changes)).
 - Use a code editor and a terminal. The commands below work in Git Bash on
   Windows and typical macOS/Linux shells. PowerShell also works; if it blocks
   `npm.ps1`, use `npm.cmd` in place of `npm`.
@@ -27,8 +33,8 @@ A Node version manager makes it easier to switch versions between projects:
   Then run `nvm install 24` and `nvm use 24` (use an elevated terminal if required
   by nvm-windows). Follow its guidance if you already have Node installed.
 - **macOS/Linux:** follow the [nvm installation instructions](https://github.com/nvm-sh/nvm#installing-and-updating).
-  Then run `nvm install 24` and `nvm use 24`. In the repository root, `nvm install`
-  and `nvm use` can also read `.nvmrc`.
+  Then run `nvm install 24` and `nvm use 24`. In `areas/apps/launch-app/`,
+  `nvm install` and `nvm use` can also read `.nvmrc`.
 
 Alternatively, install the Node 24 release from the
 [Node.js downloads page](https://nodejs.org/en/download). Reopen your terminal
@@ -51,43 +57,49 @@ git config --global user.email "your-email@example.com"
 
 ## 2. Clone and check out the repository
 
-Launch App is developed in the standalone
-[launch-app repository](https://github.com/waterloo-rocketry/launch-app). Open
-pull requests against `main`.
+Launch App is developed in the
+[universe repository](https://github.com/waterloo-rocketry/universe), Waterloo
+Rocketry's software monorepo. Open pull requests against universe's `main`. The
+old standalone `launch-app` repository is no longer used for new work.
 
 From a directory where you want to store your projects:
 
 ```sh
-git clone https://github.com/waterloo-rocketry/launch-app.git
-cd launch-app
+git clone --recurse-submodules https://github.com/waterloo-rocketry/universe.git
+cd universe
 git checkout main
 git pull --ff-only origin main
+cd areas/apps/launch-app
 npm install
 ```
 
-`clone` downloads the repository, `cd` changes directories, `checkout` selects a
-branch, and `pull` brings in changes from GitHub. `--ff-only` stops rather than
-creating an unexpected merge if your local branch has diverged.
+`clone` downloads the repository, `--recurse-submodules` also downloads the
+`rocketcan` submodule other universe projects use, `cd` changes directories,
+`checkout` selects a branch, and `pull` brings in changes from GitHub.
+`--ff-only` stops rather than creating an unexpected merge if your local branch
+has diverged.
 
-If you already have a clone of the standalone launch-app repository, use that
-copy: check `git status`, finish or save any in-progress work, then fetch and
-check out `main`:
+If you already have a clone of universe, use that copy: check `git status`,
+finish or save any in-progress work, then run these from the universe root:
 
 ```sh
 git fetch origin
 git checkout main
 git pull --ff-only origin main
+git submodule update --init
+cd areas/apps/launch-app
 npm install
 ```
 
-Run this example from the repository root. Do not clone again for each task.
+Do not clone again for each task.
 
-Run all npm commands from the root of this standalone repository, which contains
-`package.json` and `package-lock.json`.
+Run all npm commands from `areas/apps/launch-app/`, which contains this app's
+`package.json` and `package-lock.json`. Running npm from the universe root will
+not find them.
 
 ## 3. Start the application
 
-From the repository root:
+From `areas/apps/launch-app/`:
 
 ```sh
 npm run dev
@@ -101,7 +113,7 @@ terminal to stop development. Open developer tools with Ctrl+Shift+I
 
 The app currently uses fake data for development and has no backend telemetry or
 Omnibus integration. To try the mock connection, open two terminals, both in
-the repository root:
+`areas/apps/launch-app/`:
 
 ```sh
 # Terminal 1
@@ -130,7 +142,7 @@ the task, and update its project status as work progresses. Ask for context if a
 issue is unclear.
 
 Start each task from an updated `main`. Run these Git commands from anywhere
-inside the repository, after committing or saving any existing work:
+inside your universe clone, after committing or saving any existing work:
 
 ```sh
 git checkout main
@@ -156,7 +168,9 @@ git fetch origin
 git checkout --track origin/jsmith/157-add-status-panel
 ```
 
-Work on your task branch and open a PR to merge into `main`.
+Work on your task branch and open a PR to merge into universe's `main`. Branches
+are shared with every other universe project, so keep the WatIAM prefix to avoid
+name clashes.
 
 ## 5. Make and check changes
 
@@ -170,8 +184,14 @@ Work on your task branch and open a PR to merge into `main`.
 - Keep dependency changes intentional. If you add or update a dependency, commit
   this app's `package.json` and `package-lock.json` together. Do not commit
   `node_modules`, `dist`, credentials, or unrelated generated changes.
+- Keep changes inside `areas/apps/launch-app/` unless the task needs another
+  universe project; call out any cross-project effects in the PR.
+- If you change `.github/workflows/ci.yml`, run `uv run tools/build_ci` from the
+  universe root and commit the regenerated
+  `.github/workflows/ci-areas-apps-launch-app.yml`. Never edit that root copy by
+  hand; CI fails if it drifts from the source.
 
-Before pushing, run these commands from the repository root:
+Before pushing, run these commands from `areas/apps/launch-app/`:
 
 ```sh
 npm run format
@@ -204,13 +224,15 @@ local branch to the remote branch; subsequent commits only need `git push`.
 
 ## 6. Open a pull request
 
-1. Open the repository's [compare page](https://github.com/waterloo-rocketry/launch-app/compare)
+1. Open universe's [compare page](https://github.com/waterloo-rocketry/universe/compare)
    or use GitHub's **Compare & pull request** prompt after pushing.
 2. Select **base: `main`** and **compare: your branch**. Check the **Files changed**
    tab for unintended changes.
-3. Give the PR a clear title and describe the problem, what changed, and how you
-   tested it. Include screenshots for visible UI changes. Use a draft PR if you
-   want feedback while work is still in progress.
+3. Give the PR a clear title and fill in every section of universe's PR template
+   (write N/A or None where a section doesn't apply), including what changed, the
+   areas affected (`areas/apps/launch-app/`), and how you tested it. Include
+   screenshots for visible UI changes. Use a draft PR if you want feedback while
+   work is still in progress.
 4. Link the issue. Because issues live in a separate repository, use the full
    reference, for example `Closes waterloo-rocketry/2026-2027-software-issues#157`.
 5. Assign yourself and request a review from the software lead or a relevant team
@@ -218,8 +240,10 @@ local branch to the remote branch; subsequent commits only need `git push`.
 6. Address review feedback by committing and pushing to the same branch; the PR
    updates automatically. Re-run the relevant checks after making changes.
 
-Run the local checks above before requesting review, and ensure any configured
-CI checks pass before merging.
+Run the local checks above before requesting review. Launch App's CI only runs
+when the PR changes `areas/apps/launch-app/`. `main` requires one check,
+`required`, which waits for every other check on the PR and fails if any of them
+fail. If you re-run a failed check, re-run `required` too.
 Once reviewed, approved, and passing, use **Squash and merge**,
 following the team's review process. Delete the merged branch on GitHub and
 update your local base branch before starting the next task:

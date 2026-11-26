@@ -194,9 +194,9 @@ def test_literal_rejects_non_string_value():
 def test_field_type_error_path_names_the_type_key():
     with pytest.raises(
         RocketCANError,
-        match=r"^messages\[0\]\.field\[0\]\.type: expected one of",
+        match=r"^messages\[0\]\.fields\[0\]\.type: expected one of",
     ):
-        _convert(models.Field, {"name": "x", "type": "bogus"}, "messages[0].field[0]")
+        _convert(models.Field, {"name": "x", "type": "bogus"}, "messages[0].fields[0]")
 
 
 def test_field_missing_type_is_rejected():
@@ -210,7 +210,7 @@ FIELD_OR_REF = list[models.Field | models.RefField]
 
 
 def test_union_switches_to_ref_field_for_ref_mapping():
-    assert _convert(FIELD_OR_REF, [{"ref": "ts"}]) == [models.RefField(ref="ts")]
+    assert _convert(FIELD_OR_REF, [{"ref": "ts", "index": "2"}]) == [models.RefField(ref="ts", index=2)]
 
 
 def test_union_switches_to_field_for_field_mapping():
@@ -222,12 +222,12 @@ def test_union_switches_to_field_for_field_mapping():
 def test_union_keeps_order_of_mixed_entries():
     result = _convert(
         FIELD_OR_REF,
-        [{"name": "a", "type": "raw"}, {"ref": "b"}, {"name": "c", "type": "int"}],
+        [{"name": "a", "type": "raw"}, {"ref": "b", "index": "2"}, {"name": "c", "type": "int"}],
     )
 
     assert result == [
         models.Field(name="a", type="raw"),
-        models.RefField(ref="b"),
+        models.RefField(ref="b", index=2),
         models.Field(name="c", type="int"),
     ]
 
@@ -238,11 +238,11 @@ def test_union_rejects_entry_matching_neither_member():
 
 
 def test_union_bad_literal_reports_both_member_failures():
-    doc = _message_doc(field=[{"name": "x", "type": "bogus"}])
+    doc = _message_doc(fields=[{"name": "x", "type": "bogus"}])
 
     with pytest.raises(
         RocketCANError,
-        match=r"^messages\[0\]\.field\[0\]: no union member matched .*expected one of",
+        match=r"^messages\[0\]\.fields\[0\]: no union member matched .*expected one of",
     ):
         _convert(models.Message, doc, where="messages[0]")
 
@@ -299,24 +299,24 @@ def test_from_dict_child_error_path_uses_yaml_key():
 
 
 def _message_doc(**overrides):
-    doc = {"name": "LEDS_OFF", "id": "0x20", "field": []}
+    doc = {"name": "LEDS_OFF", "id": "0x20", "fields": []}
     doc.update(overrides)
     return doc
 
 
 def _rocketcan_doc(**overrides):
     doc = {
-        "sid": {"fields": [{"name": "priority", "bits": "4", "enum": "PRIO"}]},
+        "sid": {"fields": [{"name": "priority", "index": "1", "bits": "4", "type": "enum", "enum": "STATE"}]},
         "message_fields": [{"id": "ts", "name": "state", "type": "enum", "enum": "STATE", "bytes": "1"}],
         "messages": [
             {
                 "name": "LEDS_OFF",
                 "desc": "turn off",
                 "id": "0x20",
-                "metadata": [{"name": "ts", "type": "uint", "bytes": "4"}],
-                "field": [
-                    {"name": "state", "type": "enum", "enum": "STATE", "bytes": "1"},
-                    {"ref": "ts"},
+                "metadata": {"name": "ts", "type": "uint", "bytes": "4"},
+                "fields": [
+                    {"name": "state", "type": "enum", "enum": "STATE", "bytes": "1", "index": "1"},
+                    {"ref": "ts", "index": "2"},
                 ],
             }
         ],
@@ -324,7 +324,7 @@ def _rocketcan_doc(**overrides):
             {
                 "name": "STATE",
                 "prefix": "S",
-                "value": [{"name": "OFF", "id": "0", "doc_link": "http://x"}],
+                "members": [{"name": "OFF", "value": "0", "doc_link": "http://x"}],
             }
         ],
         "bitfields": [{"name": "FLAGS", "prefix": "F", "bits": [{"name": "B0", "bit": "0"}]}],
@@ -334,17 +334,17 @@ def _rocketcan_doc(**overrides):
 
 
 EXPECTED_DOC_ROCKETCAN = models.RocketCAN(
-    sid=models.SID(fields=[models.SIDField(name="priority", bits=4, enum="PRIO")]),
+    sid=models.SID(fields=[models.SIDField(name="priority", index=1, bits=4, type="enum", enum="STATE")]),
     message_fields=[models.Field(id="ts", name="state", type="enum", enum="STATE", bytes=1)],
     messages=[
         models.Message(
             name="LEDS_OFF",
             desc="turn off",
             id=32,
-            metadata=[models.Field(name="ts", type="uint", bytes=4)],
-            field=[
-                models.Field(name="state", type="enum", enum="STATE", bytes=1),
-                models.RefField(ref="ts"),
+            metadata=models.Field(name="ts", type="uint", bytes=4),
+            fields=[
+                models.Field(name="state", type="enum", enum="STATE", bytes=1, index=1),
+                models.RefField(ref="ts", index=2),
             ],
         )
     ],
@@ -352,7 +352,7 @@ EXPECTED_DOC_ROCKETCAN = models.RocketCAN(
         models.Enum(
             name="STATE",
             prefix="S",
-            value=[models.EnumValue(name="OFF", id=0, doc_link="http://x")],
+            members=[models.EnumValue(name="OFF", value=0, doc_link="http://x")],
         )
     ],
     bitfields=[
@@ -390,27 +390,27 @@ def test_getters_use_keys_and_report_internal_misses():
 
 def test_validation_reports_missing_enum_at_reference():
     doc = _rocketcan_doc()
-    doc["messages"][0]["field"][0]["enum"] = "MISSING"
+    doc["messages"][0]["fields"][0]["enum"] = "MISSING"
 
-    with pytest.raises(RocketCANError, match=r"^root\.messages\[0\]\.field\[0\]\.enum: cannot find enum"):
+    with pytest.raises(RocketCANError, match=r"^root\.messages\[0\]\.fields\[0\]\.enum: cannot find enum"):
         _validate_rocketcan(_convert(models.RocketCAN, doc))
 
 
 def test_validation_reports_missing_bitfield_at_reference():
     doc = _rocketcan_doc()
-    doc["messages"][0]["field"][0] = {
-        "name": "flags", "type": "bitfield", "bitfield": "MISSING", "bytes": "1"
+    doc["messages"][0]["fields"][0] = {
+        "name": "flags", "type": "bitfield", "bitfield": "MISSING", "bytes": "1", "index": "1"
     }
 
-    with pytest.raises(RocketCANError, match=r"^root\.messages\[0\]\.field\[0\]\.bitfield: cannot find bitfield"):
+    with pytest.raises(RocketCANError, match=r"^root\.messages\[0\]\.fields\[0\]\.bitfield: cannot find bitfield"):
         _validate_rocketcan(_convert(models.RocketCAN, doc))
 
 
 def test_validation_reports_missing_width_before_render():
     doc = _rocketcan_doc()
-    del doc["messages"][0]["field"][0]["bytes"]
+    del doc["messages"][0]["fields"][0]["bytes"]
 
-    with pytest.raises(RocketCANError, match=r"^root\.messages\[0\]\.field\[0\]\.bytes: field requires"):
+    with pytest.raises(RocketCANError, match=r"^root\.messages\[0\]\.fields\[0\]\.bytes: field requires"):
         _validate_rocketcan(_convert(models.RocketCAN, doc))
 
 
@@ -422,14 +422,11 @@ def test_validation_reports_duplicate_definition_at_second_entry():
         _validate_rocketcan(_convert(models.RocketCAN, doc))
 
 
-def test_typescript_renderer_reports_multiple_metadata_fields():
+def test_parser_rejects_multiple_metadata_fields():
     doc = _rocketcan_doc()
-    doc["messages"][0]["metadata"].append({"name": "extra", "type": "uint"})
-
-    data = _convert(models.RocketCAN, doc)
-    _validate_rocketcan(data)
-    with pytest.raises(RocketCANError, match=r"^root\.messages\[0\]\.metadata: parsley-ts only supports one"):
-        message_defs.render(data)
+    doc["messages"][0]["metadata"] = [{"name": "extra", "type": "uint"}]
+    with pytest.raises(RocketCANError, match=r"root\.messages\[0\]\.metadata: no union member matched"):
+        _convert(models.RocketCAN, doc)
 
 
 def test_validation_reports_missing_sid_field():
@@ -453,11 +450,11 @@ def test_rocketcan_missing_sid_reports_root_path():
 
 def test_nested_missing_type_reports_full_path():
     doc = _rocketcan_doc()
-    doc["messages"][0]["field"] = [{"name": "state"}]
+    doc["messages"][0]["fields"] = [{"name": "state"}]
 
     with pytest.raises(
         RocketCANError,
-        match=r"^root\.messages\[0\]\.field\[0\]: no union member matched .*missing required key 'type'",
+        match=r"^root\.messages\[0\]\.fields\[0\]: no union member matched .*missing required key 'type'",
     ):
         _convert(models.RocketCAN, doc)
 
@@ -470,20 +467,14 @@ def test_nested_invalid_int_reports_full_path():
         _convert(models.RocketCAN, doc)
 
 
-def test_enum_value_missing_id_is_rejected():
-    with pytest.raises(RocketCANError, match=r"^root\.value\[0\]: missing required key 'id'"):
-        _convert(models.Enum, {"name": "S", "prefix": "S", "value": [{"name": "OFF"}]})
+def test_enum_member_missing_value_is_rejected():
+    with pytest.raises(RocketCANError, match=r"^root\.members\[0\]: missing required key 'value'"):
+        _convert(models.Enum, {"name": "S", "prefix": "S", "members": [{"name": "OFF"}]})
 
 
-def test_enum_entry_with_explicit_value_key_is_rejected():
-    enum_doc = {
-        "name": "STATE",
-        "prefix": "S",
-        "value": [{"name": "OFF", "id": "0", "value": "0"}],
-    }
-
-    with pytest.raises(RocketCANError, match=r"^root\.value\[0\]: unknown key\(s\) \['value'\]"):
-        _convert(models.Enum, enum_doc)
+def test_enum_member_old_id_is_rejected():
+    with pytest.raises(RocketCANError, match=r"unknown key\(s\) \['id'\]"):
+        _convert(models.Enum, {"name": "S", "prefix": "S", "members": [{"name": "OFF", "value": "0", "id": "0"}]})
 
 
 def test_bit_with_explicit_offset_key_is_rejected():
@@ -504,8 +495,10 @@ ROCKETCAN_YAML = """\
 sid:
   fields:
     - name: priority
+      index: 1
       bits: 4
-      enum: PRIO
+      type: enum
+      enum: STATE
 message-fields:
   - id: ts
     name: state
@@ -517,21 +510,23 @@ messages:
     desc: turn off
     id: 0x20
     metadata:
-      - name: ts
-        type: uint
-        bytes: 4
-    field:
+      name: ts
+      type: uint
+      bytes: 4
+    fields:
       - name: state
+        index: 1
         type: enum
         enum: STATE
         bytes: 1
       - ref: ts
+        index: 2
 enums:
   - name: STATE
     prefix: S
-    value:
+    members:
       - name: OFF
-        id: 0
+        value: 0
         doc-link: http://x
 bitfields:
   - name: FLAGS
@@ -560,16 +555,57 @@ def test_load_rocketcan_accepts_path_object(tmp_path):
     assert load_rocketcan(path) == EXPECTED_DOC_ROCKETCAN
 
 
+def test_load_rocketcan_accepts_null_metadata(tmp_path):
+    text = ROCKETCAN_YAML.replace(
+        "    metadata:\n      name: ts\n      type: uint\n      bytes: 4",
+        "    metadata: null",
+    )
+    data = load_rocketcan(_write_yaml(tmp_path, text))
+    assert data.messages[0].metadata is None
+    assert "defineMessage([" in message_defs.render(data)
+
+
+@pytest.mark.parametrize("index", ["0", "-1"])
+def test_validation_rejects_nonpositive_field_index(index):
+    doc = _rocketcan_doc()
+    doc["messages"][0]["fields"][0]["index"] = index
+    with pytest.raises(RocketCANError, match=r"fields\[0\]\.index: index must be positive"):
+        _validate_rocketcan(_convert(models.RocketCAN, doc))
+
+
+def test_validation_rejects_duplicate_field_indexes():
+    doc = _rocketcan_doc()
+    doc["messages"][0]["fields"][1]["index"] = "1"
+    with pytest.raises(RocketCANError, match=r"fields\[1\]\.index: duplicate index"):
+        _validate_rocketcan(_convert(models.RocketCAN, doc))
+
+
+def test_renderer_orders_fields_by_index():
+    doc = _rocketcan_doc()
+    doc["messages"][0]["fields"].reverse()
+    data = _convert(models.RocketCAN, doc)
+    _validate_rocketcan(data)
+    result = message_defs.render(data)
+    assert result.index("new Enum('state', 8, STATE)") < result.index("    MSG_FIELD_TS,")
+
+
+def test_validation_rejects_missing_sid_enum():
+    doc = _rocketcan_doc()
+    doc["sid"]["fields"][0]["enum"] = "MISSING"
+    with pytest.raises(RocketCANError, match=r"sid\.fields\[0\]\.enum: cannot find enum"):
+        _validate_rocketcan(_convert(models.RocketCAN, doc))
+
+
 def test_load_rocketcan_validates_before_generation(tmp_path):
     text = ROCKETCAN_YAML.replace("        enum: STATE\n        bytes: 1", "        enum: MISSING\n        bytes: 1")
     path = _write_yaml(tmp_path, text)
 
-    with pytest.raises(RocketCANError, match=r"^root\.messages\[0\]\.field\[0\]\.enum: cannot find enum"):
+    with pytest.raises(RocketCANError, match=r"^root\.messages\[0\]\.fields\[0\]\.enum: cannot find enum"):
         load_rocketcan(path)
 
 
 def test_renderer_uses_validated_metadata_default(tmp_path):
-    text = ROCKETCAN_YAML.replace("        bytes: 4\n    field:", "    field:")
+    text = ROCKETCAN_YAML.replace("      bytes: 4\n    fields:", "    fields:")
     data = load_rocketcan(_write_yaml(tmp_path, text))
 
     assert "new Numeric('ts', 8, 1, false)" in message_defs.render(data)
@@ -581,7 +617,7 @@ def test_renderer_generates_shared_fields():
         {"id": "timestamp", "name": "TIMESTAMP", "type": "uint", "bytes": "2"},
         {"id": "count", "name": "COUNT", "type": "uint", "bytes": "1"},
     ])
-    doc["messages"][0]["field"] = [{"ref": "timestamp"}, {"ref": "count"}]
+    doc["messages"][0]["fields"] = [{"ref": "timestamp", "index": "1"}, {"ref": "count", "index": "2"}]
     data = _convert(models.RocketCAN, doc)
     _validate_rocketcan(data)
 
@@ -594,8 +630,8 @@ def test_renderer_generates_shared_fields():
 @pytest.mark.parametrize("field_type", ["ascii", "raw"])
 def test_renderer_uses_bits_for_ascii_fields(field_type):
     doc = _rocketcan_doc()
-    doc["messages"][0]["field"] = [
-        {"name": "text", "type": field_type, "bytes": "6"}
+    doc["messages"][0]["fields"] = [
+        {"name": "text", "type": field_type, "bytes": "6", "index": "1"}
     ]
     data = _convert(models.RocketCAN, doc)
     _validate_rocketcan(data)
@@ -605,8 +641,8 @@ def test_renderer_uses_bits_for_ascii_fields(field_type):
 
 def test_validation_reports_missing_shared_field_reference():
     doc = _rocketcan_doc()
-    doc["messages"][0]["field"] = [{"ref": "missing"}]
-    with pytest.raises(RocketCANError, match=r"root\.messages\[0\]\.field\[0\]\.ref: cannot find message field"):
+    doc["messages"][0]["fields"] = [{"ref": "missing", "index": "1"}]
+    with pytest.raises(RocketCANError, match=r"root\.messages\[0\]\.fields\[0\]\.ref: cannot find message field"):
         _validate_rocketcan(_convert(models.RocketCAN, doc))
 
 

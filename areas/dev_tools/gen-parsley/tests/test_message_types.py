@@ -7,9 +7,9 @@ def test_render_uses_explicit_enum_values_and_bit_positions():
         sid=SID(),
         message_fields=[],
         messages=[],
-        enums=[Enum(name="state", prefix="STATE", value=[
-            EnumValue(name="HIGH", id=9),
-            EnumValue(name="LOW", id=2),
+        enums=[Enum(name="state", prefix="STATE", members=[
+            EnumValue(name="HIGH", value=9),
+            EnumValue(name="LOW", value=2),
         ])],
         bitfields=[Bitfield(name="flags", prefix="FLAG", bits=[
             BitfieldBit(name="HIGH", bit=7),

@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
-import BaseComponent, { type WidgetConfig } from './BaseComponent';
+import BaseComponent, { type BaseComponentProp } from './BaseComponent';
 import { applyFrame, createTelemetryState } from '../data/channel-store';
 import { TelemetryContext } from '../data/telemetry-context';
 import type { Telemetry } from '../data/useTelemetry';
@@ -12,7 +12,7 @@ import {
 
 const NOW = getMockFixture().timestampMs;
 const updateConfig = vi.fn();
-const setOverlay = vi.fn();
+const requestOverlay = vi.fn();
 
 function telemetry(scenarios: MockScenario[] = [], nowMs = NOW): Telemetry {
   let state = createTelemetryState(MOCK_SIGNALS);
@@ -21,13 +21,13 @@ function telemetry(scenarios: MockScenario[] = [], nowMs = NOW): Telemetry {
   return { state, nowMs, stream: 'connected' };
 }
 
-function renderBase(value: Telemetry, props: Partial<WidgetConfig> = {}) {
-  const config: WidgetConfig = {
+function renderBase(value: Telemetry, props: Partial<BaseComponentProp> = {}) {
+  const config: BaseComponentProp = {
     id: 'w1',
     componentType: 'progress-bar',
     channels: ['test.pressure'],
     updateConfig,
-    setOverlay,
+    requestOverlay,
     ...props,
   };
   return render(
@@ -60,13 +60,13 @@ describe('BaseComponent', () => {
   });
 
   it('uses an explicit title and keeps the widget mounted through status changes', () => {
-    const config: WidgetConfig = {
+    const config: BaseComponentProp = {
       id: 'w1',
       componentType: 'progress-bar',
       channels: ['test.pressure'],
       title: 'Pressure',
       updateConfig,
-      setOverlay,
+      requestOverlay,
     };
     const { rerender } = render(
       <TelemetryContext.Provider value={telemetry(['nominal'])}>

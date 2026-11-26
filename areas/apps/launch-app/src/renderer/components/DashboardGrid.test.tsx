@@ -27,9 +27,11 @@ const LAYOUT: dashboardLayout = {
       h: 1,
       widgetConfig: {
         kind: 'progress-bar',
-        signalId: 'test.pressure',
-        min: 0,
-        max: 100,
+        signalId: ['test.pressure'],
+        config: {
+          min: 0,
+          max: 100,
+        },
       },
     },
     {
@@ -40,9 +42,11 @@ const LAYOUT: dashboardLayout = {
       h: 1,
       widgetConfig: {
         kind: 'progress-bar',
-        signalId: 'test.temperature',
-        min: -20,
-        max: 20,
+        signalId: ['test.temperature'],
+        config: {
+          min: -20,
+          max: 20,
+        },
       },
     },
   ],
@@ -106,9 +110,11 @@ describe('DashboardGrid', () => {
           ...LAYOUT.items[0],
           widgetConfig: {
             kind: 'progress-bar',
-            signalId: 'nope',
-            min: 0,
-            max: 1,
+            signalId: ['nope'],
+            config: {
+              min: 0,
+              max: 1,
+            },
           },
         },
       ],

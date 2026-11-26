@@ -9,10 +9,11 @@ LABEL authors="Waterloo Rocketry <contact@waterloorocketry.com>"
 RUN apk add --no-cache git
 
 # Copy the project into the image.
-COPY . /app
+COPY areas/apps/omnibus /app/areas/apps/omnibus
+COPY areas/sw_libs/parsley /app/areas/sw_libs/parsley
 
 # Sync the project into the new environment, asserting the lockfile is up to date.
-WORKDIR /app
+WORKDIR /app/areas/apps/omnibus
 RUN uv sync --locked --no-editable --no-dev --package omnibus-bridge
 
 ENV OMNIBUS_SERVER_HOST="localhost"

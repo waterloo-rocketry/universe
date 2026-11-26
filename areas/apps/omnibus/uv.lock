@@ -1,5 +1,5 @@
 version = 1
-revision = 3
+revision = 5
 requires-python = "==3.11.*"
 
 [manifest]
@@ -961,7 +961,7 @@ requires-dist = [
     { name = "gitpython", specifier = ">=3.1.54" },
     { name = "msgpack", specifier = ">=1.2.1" },
     { name = "msgpack-types", specifier = ">=0.5.0" },
-    { name = "parsley", git = "https://github.com/waterloo-rocketry/universe.git?subdirectory=areas%2Fsw_libs%2Fparsley" },
+    { name = "parsley", editable = "../../sw_libs/parsley" },
     { name = "python-engineio", specifier = ">=4.8" },
     { name = "python-socketio", extras = ["client"], specifier = ">=5.11" },
     { name = "pyzmq", specifier = ">=27.1.0" },
@@ -1066,11 +1066,28 @@ wheels = [
 [[package]]
 name = "parsley"
 version = "2026.5"
-source = { git = "https://github.com/waterloo-rocketry/universe.git?subdirectory=areas%2Fsw_libs%2Fparsley#eb560ee2f8d11222c2029d7aa9dbf2d79cee253d" }
+source = { editable = "../../sw_libs/parsley" }
 dependencies = [
     { name = "crc8" },
     { name = "deprecated" },
     { name = "pydantic" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "crc8", specifier = ">=0.2.1" },
+    { name = "deprecated", specifier = ">=1.2.18" },
+    { name = "pydantic", specifier = ">=2.12.3" },
+]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "autopep8" },
+    { name = "basedpyright" },
+    { name = "flake8" },
+    { name = "pycodestyle" },
+    { name = "pytest" },
+    { name = "pytest-cov", specifier = ">=7.0.0" },
 ]
 
 [[package]]
@@ -1089,7 +1106,7 @@ dependencies = [
 requires-dist = [
     { name = "crc8", specifier = ">=0.2.1" },
     { name = "omnibus", editable = "." },
-    { name = "parsley", git = "https://github.com/waterloo-rocketry/universe.git?subdirectory=areas%2Fsw_libs%2Fparsley" },
+    { name = "parsley", editable = "../../sw_libs/parsley" },
     { name = "pyserial" },
     { name = "win-precise-time", marker = "sys_platform == 'win32'", specifier = ">=1.4.2" },
 ]

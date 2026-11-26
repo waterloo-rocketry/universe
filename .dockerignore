@@ -1,0 +1,36 @@
+# Used by Docker builds that take the repo root as their context (the omnibus
+# images, so they can include areas/sw_libs/parsley). Builds with their own
+# folder as the context (e.g. daqms) use that folder's .dockerignore instead.
+#
+# Send nothing except what those images need.
+*
+!areas/apps/omnibus
+!areas/sw_libs/parsley
+
+# Never needed inside an image
+**/.venv
+**/venv
+**/__pycache__
+**/*.py[cod]
+**/node_modules
+**/.pytest_cache
+**/.coverage
+**/htmlcov
+**/build
+**/dist
+**/*.egg-info
+
+# Same as omnibus's own .dockerignore (logs, data exports, IDE files)
+areas/apps/omnibus/**/log_*.dat
+areas/apps/omnibus/**/logs
+areas/apps/omnibus/**/.DS_Store
+areas/apps/omnibus/**/.idea
+areas/apps/omnibus/**/.vscode
+areas/apps/omnibus/**/*.json
+areas/apps/omnibus/**/*.log
+areas/apps/omnibus/**/*.csv
+areas/apps/omnibus/**/*.png
+areas/apps/omnibus/**/*.jpg
+areas/apps/omnibus/**/*_manifest.txt
+areas/apps/omnibus/**/all_messages_*.txt
+areas/apps/omnibus/**/.mbtiles

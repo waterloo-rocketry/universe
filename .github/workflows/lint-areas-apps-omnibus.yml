@@ -3,7 +3,7 @@ name: Run Lint
 # Runs on pull requests that touch omnibus
 on:
   pull_request:
-    paths: ["areas/apps/omnibus/**"]
+    paths: ["areas/apps/omnibus/**", "areas/sw_libs/parsley/**"]
 
 defaults:
   run:

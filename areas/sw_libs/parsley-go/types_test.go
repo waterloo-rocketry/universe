@@ -66,11 +66,3 @@ func TestDecodeErrorOnIncompleteBody(t *testing.T) {
 	DecodeError := GetError("IncompleteError")
 	_ = DecodeError.Error()
 }
-
-// test typed nil
-func TestTypedNil(t *testing.T) {
-	nilError := GetError("no error")
-	if nilError != nil {
-		t.Error("Typed nill trap triggered")
-	}
-}

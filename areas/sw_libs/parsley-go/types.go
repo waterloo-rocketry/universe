@@ -10,6 +10,15 @@ type Value interface {
 
 type Int int64   // uint and int fields
 type Text string // ascii fields
+
+func (i Int) String() string {
+	return fmt.Sprintf("%d", i)
+}
+
+func (t Text) String() string {
+	return string(t)
+}
+
 // Raw (#116), Bitfield (#115) and every generated enum type also implement Value.
 
 // Every generated enum type (ActuatorState, BoardType, ...) implements Enum,
@@ -66,11 +75,14 @@ const (
 	ErrCRC
 )
 
+// the line/frame itself is broken
 type FrameError struct {
 	Kind   FrameErrorKind
 	Reason string
-}                         // the line/frame itself is broken
-type DecodeError struct { // like Python's ParsleyError
+}
+
+// like Python's ParsleyError
+type DecodeError struct {
 	SID       uint32
 	Data      []byte
 	Prio      MsgPrio

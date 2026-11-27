@@ -179,7 +179,7 @@ goes in them.
 | `internal/server` | The Orion Server |
 | `internal/fakesource` | The fake source |
 | `internal/component` | The shared source runtime: drivers, batches, health, catalog, commands, lifecycle |
-| `internal/delivery` | The sender to the Orion Server: acks, backfill, reconnect |
+| `internal/delivery` | The sender to the Orion Server: reconnecting for every source; acks, backfill and resume for DAQ only |
 | `internal/clock`, `internal/backoff`, `internal/queue`, `internal/console`, `internal/mockfault` | Shared runtime pieces |
 | `docs/` | Design notes |
 

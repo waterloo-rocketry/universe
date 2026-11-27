@@ -55,15 +55,6 @@ orion <role> <file.toml> --verify-config   check the file and exit (short form: 
 orion version                              print the version
 ```
 
-Demo only, removed once the real Orion API lands (see
-[Example: a server and a client](#example-a-server-and-a-client)):
-
-```text
-orion example-server [--addr <address>]                      serve the example service until Ctrl-C
-orion example-client [--addr <address>] <message>            send one message, print the answer
-orion example-stream-client [--addr <address>] <message>...  send each message on one stream, print each answer
-```
-
 ```sh
 go run ./cmd/orion version
 # orion 0.0.0
@@ -87,14 +78,21 @@ go run ./cmd/orion fake configs/fake-source.toml
 **Exit codes:** `0` for success, `1` for a runtime failure (or something that
 isn't built yet), `2` for a config error, a failed check or bad arguments.
 
-### Example: a server and a client
+## Example: a server and a client
 
-**Demo only.** These commands show how Orion code uses the generated API: a
-server that implements a service, a client that makes a unary call, and a
-client that keeps a bidirectional stream open, each as its own process. They
-use the example service in `areas/apis/orion`, not the real contract, and
-they're removed once the real Orion API lands. The code is in
-[`cmd/orion/example.go`](cmd/orion/example.go).
+**Demo only.** The `connectrpc-example` binary shows how Orion code uses the
+generated API: a server that implements a service, a client that makes a
+unary call, and a client that keeps a bidirectional stream open, each as its
+own process. It uses the example service in `areas/apis/orion`, not the real
+contract. It isn't part of `orion`, and its folder,
+[`cmd/connectrpc-example`](cmd/connectrpc-example/main.go), is deleted once
+the real Orion API lands.
+
+```text
+connectrpc-example server [--addr <address>]                      serve the example service until Ctrl-C
+connectrpc-example client [--addr <address>] <message>            send one message, print the answer
+connectrpc-example stream-client [--addr <address>] <message>...  send each message on one stream, print each answer
+```
 
 Run the server in one terminal and the clients in another. The server listens
 on `127.0.0.1:8080`; pass `--addr <host:port>` to the server and the clients to
@@ -102,15 +100,15 @@ use another address.
 
 ```sh
 # terminal 1: the server
-go run ./cmd/orion example-server
+go run ./cmd/connectrpc-example server
 # serving the example service on http://127.0.0.1:8080 (Ctrl-C to stop)
 
 # terminal 2: the clients
-go run ./cmd/orion example-client ping
+go run ./cmd/connectrpc-example client ping
 # pong
-go run ./cmd/orion example-client "hello orion"
+go run ./cmd/connectrpc-example client "hello orion"
 # server got "hello orion" at 11:18:52
-go run ./cmd/orion example-stream-client ping one two
+go run ./cmd/connectrpc-example stream-client ping one two
 # pong
 # server got "one" at 11:18:52
 # server got "two" at 11:18:52
@@ -120,14 +118,14 @@ Stop the server with Ctrl-C. Without a running server, a client fails with
 `connection refused` and exits 1.
 
 **The server's logic** decides every answer, the same way for both clients
-(`answer` in `example.go`): `ping` gets `pong`, and anything else gets the
+(`answer` in `main.go`): `ping` gets `pong`, and anything else gets the
 server's own reply, saying what it got and when.
 
 | Command | Call | Kind | What happens |
 | --- | --- | --- | --- |
-| `example-server` | | | Serves `ExampleService` until Ctrl-C |
-| `example-client` | `Send` | unary | One request, one response: the client sends a message and prints the server's answer |
-| `example-stream-client` | `Stream` | bidirectional stream | The client opens one stream and keeps it open. It sends each message and waits for the server's answer on the same stream before sending the next, then closes its side. The server answers each message as it arrives, and stops when the client closes |
+| `server` | | | Serves `ExampleService` until Ctrl-C |
+| `client` | `Send` | unary | One request, one response: the client sends a message and prints the server's answer |
+| `stream-client` | `Stream` | bidirectional stream | The client opens one stream and keeps it open. It sends each message and waits for the server's answer on the same stream before sending the next, then closes its side. The server answers each message as it arrives, and stops when the client closes |
 
 How it works:
 
@@ -224,9 +222,9 @@ generated Go code isn't committed: `go tool buf generate` writes it there
 (why, when and how: "Generating the Go code" in
 [that README](../../apis/orion/README.md#generating-the-go-code)).
 
-Orion imports it: the demo `example-*` commands
-([`cmd/orion/example.go`](cmd/orion/example.go)) use the example's generated
-packages. That's why `go.mod` has a `replace`
+Orion's module imports it: the demo
+[`cmd/connectrpc-example`](cmd/connectrpc-example/main.go) uses the
+example's generated packages. That's why `go.mod` has a `replace`
 directive pointing at `../../apis/orion`, Orion's CI `paths:` include
 `areas/apis/orion/**`, and both the setup steps above and CI run
 `go tool buf generate` before building.
@@ -247,7 +245,8 @@ goes in them.
 
 | Path | What it holds |
 | --- | --- |
-| `cmd/orion` | The one binary and its command line; `example.go` is the demo server, client and stream client for the generated API code |
+| `cmd/orion` | The one binary and its command line |
+| `cmd/connectrpc-example` | Demo only, not part of Orion: a server, a unary client and a stream client for the example API code |
 | `configs/` | One TOML per process |
 | `internal/canbridge` | The CAN source: its config and checks, and the shared types |
 | `internal/config` | The shared config check: reads a file as its role's config type and runs that role's rules |
@@ -285,7 +284,7 @@ real binary go in `tests/<area>/`.
 - **`no required module provides package github.com/waterloo-rocketry/universe/areas/apis/orion/gen/go/…`**:
   the generated API code is missing. Run `go tool buf generate` in
   `areas/apis/orion`, not the `go get` the message suggests.
-- **Your editor shows errors in `cmd/orion/example.go`** (for example
+- **Your editor shows errors in `cmd/connectrpc-example`** (for example
   `could not import …/gen/go/…`, `undefined: examplev1connect`, or
   `not enough arguments in call to …`) **while `go build` works, or before
   you've generated**: the editor's Go language server can't see the

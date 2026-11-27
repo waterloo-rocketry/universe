@@ -4,21 +4,14 @@
 //	orion <role> <file.toml> --verify-config   check the file and exit (short form: -t)
 //	orion version                              print the version
 //
-// Demo only, removed once the real Orion API lands (see example.go):
-//
-//	orion example-server [--addr <address>]                      serve the example service until Ctrl-C
-//	orion example-client [--addr <address>] <message>            send one message, print the answer
-//	orion example-stream-client [--addr <address>] <message>...  send each message on one stream, print each answer
-//
-// Of the roles, only `orion can <file> --verify-config` works so far; every
-// other role says which tracker issue builds it.
+// So far only `orion can <file> --verify-config` does anything; every other
+// role says which tracker issue builds it.
 package main
 
 import (
 	"fmt"
 	"io"
 	"os"
-	"strings"
 
 	"github.com/waterloo-rocketry/universe/areas/apps/orion/internal/config"
 )
@@ -48,9 +41,6 @@ var roles = map[string]string{
 const usage = `usage:
   orion <role> <file.toml> [--verify-config | -t]
   orion version
-  orion example-server [--addr <address>]
-  orion example-client [--addr <address>] <message>
-  orion example-stream-client [--addr <address>] <message>...
 roles: can, daq, fake, logger, omnibus, replay, rlcs, server
 `
 
@@ -81,9 +71,6 @@ func run(args []string, stdout, stderr io.Writer) int {
 	if len(args) == 1 && args[0] == "version" {
 		fmt.Fprintln(stdout, "orion", version)
 		return exitOK
-	}
-	if len(args) > 0 && strings.HasPrefix(args[0], "example-") {
-		return runExample(args[0], args[1:], stdout, stderr)
 	}
 	if len(args) < 2 {
 		fmt.Fprint(stderr, usage)

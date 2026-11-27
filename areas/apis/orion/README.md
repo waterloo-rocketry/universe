@@ -64,9 +64,9 @@ own.
 - in CI, before building. This module's CI does it, and a project that imports
   the code has to add the same step.
 
-Orion imports the example (the demo `orion example-*` commands, in
-`areas/apps/orion/cmd/orion/example.go`), so Orion's setup steps and CI run it
-too.
+Orion's module imports the example (the demo
+`areas/apps/orion/cmd/connectrpc-example`), so Orion's setup steps and CI run
+it too.
 
 **How.** From this directory:
 
@@ -111,8 +111,8 @@ import (
 The contract's packages will be `…/gen/go/orion/v1` (`orionv1`) and
 `…/gen/go/orion/v1/orionv1connect`. For a complete, small use of a service
 (a handler on a server, a client for a unary call, and a client for a
-bidirectional stream), see `areas/apps/orion/cmd/orion/example.go` and the "Example: a
-server and a client" section of the Orion README.
+bidirectional stream), see `areas/apps/orion/cmd/connectrpc-example` and the "Example: a server
+and a client" section of the Orion README.
 
 Inside universe, a Go project points at this directory with a `replace`
 directive in its `go.mod`, and lists `areas/apis/orion/**` in its CI `paths:`

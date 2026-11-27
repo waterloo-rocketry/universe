@@ -1,13 +1,20 @@
 package main
 
-// Tests for the demo example-* commands (example.go).
-
 import (
+	"bytes"
 	"context"
 	"net"
 	"strings"
 	"testing"
 )
+
+// runExample runs connectrpc-example with args and returns the exit code and
+// output.
+func runExample(args ...string) (code int, stdout, stderr string) {
+	var out, errOut bytes.Buffer
+	code = run(args, &out, &errOut)
+	return code, out.String(), errOut.String()
+}
 
 // startExampleServer runs the example server on a free port until the test
 // ends, and returns its address.
@@ -45,12 +52,12 @@ func TestExampleClients(t *testing.T) {
 		args []string
 		want []string // each line of stdout, or its start for the server's timed replies
 	}{
-		{[]string{"example-client", "--addr", addr, "ping"}, []string{"pong"}},
-		{[]string{"example-client", "--addr", addr, "hello orion"}, []string{`server got "hello orion" at `}},
-		{[]string{"example-stream-client", "--addr", addr, "ping", "one", "two"}, []string{"pong", `server got "one" at `, `server got "two" at `}},
+		{[]string{"client", "--addr", addr, "ping"}, []string{"pong"}},
+		{[]string{"client", "--addr", addr, "hello orion"}, []string{`server got "hello orion" at `}},
+		{[]string{"stream-client", "--addr", addr, "ping", "one", "two"}, []string{"pong", `server got "one" at `, `server got "two" at `}},
 	}
 	for _, tt := range tests {
-		code, stdout, stderr := runOrion(tt.args...)
+		code, stdout, stderr := runExample(tt.args...)
 		lines := strings.Split(strings.TrimSuffix(stdout, "\n"), "\n")
 		if code != exitOK || len(lines) != len(tt.want) {
 			t.Errorf("%q: code %d, stdout %q, stderr %q", tt.args, code, stdout, stderr)
@@ -65,23 +72,34 @@ func TestExampleClients(t *testing.T) {
 }
 
 func TestExampleNoServer(t *testing.T) {
-	for _, cmd := range []string{"example-client", "example-stream-client"} {
-		code, _, stderr := runOrion(cmd, "--addr", "127.0.0.1:1", "ping")
-		if code != exitRuntime || !strings.Contains(stderr, "orion "+cmd+":") {
+	for _, cmd := range []string{"client", "stream-client"} {
+		code, _, stderr := runExample(cmd, "--addr", "127.0.0.1:1", "ping")
+		if code != exitRuntime || !strings.Contains(stderr, "connectrpc-example "+cmd+":") {
 			t.Errorf("%s: code %d, stderr %q", cmd, code, stderr)
+		}
+	}
+}
+
+// Help that was asked for is output, not an error: stdout and exit 0.
+func TestExampleHelp(t *testing.T) {
+	for _, flag := range []string{"-h", "--help"} {
+		code, stdout, stderr := runExample(flag)
+		if code != exitOK || stdout != usage || stderr != "" {
+			t.Errorf("%s: code %d, stdout %q, stderr %q", flag, code, stdout, stderr)
 		}
 	}
 }
 
 func TestExampleBadArguments(t *testing.T) {
 	for _, args := range [][]string{
-		{"example-client"},
-		{"example-client", "a", "b"},
-		{"example-stream-client"},
-		{"example-server", "a"},
-		{"example-echo", "a"},
+		nil,
+		{"client"},
+		{"client", "a", "b"},
+		{"stream-client"},
+		{"server", "a"},
+		{"echo", "a"},
 	} {
-		if code, _, stderr := runOrion(args...); code != exitConfig || !strings.Contains(stderr, "usage:") {
+		if code, _, stderr := runExample(args...); code != exitUsage || !strings.Contains(stderr, "usage:") {
 			t.Errorf("%q: code %d, stderr %q", args, code, stderr)
 		}
 	}

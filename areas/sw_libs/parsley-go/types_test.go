@@ -66,3 +66,15 @@ func TestDecodeErrorOnIncompleteBody(t *testing.T) {
 	DecodeError := GetError("IncompleteError")
 	_ = DecodeError.Error()
 }
+
+func TestTypeString(t *testing.T) {
+	i := Int(67)
+	if i.String() != "67" {
+		t.Error("Int.String() failed to format value")
+	}
+
+	te := Text("test")
+	if te.String() != "test" {
+		t.Error("Text.String() failed to format value")
+	}
+}

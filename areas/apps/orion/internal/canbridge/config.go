@@ -23,7 +23,7 @@ type Config struct {
 type Orion struct {
 	Server          string `toml:"server"`            // for example "http://127.0.0.1:7400"
 	Mode            string `toml:"mode"`              // "ops" or "test"; must match the server's
-	BackfillWindowS *int   `toml:"backfill_window_s"` // how long unacknowledged batches are kept
+	BackfillWindowS *int   `toml:"backfill_window_s"` // DAQ only; Check refuses it here, since CAN has no acknowledged delivery
 }
 
 type Source struct {
@@ -38,7 +38,7 @@ type Source struct {
 	TxPrio              string            `toml:"tx_prio"`  // priority our own commands go out at
 	DefaultStaleAfterMs *uint32           `toml:"default_stale_after_ms"`
 	StaleAfterMs        map[string]uint32 `toml:"stale_after_ms"`
-	LogDir              string            `toml:"log_dir"` // where the .canlog goes
+	LogDir              string            `toml:"log_dir"` // where the raw log (.canlog) goes; required, since every CAN source keeps one
 	Actuators           []Actuator        `toml:"actuator"`
 }
 
@@ -60,10 +60,6 @@ func (AllNamesOK) HasBoard(string) bool    { return true }
 func (AllNamesOK) HasState(string) bool    { return true }
 
 func (c *Config) applyDefaults() {
-	if c.Orion.BackfillWindowS == nil {
-		backfillWindowS := 30
-		c.Orion.BackfillWindowS = &backfillWindowS
-	}
 	src := &c.Source
 	if src.Baud == nil {
 		baud := 115200
@@ -99,14 +95,20 @@ func checkSerialOrMockWithoutFormat(cfg Config) error {
 	return nil
 }
 
-// a USB_DEBUG source (a bare board on a desk) is allowed in ops, but only to read
-func checkUSBDebugReadOnlyInOps(cfg Config) error {
-	if cfg.Orion.Mode == "ops" && cfg.Source.Connection == "USB_DEBUG" {
-		for _, act := range cfg.Source.Actuators {
-			if act.Command {
-				return fmt.Errorf("USB_DEBUG source %q is read-only in ops, so actuator %q cannot be commandable", cfg.Source.ID, act.ID)
-			}
-		}
+// CAN sends live data only: no acks, no backfill and no resume after a
+// reconnect, so the backfill window belongs to DAQ files only
+func checkBackfillWindowNotSet(cfg Config) error {
+	if cfg.Orion.BackfillWindowS != nil {
+		return fmt.Errorf("backfill_window_s is DAQ only, since CAN has no acknowledged delivery (source: %q)", cfg.Source.ID)
+	}
+	return nil
+}
+
+// every CAN source keeps its own raw log: CAN doesn't re-send after an
+// outage, so the raw log is the only copy of what it read while disconnected
+func checkLogDirSet(cfg Config) error {
+	if cfg.Source.LogDir == "" {
+		return fmt.Errorf("log_dir expected, since every CAN source keeps a raw log (source: %q)", cfg.Source.ID)
 	}
 	return nil
 }
@@ -162,7 +164,10 @@ func (c *Config) Check(names RocketCANNames) (errs []error, warnings []string) {
 	if err := checkSerialOrMockWithoutFormat(*c); err != nil {
 		errs = append(errs, err)
 	}
-	if err := checkUSBDebugReadOnlyInOps(*c); err != nil {
+	if err := checkBackfillWindowNotSet(*c); err != nil {
+		errs = append(errs, err)
+	}
+	if err := checkLogDirSet(*c); err != nil {
 		errs = append(errs, err)
 	}
 	if err := checkMockInOpsConfig(*c); err != nil {

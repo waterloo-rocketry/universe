@@ -25,8 +25,8 @@ func TestApplyDefaults(t *testing.T) {
 	}}
 	cfg.applyDefaults()
 
-	if cfg.Orion.BackfillWindowS == nil || *cfg.Orion.BackfillWindowS != 30 {
-		t.Errorf("BackfillWindowS = %v, want 30", cfg.Orion.BackfillWindowS)
+	if cfg.Orion.BackfillWindowS != nil {
+		t.Errorf("BackfillWindowS = %d, want it left unset (DAQ only)", *cfg.Orion.BackfillWindowS)
 	}
 	src := cfg.Source
 	if src.Baud == nil || *src.Baud != 115200 {
@@ -49,7 +49,6 @@ func TestApplyDefaults(t *testing.T) {
 func TestApplyDefaultsKeepsSetValues(t *testing.T) {
 	// Values already present must not be overwritten by the defaults.
 	cfg := Config{
-		Orion: Orion{BackfillWindowS: ptr(10)},
 		Source: Source{
 			ID:                  "can-injector",
 			Baud:                ptr(9600),
@@ -62,9 +61,6 @@ func TestApplyDefaultsKeepsSetValues(t *testing.T) {
 	cfg.applyDefaults()
 
 	src := cfg.Source
-	if *cfg.Orion.BackfillWindowS != 10 {
-		t.Errorf("BackfillWindowS = %d, want it left unchanged", *cfg.Orion.BackfillWindowS)
-	}
 	if *src.Baud != 9600 {
 		t.Errorf("Baud = %d, want 9600 (should not be overwritten)", *src.Baud)
 	}
@@ -104,22 +100,38 @@ func TestCheckSerialOrMockWithoutFormat(t *testing.T) {
 	}
 }
 
-func TestCheckUSBDebugReadOnlyInOps(t *testing.T) {
-	commandable := []Actuator{{ID: "fill-vent-valve", Command: true}}
+func TestCheckBackfillWindowNotSet(t *testing.T) {
 	tests := []struct {
 		name    string
-		mode    string
-		src     Source
+		orion   Orion
 		wantErr bool
 	}{
-		{"ops mode with read-only USB debug source passes", "ops", Source{Connection: "USB_DEBUG"}, false},
-		{"ops mode with commandable USB debug source fails", "ops", Source{Connection: "USB_DEBUG", Actuators: commandable}, true},
-		{"test mode with commandable USB debug source passes", "test", Source{Connection: "USB_DEBUG", Actuators: commandable}, false},
-		{"ops mode with commandable LTT source passes (LTT is two-way)", "ops", Source{Connection: "LIVE_TELEMETRY", Actuators: commandable}, false},
+		{"no backfill window passes", Orion{}, false},
+		{"a backfill window fails (DAQ only)", Orion{BackfillWindowS: ptr(30)}, true},
+		{"a zero backfill window still fails", Orion{BackfillWindowS: ptr(0)}, true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			err := checkUSBDebugReadOnlyInOps(Config{Orion: Orion{Mode: tt.mode}, Source: tt.src})
+			err := checkBackfillWindowNotSet(Config{Orion: tt.orion, Source: Source{ID: "can-injector"}})
+			if (err != nil) != tt.wantErr {
+				t.Errorf("got error %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
+
+func TestCheckLogDirSet(t *testing.T) {
+	tests := []struct {
+		name    string
+		src     Source
+		wantErr bool
+	}{
+		{"log_dir set passes", Source{ID: "can-injector", LogDir: "/var/log/orion/canlog"}, false},
+		{"log_dir missing fails", Source{ID: "can-injector"}, true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := checkLogDirSet(Config{Source: tt.src})
 			if (err != nil) != tt.wantErr {
 				t.Errorf("got error %v, wantErr %v", err, tt.wantErr)
 			}
@@ -266,6 +278,7 @@ func TestCheck(t *testing.T) {
 				Port:       "usb:1234:5678:INJECTOR",
 				Format:     "usb",
 				Boards:     []string{"INJECTOR/ROCKET"},
+				LogDir:     "/var/log/orion/canlog",
 				Actuators: []Actuator{{
 					ID:        "ox-injector-valve",
 					RocketCAN: "OX_INJECTOR_VALVE",
@@ -288,6 +301,29 @@ func TestCheck(t *testing.T) {
 		}
 	})
 
+	t.Run("commandable USB_DEBUG source in ops passes (it's two-way)", func(t *testing.T) {
+		cfg := Config{
+			ConfigVersion: 1,
+			Orion:         Orion{Server: "http://127.0.0.1:7400", Mode: "ops"},
+			Source: Source{
+				ID:         "can-ltt-1",
+				Connection: "USB_DEBUG",
+				Port:       "usb:1209:0001:LTT1",
+				Format:     "usb",
+				LogDir:     "~/OrionLogs/canlog",
+				Actuators: []Actuator{{
+					ID:        "fill-vent-valve",
+					RocketCAN: "OX_VENT_VALVE",
+					Command:   true,
+					Critical:  ptr(true),
+				}},
+			},
+		}
+		if errs, _ := cfg.Check(known); len(errs) != 0 {
+			t.Errorf("got %d errors, want 0: %v", len(errs), errs)
+		}
+	})
+
 	t.Run("applies defaults before checking", func(t *testing.T) {
 		cfg := Config{
 			Orion: Orion{Mode: "test"},
@@ -304,13 +340,14 @@ func TestCheck(t *testing.T) {
 	})
 
 	t.Run("collects several errors and a warning at once", func(t *testing.T) {
-		// this ops config accumulates three distinct error rules and a warning:
-		//   - commandable USB_DEBUG source in ops         (checkUSBDebugReadOnlyInOps)
+		// this ops config accumulates four distinct error rules and a warning:
+		//   - backfill window on a CAN source             (checkBackfillWindowNotSet)
+		//   - no log_dir                                  (checkLogDirSet)
 		//   - commandable actuator without critical       (checkCommandableActuatorFields)
 		//   - unknown board name                          (checkStateNotInRocketCAN)
 		//   - bare COMn port in ops                       (warning)
 		cfg := Config{
-			Orion: Orion{Mode: "ops"},
+			Orion: Orion{Mode: "ops", BackfillWindowS: ptr(30)},
 			Source: Source{
 				ID:         "can-debug",
 				Connection: "USB_DEBUG",
@@ -326,8 +363,8 @@ func TestCheck(t *testing.T) {
 			},
 		}
 		errs, warnings := cfg.Check(known)
-		if len(errs) != 3 {
-			t.Errorf("got %d errors, want 3: %v", len(errs), errs)
+		if len(errs) != 4 {
+			t.Errorf("got %d errors, want 4: %v", len(errs), errs)
 		}
 		if len(warnings) != 1 {
 			t.Errorf("got %d warnings, want 1: %v", len(warnings), warnings)

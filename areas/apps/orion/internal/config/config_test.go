@@ -56,7 +56,7 @@ func TestCheckCAN(t *testing.T) {
 		t.Errorf("committed bench config: ok %v, errs %v, warnings %v", ok, errs, warnings)
 	}
 	// a serial port with no format is one error, so the file reached the CAN rules
-	path := writeFile(t, "[source]\ntype = \"can\"\nid = \"can-bench\"\nport = \"COM4\"\n")
+	path := writeFile(t, "[source]\ntype = \"can\"\nid = \"can-bench\"\nport = \"COM4\"\nlog_dir = \"canlog\"\n")
 	if errs, _, _ := Check("can", path); len(errs) != 1 {
 		t.Errorf("got %d errors, want 1: %v", len(errs), errs)
 	}

@@ -212,7 +212,7 @@ func TestDecode(t *testing.T) {
 	uintF := &UintSpec{FieldBase{"TEST_STATE", 3}, "kPa"}
 	val, iss, err = decodeField(uintF, b)
 
-	u, ok := val.(Int)
+	u, ok := val.(Uint)
 	if !ok || u != 0x123456 || iss != nil || err != nil {
 		t.Error("IntSpec failed to parse")
 	}

@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { Field, ASCII, Enum, Numeric, Floating, Switch, Bitfield } from '../src/fields.js'
-import { board_type_id, board_error_bitfield_offset } from '../src/messageTypes.js'
+import { board_type, board_error_bitfield_offset } from '../src/messageTypes.js'
 
 // Adapted from waterloo-rocketry/parsley tests/test_fields.py.
 
@@ -99,11 +99,11 @@ describe('ASCII', () => {
 
 describe('Enum', () => {
     it('encodes and decodes against a real map', () => {
-        const e = new Enum('enum', 8, board_type_id)
-        const [data, length] = e.encode('INJECTOR')
+        const e = new Enum('enum', 8, board_type)
+        const [data, length] = e.encode('BOARD_TYPE_ID_INJECTOR')
         expect(data).toBe(0x01n)
         expect(length).toBe(8)
-        expect(e.decode(0x0an)).toBe('PAYLOAD')
+        expect(e.decode(0x0an)).toBe('BOARD_TYPE_ID_PAYLOAD')
     })
 
     it('round-trips', () => {

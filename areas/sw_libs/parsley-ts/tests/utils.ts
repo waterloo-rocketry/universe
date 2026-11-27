@@ -5,10 +5,10 @@ Test utilities — ported from Python `tests/utils.py`.
 import { BitString } from '../src/bitString.js'
 import type { Field } from '../src/fields.js'
 import {
-    BOARD_INST_ID,
-    BOARD_TYPE_ID,
-    MESSAGE_METADATA,
-    MESSAGE_PRIO,
+    BOARD_INST,
+    BOARD_TYPE,
+    METADATA,
+    PRIO,
     MESSAGE_SID_LEN,
     MESSAGE_TYPE,
 } from '../src/messageDefs.js'
@@ -23,13 +23,13 @@ export function createMsgSid(
     metadata: number | string,
     boardType: string,
     boardInst: string,
-    metadataField: Field = MESSAGE_METADATA,
+    metadataField: Field = METADATA,
 ): Uint8Array {
     const bs = new BitString()
-    const [prioBits, prioLen]     = MESSAGE_PRIO.encode(priority)
+    const [prioBits, prioLen]     = PRIO.encode(priority)
     const [typeBits, typeLen]     = MESSAGE_TYPE.encode(msgType)
-    const [btypeBits, btypeLen]   = BOARD_TYPE_ID.encode(boardType)
-    const [binstBits, binstLen]   = BOARD_INST_ID.encode(boardInst)
+    const [btypeBits, btypeLen]   = BOARD_TYPE.encode(boardType)
+    const [binstBits, binstLen]   = BOARD_INST.encode(boardInst)
     const [metaBits, metaLen]     = metadataField.encode(metadata)
 
     bs.push(prioBits, prioLen)

@@ -1,13 +1,13 @@
 import { describe, it, expect } from 'vitest'
 import {
-    msg_prio,
-    msg_prio_schema,
+    prio,
+    prio_schema,
     msg_type,
     msg_type_schema,
-    board_type_id,
-    board_type_id_schema,
-    board_inst_id,
-    board_inst_id_schema,
+    board_type,
+    board_type_schema,
+    board_inst,
+    board_inst_schema,
     actuator_id,
     actuator_id_schema,
     actuator_state,
@@ -28,25 +28,25 @@ import {
 
 describe('msg_prio', () => {
     it('should have 4 priorities', () => {
-        expect(Object.keys(msg_prio)).toHaveLength(4)
+        expect(Object.keys(prio)).toHaveLength(4)
     })
 
     it('should validate valid priority values', () => {
-        expect(msg_prio_schema.safeParse(0).success).toBe(true)
-        expect(msg_prio_schema.safeParse(3).success).toBe(true)
+        expect(prio_schema.safeParse(0).success).toBe(true)
+        expect(prio_schema.safeParse(3).success).toBe(true)
     })
 
     it('should reject invalid priority values', () => {
-        expect(msg_prio_schema.safeParse(5).success).toBe(false)
-        expect(msg_prio_schema.safeParse(-1).success).toBe(false)
-        expect(msg_prio_schema.safeParse('HIGHEST').success).toBe(false)
+        expect(prio_schema.safeParse(5).success).toBe(false)
+        expect(prio_schema.safeParse(-1).success).toBe(false)
+        expect(prio_schema.safeParse('PRIO_HIGHEST').success).toBe(false)
     })
 
     it('should have correct numeric values', () => {
-        expect(msg_prio.HIGHEST).toBe(0)
-        expect(msg_prio.HIGH).toBe(1)
-        expect(msg_prio.MEDIUM).toBe(2)
-        expect(msg_prio.LOW).toBe(3)
+        expect(prio.PRIO_HIGHEST).toBe(0)
+        expect(prio.PRIO_HIGH).toBe(1)
+        expect(prio.PRIO_MEDIUM).toBe(2)
+        expect(prio.PRIO_LOW).toBe(3)
     })
 })
 
@@ -80,36 +80,36 @@ describe('msg_type', () => {
 
 describe('board_type_id', () => {
     it('should have 15 board types', () => {
-        expect(Object.keys(board_type_id)).toHaveLength(15)
+        expect(Object.keys(board_type)).toHaveLength(15)
     })
 
     it('should validate valid board type values', () => {
-        expect(board_type_id_schema.safeParse(0x00).success).toBe(true)
-        expect(board_type_id_schema.safeParse(0x0e).success).toBe(true)
+        expect(board_type_schema.safeParse(0x00).success).toBe(true)
+        expect(board_type_schema.safeParse(0x0e).success).toBe(true)
     })
 
     it('should reject invalid board type values', () => {
-        expect(board_type_id_schema.safeParse(0x0f).success).toBe(false)
+        expect(board_type_schema.safeParse(0x0f).success).toBe(false)
     })
 
     it('should have correct hex values', () => {
-        expect(board_type_id.ANY).toBe(0x00)
-        expect(board_type_id.DAQ).toBe(0x0d)
+        expect(board_type.BOARD_TYPE_ID_ANY).toBe(0x00)
+        expect(board_type.BOARD_TYPE_ID_DAQ).toBe(0x0d)
     })
 })
 
 describe('board_inst_id', () => {
     it('should have 16 board instances', () => {
-        expect(Object.keys(board_inst_id)).toHaveLength(16)
+        expect(Object.keys(board_inst)).toHaveLength(16)
     })
 
     it('should validate valid board instance values', () => {
-        expect(board_inst_id_schema.safeParse(0x00).success).toBe(true)
-        expect(board_inst_id_schema.safeParse(0x0B).success).toBe(true)
+        expect(board_inst_schema.safeParse(0x00).success).toBe(true)
+        expect(board_inst_schema.safeParse(0x0B).success).toBe(true)
     })
 
     it('should reject invalid board instance values', () => {
-        expect(board_inst_id_schema.safeParse(0x10).success).toBe(false)
+        expect(board_inst_schema.safeParse(0x10).success).toBe(false)
     })
 })
 

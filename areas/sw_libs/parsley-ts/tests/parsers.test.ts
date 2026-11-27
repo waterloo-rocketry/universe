@@ -2,13 +2,13 @@ import { describe, it, expect } from 'vitest'
 import { BitString } from '../src/bitString.js'
 import { ASCII, Enum, Numeric } from '../src/fields.js'
 import {
-    MESSAGE_PRIO,
+    PRIO,
     MESSAGE_TYPE,
-    BOARD_TYPE_ID,
-    BOARD_INST_ID,
-    MESSAGE_METADATA,
+    BOARD_TYPE,
+    BOARD_INST,
+    METADATA,
     MESSAGE_SID_LEN,
-    TIMESTAMP_2,
+    MSG_FIELD_TIMESTAMP,
     MessagePayload,
 } from '../src/messageDefs.js'
 import {
@@ -24,7 +24,7 @@ import {
     BitstringParser,
 } from '../src/parsers.js'
 import { crc8 } from '../src/crc8.js'
-import { actuator_id, actuator_state, analog_sensor_id, board_inst_id, board_type_id, msg_prio } from '../src/messageTypes.js'
+import { actuator_id, actuator_state, analog_sensor_id, board_inst, board_type, prio } from '../src/messageTypes.js'
 import { bigintToBytes, createMsgSid, encodeFields, FLOAT_TOLERANCE, splitFormatLine } from './utils.js'
 
 function isError<T>(r: T | { error: string }): r is { error: string } & T {
@@ -34,9 +34,9 @@ function isError<T>(r: T | { error: string }): r is { error: string } & T {
 // parseToObject — additional input-format tests
 
 describe('parseToObject input coercion', () => {
-    const sidBytes = createMsgSid('HIGH', 'GENERAL_BOARD_STATUS', 0, 'POWER', 'GROUND')
+    const sidBytes = createMsgSid('PRIO_HIGH', 'GENERAL_BOARD_STATUS', 0, 'BOARD_TYPE_ID_POWER', 'BOARD_INST_ID_GROUND')
     const dataBytes = encodeFields([
-        [TIMESTAMP_2, 1.0],
+        [MSG_FIELD_TIMESTAMP, 1.0],
         [new Numeric('board_error_bitfield', 32), 0],
     ])
 
@@ -72,30 +72,30 @@ describe('parseToObject input coercion', () => {
 
 describe('formatLine', () => {
     it('header contains prio, type, board ids and msg_metadata', () => {
-        const sid = createMsgSid('HIGH', 'GENERAL_BOARD_STATUS', 0, 'RLCS_RELAY', 'ROCKET')
+        const sid = createMsgSid('PRIO_HIGH', 'GENERAL_BOARD_STATUS', 0, 'BOARD_TYPE_ID_RLCS_RELAY', 'BOARD_INST_ID_ROCKET')
         const data = encodeFields([
-            [TIMESTAMP_2, 1.234],
+            [MSG_FIELD_TIMESTAMP, 1.234],
             [new Numeric('board_error_bitfield', 32), 0],
         ])
         const r = parseToObject(sid, data)
         if (isError(r)) throw new Error(r.error)
         const { header, body } = splitFormatLine(formatLine(r))
-        expect(header).toEqual(['HIGH', 'GENERAL_BOARD_STATUS', 'RLCS_RELAY', 'ROCKET', '0'])
+        expect(header).toEqual(['PRIO_HIGH', 'GENERAL_BOARD_STATUS', 'BOARD_TYPE_ID_RLCS_RELAY', 'BOARD_INST_ID_ROCKET', '0'])
         expect(body['time']).toBe('1.234')
         expect(body['board_error_bitfield']).toBe('E_NOMINAL')
     })
 
     it('includes sensor metadata as a string', () => {
         const sid = createMsgSid(
-            'LOW',
+            'PRIO_LOW',
             'SENSOR_ANALOG16',
             'SENSOR_PT_CHANNEL_1',
-            'LOGGER',
-            'ROCKET',
+            'BOARD_TYPE_ID_LOGGER',
+            'BOARD_INST_ID_ROCKET',
             new Enum('msg_metadata', 8, analog_sensor_id),
         )
         const data = encodeFields([
-            [TIMESTAMP_2, 22.473],
+            [MSG_FIELD_TIMESTAMP, 22.473],
             [new Numeric('value', 16), 13923],
         ])
         const r = parseToObject(sid, data)
@@ -105,30 +105,29 @@ describe('formatLine', () => {
 
     it('includes actuator metadata as a string', () => {
         const sid = createMsgSid(
-            'MEDIUM',
+            'PRIO_MEDIUM',
             'ACTUATOR_CMD',
             'ACTUATOR_OX_INJECTOR_VALVE',
-            'INJECTOR',
-            'ROCKET',
+            'BOARD_TYPE_ID_INJECTOR',
+            'BOARD_INST_ID_ROCKET',
             new Enum('msg_metadata', 8, actuator_id),
         )
         const data = encodeFields([
-            [TIMESTAMP_2, 1.0],
-            [new Enum('cmd_state', 8, actuator_state), 'ACT_STATE_ON'],
+            [MSG_FIELD_TIMESTAMP, 1.0],
+            [new Enum('actuator_cmd_state', 8, actuator_state), 'ACT_STATE_ON'],
         ])
         const r = parseToObject(sid, data)
         if (isError(r)) throw new Error(r.error)
         expect(formatLine(r)).toContain('ACTUATOR_OX_INJECTOR_VALVE')
     })
 
-    it('omits data section for empty-payload messages', () => {
-        const sid = createMsgSid('LOW', 'LEDS_ON', 0, 'POWER', 'GROUND')
-        const r = parseToObject(sid, new Uint8Array())
+    it('includes the timestamp in LEDS_ON messages', () => {
+        const sid = createMsgSid('PRIO_LOW', 'LEDS_ON', 0, 'BOARD_TYPE_ID_POWER', 'BOARD_INST_ID_GROUND')
+        const r = parseToObject(sid, encodeFields([[MSG_FIELD_TIMESTAMP, 0]]))
         if (isError(r)) throw new Error(r.error)
         const line = formatLine(r)
         expect(line).toContain('LEDS_ON')
-        // No payload fields after the closing bracket.
-        expect(line.trim().endsWith(']')).toBe(true)
+        expect(line).toContain('time: 0')
     })
 })
 
@@ -136,19 +135,19 @@ describe('formatLine', () => {
 
 describe('encodeData', () => {
     it('round-trips a DEBUG_RAW via parseToObject', () => {
-        const sidBytes = createMsgSid('HIGH', 'DEBUG_RAW', 7, 'POWER', 'GROUND')
+        const sidBytes = createMsgSid('PRIO_HIGH', 'DEBUG_RAW', 7, 'BOARD_TYPE_ID_POWER', 'BOARD_INST_ID_GROUND')
         const dataBytes = encodeFields([
-            [TIMESTAMP_2, 1.234],
+            [MSG_FIELD_TIMESTAMP, 1.234],
             [new ASCII('string', 48), "wahoo!"],
         ])
         const parsed = parseToObject(sidBytes, dataBytes)
         if (isError(parsed)) throw new Error(parsed.error)
 
         const encoded = encodeData({
-            msg_prio: parsed.msg_prio as keyof typeof msg_prio,
+            prio: parsed.msg_prio as keyof typeof prio,
             msg_type: parsed.msg_type,
-            board_type_id: parsed.board_type_id as keyof typeof board_type_id,
-            board_inst_id: parsed.board_inst_id as keyof typeof board_inst_id,
+            board_type: parsed.board_type_id as keyof typeof board_type,
+            board_inst: parsed.board_inst_id as keyof typeof board_inst,
             msg_metadata: parsed.msg_metadata,
             data: parsed.data as unknown as Record<string, unknown>,
         })
@@ -165,45 +164,45 @@ describe('encodeData', () => {
         expect(reparsed.msg_metadata).toBe(parsed.msg_metadata)
         const payload = reparsed.data as MessagePayload<"DEBUG_RAW">
         expect(Math.abs(payload.time - 1.234)).toBeLessThan(FLOAT_TOLERANCE)
-        expect(payload.string).toBe('wahoo!')
+        expect(payload.raw_data).toBe('wahoo!')
     })
 
     it('encodes ACTUATOR_CMD with enum metadata', () => {
         const encoded = encodeData({
-            msg_prio: 'HIGH',
+            prio: 'PRIO_HIGH',
             msg_type: 'ACTUATOR_CMD',
-            board_type_id: 'INJECTOR',
-            board_inst_id: 'ROCKET',
+            board_type: 'BOARD_TYPE_ID_INJECTOR',
+            board_inst: 'BOARD_INST_ID_ROCKET',
             msg_metadata: 'ACTUATOR_FUEL_INJECTOR_VALVE',
-            data: { time: 2.0, cmd_state: 'ACT_STATE_ON' },
+            data: { time: 2.0, actuator_cmd_state: 'ACT_STATE_ON' },
         })
         const sid = bigintToBytes(encoded.sid, MESSAGE_SID_BYTES)
         const r = parseToObject(sid, encoded.data)
         if (isError(r)) throw new Error(r.error)
         expect(r.msg_metadata).toBe('ACTUATOR_FUEL_INJECTOR_VALVE')
         expect(r.msg_type).toBe('ACTUATOR_CMD')
-        expect((r.data as { cmd_state: string }).cmd_state).toBe('ACT_STATE_ON')
+        expect((r.data as { actuator_cmd_state: string }).actuator_cmd_state).toBe('ACT_STATE_ON')
     })
 
-    it('encodes LEDS_ON with no payload', () => {
+    it('encodes LEDS_ON with a timestamp', () => {
         const encoded = encodeData({
-            msg_prio: 'LOW',
+            prio: 'PRIO_LOW',
             msg_type: 'LEDS_ON',
-            board_type_id: 'POWER',
-            board_inst_id: 'GROUND',
+            board_type: 'BOARD_TYPE_ID_POWER',
+            board_inst: 'BOARD_INST_ID_GROUND',
             msg_metadata: 0,
-            data: {},
+            data: { time: 0 },
         })
-        expect(encoded.data.length).toBe(0)
+        expect(encoded.data.length).toBe(2)
     })
 
     it('throws on unknown msg_type', () => {
         expect(() =>
             encodeData({
-                msg_prio: 'LOW',
+                prio: 'PRIO_LOW',
                 msg_type: 'NOT_REAL' as never,
-                board_type_id: 'POWER',
-                board_inst_id: 'GROUND',
+                board_type: 'BOARD_TYPE_ID_POWER',
+                board_inst: 'BOARD_INST_ID_GROUND',
                 msg_metadata: 0,
                 data: {},
             }),
@@ -212,24 +211,24 @@ describe('encodeData', () => {
 
     it('falls back to numeric encoding when enum-metadata msg_type gets a raw int', () => {
         // ACTUATOR_CMD's metadataField is Enum, but 0xFF is not a valid actuator_id name.
-        // Per PR #66: encodeData should silently fall back to MESSAGE_METADATA.encode (numeric).
+        // Per PR #66: encodeData should silently fall back to METADATA.encode (numeric).
         const encoded = encodeData({
-            msg_prio: 'HIGH',
+            prio: 'PRIO_HIGH',
             msg_type: 'ACTUATOR_CMD',
-            board_type_id: 'INJECTOR',
-            board_inst_id: 'ROCKET',
+            board_type: 'BOARD_TYPE_ID_INJECTOR',
+            board_inst: 'BOARD_INST_ID_ROCKET',
             msg_metadata: 0xff,
-            data: { time: 0.0, cmd_state: 'ACT_STATE_ON' },
+            data: { time: 0.0, actuator_cmd_state: 'ACT_STATE_ON' },
         })
         // Re-decode the SID to confirm the metadata byte is exactly 0xFF.
         const sidBytes = bigintToBytes(encoded.sid, MESSAGE_SID_BYTES)
         const bs = new BitString(sidBytes, MESSAGE_SID_LEN)
-        bs.pop(MESSAGE_PRIO.length)
+        bs.pop(PRIO.length)
         bs.pop(MESSAGE_TYPE.length)
-        bs.pop(BOARD_TYPE_ID.length)
-        bs.pop(BOARD_INST_ID.length)
-        const metaRaw = bs.pop(MESSAGE_METADATA.length)
-        expect(MESSAGE_METADATA.decode(metaRaw)).toBe(0xff)
+        bs.pop(BOARD_TYPE.length)
+        bs.pop(BOARD_INST.length)
+        const metaRaw = bs.pop(METADATA.length)
+        expect(METADATA.decode(metaRaw)).toBe(0xff)
     })
 })
 
@@ -255,24 +254,23 @@ describe('USBDebugParser', () => {
 
     it('parses a line with payload', () => {
         const payload = encodeFields([
-            [TIMESTAMP_2, 0.5],
+            [MSG_FIELD_TIMESTAMP, 0.5],
             [new Numeric('board_error_bitfield', 32), 0],
         ])
-        const line = makeUsbLine('GENERAL_BOARD_STATUS', 'HIGH', 'POWER', 'GROUND', payload)
+        const line = makeUsbLine('GENERAL_BOARD_STATUS', 'PRIO_HIGH', 'BOARD_TYPE_ID_POWER', 'BOARD_INST_ID_GROUND', payload)
         const r = parser.parse(line)
         if (isError(r)) throw new Error(r.error)
         expect(r.msg_type).toBe('GENERAL_BOARD_STATUS')
     })
 
-    it('parses a line with no payload (no colon)', () => {
-        const line = makeUsbLine('LEDS_ON', 'LOW', 'POWER', 'GROUND', new Uint8Array())
+    it('reports truncated payload on a line with no colon', () => {
+        const line = makeUsbLine('LEDS_ON', 'PRIO_LOW', 'BOARD_TYPE_ID_POWER', 'BOARD_INST_ID_GROUND', new Uint8Array())
         const r = parser.parse(line)
-        if (isError(r)) throw new Error(r.error)
-        expect(r.msg_type).toBe('LEDS_ON')
+        expect(isError(r)).toBe(true)
     })
 
     it('trims whitespace and null bytes', () => {
-        const line = makeUsbLine('LEDS_ON', 'LOW', 'POWER', 'GROUND', new Uint8Array())
+        const line = makeUsbLine('LEDS_ON', 'PRIO_LOW', 'BOARD_TYPE_ID_POWER', 'BOARD_INST_ID_GROUND', encodeFields([[MSG_FIELD_TIMESTAMP, 0]]))
         const r = parser.parse(`\0\r\n  ${line}  \r\n\0`)
         if (isError(r)) throw new Error(r.error)
         expect(r.msg_type).toBe('LEDS_ON')
@@ -314,9 +312,9 @@ describe('LiveTelemetryParser', () => {
     }
 
     it('parses a well-formed frame', () => {
-        const sid = createMsgSid('HIGH', 'GENERAL_BOARD_STATUS', 0, 'POWER', 'GROUND')
+        const sid = createMsgSid('PRIO_HIGH', 'GENERAL_BOARD_STATUS', 0, 'BOARD_TYPE_ID_POWER', 'BOARD_INST_ID_GROUND')
         const payload = encodeFields([
-            [TIMESTAMP_2, 1.0],
+            [MSG_FIELD_TIMESTAMP, 1.0],
             [new Numeric('board_error_bitfield', 32), 0],
         ])
         const frame = buildFrame(sid, payload)
@@ -335,7 +333,7 @@ describe('LiveTelemetryParser', () => {
     })
 
     it('throws on bad CRC', () => {
-        const sid = createMsgSid('LOW', 'LEDS_ON', 0, 'POWER', 'GROUND')
+        const sid = createMsgSid('PRIO_LOW', 'LEDS_ON', 0, 'BOARD_TYPE_ID_POWER', 'BOARD_INST_ID_GROUND')
         const frame = buildFrame(sid, new Uint8Array())
         frame[frame.length - 1] ^= 0xff // corrupt the CRC
         expect(() => parser.parse(frame)).toThrow(/checksum/)
@@ -375,13 +373,13 @@ describe('LoggerParser', () => {
     it('yields messages from a page', () => {
         const recs = [
             {
-                sid: createMsgSid('LOW', 'LEDS_ON', 0, 'POWER', 'GROUND'),
-                data: new Uint8Array(),
+                sid: createMsgSid('PRIO_LOW', 'LEDS_ON', 0, 'BOARD_TYPE_ID_POWER', 'BOARD_INST_ID_GROUND'),
+                data: encodeFields([[MSG_FIELD_TIMESTAMP, 0]]),
             },
             {
-                sid: createMsgSid('HIGH', 'GENERAL_BOARD_STATUS', 0, 'POWER', 'GROUND'),
+                sid: createMsgSid('PRIO_HIGH', 'GENERAL_BOARD_STATUS', 0, 'BOARD_TYPE_ID_POWER', 'BOARD_INST_ID_GROUND'),
                 data: encodeFields([
-                    [TIMESTAMP_2, 0.5],
+                    [MSG_FIELD_TIMESTAMP, 0.5],
                     [new Numeric('board_error_bitfield', 32), 0],
                 ]),
             },
@@ -425,13 +423,13 @@ describe('BitstringParser', () => {
     it('parses a packed BitString', () => {
         const bs = new BitString()
         // SID (29 bits)
-        bs.push(...MESSAGE_PRIO.encode('HIGH'))
+        bs.push(...PRIO.encode('PRIO_HIGH'))
         bs.push(...MESSAGE_TYPE.encode('GENERAL_BOARD_STATUS'))
-        bs.push(...BOARD_TYPE_ID.encode('POWER'))
-        bs.push(...BOARD_INST_ID.encode('GROUND'))
-        bs.push(...MESSAGE_METADATA.encode(0))
+        bs.push(...BOARD_TYPE.encode('BOARD_TYPE_ID_POWER'))
+        bs.push(...BOARD_INST.encode('BOARD_INST_ID_GROUND'))
+        bs.push(...METADATA.encode(0))
         // Payload
-        bs.push(...TIMESTAMP_2.encode(1.0))
+        bs.push(...MSG_FIELD_TIMESTAMP.encode(1.0))
         bs.push(...new Numeric('board_error_bitfield', 32).encode(0))
 
         expect(bs.length).toBe(MESSAGE_SID_LEN + 16 + 32)

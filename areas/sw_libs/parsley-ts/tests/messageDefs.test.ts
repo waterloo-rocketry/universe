@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import {
     MESSAGE_SCHEMAS,
-    MESSAGE_METADATA,
+    METADATA,
     ACTUATOR_CMD,
     ACTUATOR_STATUS,
     ALT_ARM_CMD,
@@ -34,23 +34,23 @@ describe('MESSAGE_DEFS registry', () => {
         }
     })
 
-    it('UNDEFINED, LEDS_ON, LEDS_OFF have empty fields', () => {
-        expect(UNDEFINED.fields).toEqual([])
-        expect(LEDS_ON.fields).toEqual([])
-        expect(LEDS_OFF.fields).toEqual([])
+    it('UNDEFINED, LEDS_ON, LEDS_OFF contain a timestamp', () => {
+        expect(UNDEFINED.fields.map(f => f.name)).toEqual(['time'])
+        expect(LEDS_ON.fields.map(f => f.name)).toEqual(['time'])
+        expect(LEDS_OFF.fields.map(f => f.name)).toEqual(['time'])
     })
 
-    it('STREAM_RETRY has only TIMESTAMP_2', () => {
+    it('STREAM_RETRY has only MSG_FIELD_TIMESTAMP', () => {
         expect(STREAM_RETRY.fields).toHaveLength(1)
         expect(STREAM_RETRY.fields[0]?.name).toBe('time')
     })
 })
 
 describe('Per-msg-type metadataField overrides', () => {
-    it('defaults to MESSAGE_METADATA (numeric) for most msg types', () => {
-        expect(GENERAL_BOARD_STATUS.metadataField).toBe(MESSAGE_METADATA)
-        expect(LEDS_ON.metadataField).toBe(MESSAGE_METADATA)
-        expect(STREAM_DATA.metadataField).toBe(MESSAGE_METADATA)
+    it('defaults to METADATA (numeric) for most msg types', () => {
+        expect(GENERAL_BOARD_STATUS.metadataField).toBe(METADATA)
+        expect(LEDS_ON.metadataField).toBe(METADATA)
+        expect(STREAM_DATA.metadataField.name).toBe('seq_id')
     })
 
     it('uses Enum-based metadata for actuator/altimeter/sensor types', () => {

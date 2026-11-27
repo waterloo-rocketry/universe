@@ -3,9 +3,9 @@ name: Test
 on:
   push:
     branches: [main]
-    paths: ["areas/apps/omnibus/**"]
+    paths: ["areas/apps/omnibus/**", "areas/sw_libs/parsley/**"]
   pull_request:
-    paths: ["areas/apps/omnibus/**"]
+    paths: ["areas/apps/omnibus/**", "areas/sw_libs/parsley/**"]
 
 defaults:
   run:

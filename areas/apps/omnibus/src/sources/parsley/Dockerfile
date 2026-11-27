@@ -7,8 +7,9 @@ LABEL authors="Waterloo Rocketry <contact@waterloorocketry.com>"
 RUN apk add --no-cache git
 
 # Copy the project into the image.
-WORKDIR /app
-COPY . /app
+WORKDIR /app/areas/apps/omnibus
+COPY areas/apps/omnibus /app/areas/apps/omnibus
+COPY areas/sw_libs/parsley /app/areas/sw_libs/parsley
 
 # Sync the project into the new environment, asserting the lockfile is up to date.
 RUN uv sync --no-dev --no-editable --locked --package parsley-source

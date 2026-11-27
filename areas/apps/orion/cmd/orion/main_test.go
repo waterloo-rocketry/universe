@@ -16,9 +16,21 @@ func runOrion(args ...string) (code int, stdout, stderr string) {
 }
 
 func TestVersion(t *testing.T) {
-	code, stdout, _ := runOrion("version")
-	if code != exitOK || stdout != "orion "+version+"\n" {
-		t.Errorf("version: code %d, stdout %q", code, stdout)
+	for _, arg := range []string{"version", "--version"} {
+		code, stdout, _ := runOrion(arg)
+		if code != exitOK || stdout != "orion "+version+"\n" {
+			t.Errorf("%s: code %d, stdout %q", arg, code, stdout)
+		}
+	}
+}
+
+// Help that was asked for is output, not an error: stdout and exit 0.
+func TestHelp(t *testing.T) {
+	for _, flag := range []string{"-h", "--help"} {
+		code, stdout, stderr := runOrion(flag)
+		if code != exitOK || stdout != usage || stderr != "" {
+			t.Errorf("%s: code %d, stdout %q, stderr %q", flag, code, stdout, stderr)
+		}
 	}
 }
 

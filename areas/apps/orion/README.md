@@ -52,7 +52,8 @@ a `.proto` file in `areas/apis/orion` changes (see
 ```text
 orion <role> <file.toml>                   run the role with that file
 orion <role> <file.toml> --verify-config   check the file and exit (short form: -t)
-orion version                              print the version
+orion version                              print the version (flag form: --version)
+orion --help                               print the usage (short form: -h)
 ```
 
 ```sh

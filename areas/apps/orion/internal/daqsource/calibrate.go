@@ -65,11 +65,11 @@ func NewThermistor(supplyV, seriesOhm, betaK, rInfOhm float64) Calibration {
 
 func (c thermistorCal) Apply(v float64) (float64, bool) {
 	if v == 0 {
-		return math.NaN(), false
+		return math.NaN(), false  // Omnibus yields ZeroDivisionError
 	}
 	r := (c.supplyV - v) / (v / c.seriesOhm)
 	if r <= 0 {
-		return math.NaN(), false
+		return math.NaN(), false  // Omnibus returns 0
 	}
 	t := c.betaK/math.Log2(r/c.rInfOhm) - 273.15
 	if math.IsNaN(t) || math.IsInf(t, 0) {

@@ -68,7 +68,14 @@ func (c thermistorCal) Apply(v float64) (float64, bool) {
 		return math.NaN(), false
 	}
 	r := (c.supplyV - v) / (v / c.seriesOhm)
-	return c.betaK/math.Log2(r/c.rInfOhm) - 273.15, true
+	if r <= 0 {
+		return math.NaN(), false
+	}
+	t := c.betaK/math.Log2(r/c.rInfOhm) - 273.15
+	if math.IsNaN(t) || math.IsInf(t, 0) {
+		return math.NaN(), false
+	}
+	return t, true
 }
 func (c thermistorCal) Unit() Unit {
 	return DegC

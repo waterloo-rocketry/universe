@@ -732,3 +732,56 @@ def test_load_rocketcan_malformed_yaml_error_names_file(tmp_path):
 
     with pytest.raises(StrictYAMLError, match="broken.yaml"):
         load_rocketcan(path)
+
+
+@pytest.mark.parametrize(('change', 'error'), [
+    (lambda d: d['message_fields'][0].pop('id'), None),
+    (lambda d: d['message_fields'][0].update(bytes='0'), 'byte width must be positive'),
+    (lambda d: d['message_fields'][0].pop('enum'), 'enum field requires an enum name'),
+    (lambda d: d['message_fields'][0].update(type='bitfield', bitfield=None), 'bitfield field requires a bitfield name'),
+    (lambda d: d['sid']['fields'][0].update(index='0'), 'index must be positive'),
+    (lambda d: d['sid']['fields'][0].update(enum='MISSING'), 'cannot find enum'),
+    (lambda d: d['sid']['fields'][0].pop('enum'), 'enum field requires an enum name'),
+])
+def test_validation_edge_cases(change, error):
+    doc = _rocketcan_doc()
+    # The first case needs no reference to the now anonymous shared field.
+    if error is None:
+        doc['messages'][0]['fields'] = []
+    change(doc)
+    data = _convert(models.RocketCAN, doc)
+    if error:
+        with pytest.raises(RocketCANError, match=error):
+            _validate_rocketcan(data)
+    else:
+        _validate_rocketcan(data)
+        assert 'MSG_FIELD_' not in message_defs.render(data)
+
+
+def test_sid_get_field_missing():
+    with pytest.raises(KeyError):
+        models.SID().get_field('missing')
+
+
+def test_generator_rejects_invalid_field_input():
+    data = _convert(models.RocketCAN, _rocketcan_doc())
+    with pytest.raises(TypeError, match='Expected Field or RefField'):
+        message_defs._field(object(), data)
+    with pytest.raises(AssertionError):
+        message_defs._field(models.Field(name='bad', type='bad', bytes=1), data)
+
+
+def test_generator_rejects_nonpositive_sid_width():
+    doc = _rocketcan_doc()
+    doc['sid']['fields'][0]['bits'] = '0'
+    with pytest.raises(RocketCANError, match='SID field widths must be positive'):
+        message_defs.render(_convert(models.RocketCAN, doc))
+
+
+def test_generator_rejects_non_byte_aligned_ascii_metadata():
+    doc = _rocketcan_doc()
+    doc['sid']['fields'][-1]['bits'] = '7'
+    doc['messages'][0]['metadata'] = {'name': 'text', 'type': 'ascii'}
+    with pytest.raises(RocketCANError, match='ASCII metadata requires a whole-byte width'):
+        message_defs.render(_convert(models.RocketCAN, doc))
+

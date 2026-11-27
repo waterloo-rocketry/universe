@@ -35,7 +35,6 @@ type Source struct {
 	Baud                *int              `toml:"baud"`
 	Boards              []string          `toml:"boards"`
 	TxBoard             string            `toml:"tx_board"` // board our own commands go out as
-	TxPrio              string            `toml:"tx_prio"`  // priority our own commands go out at
 	DefaultStaleAfterMs *uint32           `toml:"default_stale_after_ms"`
 	StaleAfterMs        map[string]uint32 `toml:"stale_after_ms"`
 	LogDir              string            `toml:"log_dir"` // where the raw log (.canlog) goes; required, since every CAN source keeps one
@@ -67,9 +66,6 @@ func (c *Config) applyDefaults() {
 	}
 	if src.TxBoard == "" {
 		src.TxBoard = "DAQ/GROUND"
-	}
-	if src.TxPrio == "" {
-		src.TxPrio = "HIGHEST"
 	}
 	if src.DefaultStaleAfterMs == nil {
 		defaultStaleAfterMs := uint32(2000)

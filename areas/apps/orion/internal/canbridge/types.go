@@ -94,10 +94,11 @@ type GenericCommand struct {
 
 // RawMessageForm is a message from the CAN sender, encoded by the bridge.
 type RawMessageForm struct {
-	MsgType                    string
-	Metadata                   Value
-	Fields                     map[string]Value
-	BoardType, BoardInst, Prio string // "" means the source's default (tx_board, tx_prio)
+	MsgType              string
+	Metadata             Value
+	Fields               map[string]Value
+	BoardType, BoardInst string // "" means the source's tx_board
+	Prio                 string // sent exactly as given
 }
 
 // RawBytes is an exact frame, for sending odd frames on purpose.

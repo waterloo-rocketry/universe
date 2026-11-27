@@ -35,9 +35,6 @@ func TestApplyDefaults(t *testing.T) {
 	if src.TxBoard != "DAQ/GROUND" {
 		t.Errorf("TxBoard = %q, want %q", src.TxBoard, "DAQ/GROUND")
 	}
-	if src.TxPrio != "HIGHEST" {
-		t.Errorf("TxPrio = %q, want %q", src.TxPrio, "HIGHEST")
-	}
 	if src.DefaultStaleAfterMs == nil || *src.DefaultStaleAfterMs != 2000 {
 		t.Errorf("DefaultStaleAfterMs = %v, want 2000", src.DefaultStaleAfterMs)
 	}
@@ -53,7 +50,6 @@ func TestApplyDefaultsKeepsSetValues(t *testing.T) {
 			ID:                  "can-injector",
 			Baud:                ptr(9600),
 			TxBoard:             "INJECTOR/ROCKET",
-			TxPrio:              "LOW",
 			DefaultStaleAfterMs: ptr(uint32(5000)),
 			Actuators:           []Actuator{{ID: "ox-injector-valve", ConfirmSettleMs: ptr(uint32(500))}},
 		},
@@ -66,9 +62,6 @@ func TestApplyDefaultsKeepsSetValues(t *testing.T) {
 	}
 	if src.TxBoard != "INJECTOR/ROCKET" {
 		t.Errorf("TxBoard = %q, want it left unchanged", src.TxBoard)
-	}
-	if src.TxPrio != "LOW" {
-		t.Errorf("TxPrio = %q, want it left unchanged", src.TxPrio)
 	}
 	if *src.DefaultStaleAfterMs != 5000 {
 		t.Errorf("DefaultStaleAfterMs = %d, want it left unchanged", *src.DefaultStaleAfterMs)

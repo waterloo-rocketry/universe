@@ -11,10 +11,10 @@ Wire format spec: https://docs.waterloorocketry.com/avionics/rocketcan/index.htm
 import { BitString } from './bitString.js'
 import { Enum } from './fields.js'
 import {
-    BOARD_INST_ID,
-    BOARD_TYPE_ID,
-    MESSAGE_METADATA,
-    MESSAGE_PRIO,
+    BOARD_INST,
+    BOARD_TYPE,
+    METADATA,
+    PRIO,
     MESSAGE_SID_LEN,
     MESSAGE_TYPE,
     MESSAGE_SCHEMAS,
@@ -22,7 +22,7 @@ import {
 } from './messageDefs.js'
 import type { MessageSchemaKey, MessageSchema, ParsleyMessage } from './messageDefs.js'
 import type { ParsleyError } from './schemas.js'
-import type { msg_prio, board_type_id, board_inst_id } from './messageTypes.js'
+import type { prio, board_type, board_inst } from './messageTypes.js'
 
 // SID is exactly 29 bits, transported in 4 bytes (3 leading pad bits).
 export const MESSAGE_SID_BYTES = Math.ceil(MESSAGE_SID_LEN / 8)
@@ -106,7 +106,7 @@ export function parseToObject(
         }
     }
 
-    // Catch-all error builder for early SID failures (msg_prio not yet known).
+    // Catch-all error builder for early SID failures (prio not yet known).
     const earlyError = (err: unknown): ParsleyError => ({
         msg_prio: '',
         board_type_id: hexify(msgSid),
@@ -133,19 +133,19 @@ export function parseToObject(
     let metaRaw: bigint
     try {
         sidBits = new BitString(msgSid, MESSAGE_SID_LEN)
-        prioRaw  = sidBits.pop(MESSAGE_PRIO.length)
+        prioRaw  = sidBits.pop(PRIO.length)
         typeRaw  = sidBits.pop(MESSAGE_TYPE.length)
-        btypeRaw = sidBits.pop(BOARD_TYPE_ID.length)
-        binstRaw = sidBits.pop(BOARD_INST_ID.length)
-        metaRaw  = sidBits.pop(MESSAGE_METADATA.length)
+        btypeRaw = sidBits.pop(BOARD_TYPE.length)
+        binstRaw = sidBits.pop(BOARD_INST.length)
+        metaRaw  = sidBits.pop(METADATA.length)
     } catch (err) {
         return earlyError(err)
     }
 
     // These three never throw out — they hexify on enum miss.
-    const msg_prio      = safeDecode(MESSAGE_PRIO, prioRaw)
-    const board_type_id = safeDecode(BOARD_TYPE_ID, btypeRaw)
-    const board_inst_id = safeDecode(BOARD_INST_ID, binstRaw)
+    const prio      = safeDecode(PRIO, prioRaw)
+    const board_type = safeDecode(BOARD_TYPE, btypeRaw)
+    const board_inst = safeDecode(BOARD_INST, binstRaw)
 
     // Numeric metadata is the default fallback shown when msg_type decode fails too.
     const metadataNumeric = Number(metaRaw)
@@ -157,9 +157,9 @@ export function parseToObject(
         msgSchema = MESSAGE_SCHEMAS[msg_type] // guarenteed to have a key in MESSAGE_TYPE (enforced by satisfies)
     } catch (err) {
         return {
-            msg_prio,
-            board_type_id,
-            board_inst_id,
+            msg_prio: prio,
+            board_type_id: board_type,
+            board_inst_id: board_inst,
             msg_type: hexify(new Uint8Array(typeRawToBytes(typeRaw))),
             msg_metadata: metadataNumeric,
             msg_data: hexify(msgData),
@@ -180,9 +180,9 @@ export function parseToObject(
         data = decodeMessage(msgSchema, new BitString(msgData))
     } catch (err) {
         return {
-            msg_prio,
-            board_type_id,
-            board_inst_id,
+            msg_prio: prio,
+            board_type_id: board_type,
+            board_inst_id: board_inst,
             msg_type,
             msg_metadata,
             msg_data: hexify(msgData),
@@ -191,10 +191,10 @@ export function parseToObject(
     }
 
     return {
-        msg_prio,
+        msg_prio: prio,
         msg_type,
-        board_type_id,
-        board_inst_id,
+        board_type_id: board_type,
+        board_inst_id: board_inst,
         msg_metadata,
         data,
     } as ParsleyMessage
@@ -214,10 +214,10 @@ function typeRawToBytes(raw: bigint): number[] {
 
 // formatLine — pretty-print a parsed message (mirrors Python format_line)
 
-const MSG_PRIO_LEN      = Math.max(...Object.keys(MESSAGE_PRIO.map_key_val).map((k) => k.length))
+const MSG_PRIO_LEN      = Math.max(...Object.keys(PRIO.map_key_val).map((k) => k.length))
 const MSG_TYPE_LEN      = Math.max(...Object.keys(MESSAGE_TYPE.map_key_val).map((k) => k.length))
-const BOARD_TYPE_ID_LEN = Math.max(...Object.keys(BOARD_TYPE_ID.map_key_val).map((k) => k.length))
-const BOARD_INST_ID_LEN = Math.max(...Object.keys(BOARD_INST_ID.map_key_val).map((k) => k.length))
+const BOARD_TYPE_LEN = Math.max(...Object.keys(BOARD_TYPE.map_key_val).map((k) => k.length))
+const BOARD_INST_LEN = Math.max(...Object.keys(BOARD_INST.map_key_val).map((k) => k.length))
 const MSG_METADATA_LEN = Math.max(
     0,
     ...Object.values(MESSAGE_SCHEMAS).flatMap(({ metadataField }) =>
@@ -233,8 +233,8 @@ export function formatLine(parsed: ParsleyMessage): string {
     const header =
         `[ ${padRight(parsed.msg_prio, MSG_PRIO_LEN)}` +
         ` ${padRight(parsed.msg_type, MSG_TYPE_LEN)}` +
-        ` ${padRight(parsed.board_type_id, BOARD_TYPE_ID_LEN)}` +
-        ` ${padRight(parsed.board_inst_id, BOARD_INST_ID_LEN)}` +
+        ` ${padRight(parsed.board_type_id, BOARD_TYPE_LEN)}` +
+        ` ${padRight(parsed.board_inst_id, BOARD_INST_LEN)}` +
         ` ${padRight(String(parsed.msg_metadata), MSG_METADATA_LEN)} ]`
 
     let body = ''
@@ -251,10 +251,10 @@ export function formatLine(parsed: ParsleyMessage): string {
 // encodeData — reverse direction: parsed object -> (sid, msgData)
 
 export interface ParsedMessageLike {
-    msg_prio: keyof typeof msg_prio
+    prio: keyof typeof prio
     msg_type: MessageSchemaKey
-    board_type_id: keyof typeof board_type_id
-    board_inst_id: keyof typeof board_inst_id
+    board_type: keyof typeof board_type
+    board_inst: keyof typeof board_inst
     msg_metadata: string | number
     data: Record<string, unknown>
 }
@@ -267,14 +267,14 @@ export function encodeData(parsed: ParsedMessageLike): { sid: bigint; data: Uint
 
     // ---- Build SID ----
     const sidBits = new BitString()
-    sidBits.push(...MESSAGE_PRIO.encode(parsed.msg_prio))
+    sidBits.push(...PRIO.encode(parsed.prio))
     sidBits.push(...MESSAGE_TYPE.encode(parsed.msg_type))
-    sidBits.push(...BOARD_TYPE_ID.encode(parsed.board_type_id))
-    sidBits.push(...BOARD_INST_ID.encode(parsed.board_inst_id))
+    sidBits.push(...BOARD_TYPE.encode(parsed.board_type))
+    sidBits.push(...BOARD_INST.encode(parsed.board_inst))
     // If the metadata field is an Enum but the caller passed a raw int, fall back
-    // to the 8-bit numeric MESSAGE_METADATA encoding — mirrors parsley PR #66.
+    // to the 8-bit numeric METADATA encoding — mirrors parsley PR #66.
     if (msgSchema.metadataField instanceof Enum && typeof parsed.msg_metadata === 'number') {
-        sidBits.push(...MESSAGE_METADATA.encode(parsed.msg_metadata))
+        sidBits.push(...METADATA.encode(parsed.msg_metadata))
     } else {
         sidBits.push(...msgSchema.metadataField.encode(parsed.msg_metadata))
     }

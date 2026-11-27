@@ -8,16 +8,11 @@ type Value interface {
 	String() string // what FormatLine and the CAN log print
 }
 
-type Int int64 // uint and int fields
-type UInt uint64
+type Int int64   // uint and int fields
 type Text string // ascii fields
 
 func (i Int) String() string {
-	return fmt.Sprintf("Int %d", i)
-}
-
-func (i UInt) String() string {
-	return fmt.Sprintf("Uint %d", i)
+	return fmt.Sprintf("%d", i)
 }
 
 func (t Text) String() string {
@@ -80,11 +75,14 @@ const (
 	ErrCRC
 )
 
+// the line/frame itself is broken
 type FrameError struct {
 	Kind   FrameErrorKind
 	Reason string
-}                         // the line/frame itself is broken
-type DecodeError struct { // like Python's ParsleyError
+}
+
+// like Python's ParsleyError
+type DecodeError struct {
 	SID       uint32
 	Data      []byte
 	Prio      MsgPrio

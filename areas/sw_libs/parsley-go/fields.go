@@ -53,7 +53,7 @@ func decodeField(f FieldSpec, b []byte) (Value, *Issue, error) {
 	switch t := f.(type) {
 	case *UintSpec:
 		val, err := readUint(b[:t.Bytes])
-		return UInt(val), nil, err
+		return Int(val), nil, err
 	case *IntSpec:
 		val, err := readInt(b[:t.Bytes])
 		return Int(val), nil, err

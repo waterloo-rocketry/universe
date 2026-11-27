@@ -2,7 +2,7 @@
 //
 //	orion <role> <file.toml>                   run the role with that file
 //	orion <role> <file.toml> --verify-config   check the file and exit (short form: -t)
-//	orion version                              print the version (flag form: --version)
+//	orion --version                            print the version (short form: -v)
 //	orion --help                               print the usage (short form: -h)
 //
 // So far only `orion can <file> --verify-config` does anything; every other
@@ -43,7 +43,7 @@ var roles = map[string]string{
 // bad-arguments error.
 const usage = `usage:
   orion <role> <file.toml> [--verify-config | -t]
-  orion version | --version
+  orion --version | -v
   orion --help | -h
 roles: can, daq, fake, logger, omnibus, replay, rlcs, server
 `
@@ -94,7 +94,7 @@ func run(args []string, stdout, stderr io.Writer) int {
 		// usage after bad arguments it goes to stdout and exits 0.
 		fmt.Fprint(stdout, usage)
 		return exitOK
-	case (args[0] == "version" || args[0] == "--version") && len(args) == 1:
+	case (args[0] == "-v" || args[0] == "--version") && len(args) == 1:
 		fmt.Fprintln(stdout, "orion", version)
 		return exitOK
 	}

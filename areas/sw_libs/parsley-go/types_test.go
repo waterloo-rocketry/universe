@@ -69,7 +69,7 @@ func TestDecodeErrorOnIncompleteBody(t *testing.T) {
 
 func TestTypeString(t *testing.T) {
 	i := Int(67)
-	if i.String() != "Int 67" {
+	if i.String() != "67" {
 		t.Error("Int.String() failed to format value")
 	}
 

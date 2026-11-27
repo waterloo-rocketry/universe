@@ -8,10 +8,15 @@ type Value interface {
 	String() string // what FormatLine and the CAN log print
 }
 
-type Int int64   // uint and int fields
+type Int int64   // int fields
+type Uint uint64 // uint fields
 type Text string // ascii fields
 
 func (i Int) String() string {
+	return fmt.Sprintf("%d", i)
+}
+
+func (i Uint) String() string {
 	return fmt.Sprintf("%d", i)
 }
 

@@ -62,17 +62,18 @@ type ChannelDef struct {
 	StaleAfterMs        uint32
 }
 
-// Sink is where the bridge puts everything it makes. The console sink prints and the converter hands it to Orion core, and tests record it.
-type Sink interface {
+// Output is where the bridge puts everything it makes. The console Output
+// prints it, the converter sends it to the Orion Server, and tests record it.
+type Output interface {
 	Frame(raw RawFrame, samples []NamedSample, droppedBefore uint32) error
 	Catalog(newChannels []ChannelDef) error
 	Health(h Health) error
 }
 
-// SendRequest is what core asks the bridge to write.
+// SendRequest is what the Orion Server asks the bridge to write.
 type SendRequest struct {
 	RequestID string
-	Deadline  time.Time // set by core from the command's remaining time
+	Deadline  time.Time // set by the Orion Server from the command's remaining time
 	Body      SendBody  // *GenericCommand, *RawMessageForm or *RawBytes
 }
 
@@ -93,10 +94,11 @@ type GenericCommand struct {
 
 // RawMessageForm is a message from the CAN sender, encoded by the bridge.
 type RawMessageForm struct {
-	MsgType                    string
-	Metadata                   Value
-	Fields                     map[string]Value
-	BoardType, BoardInst, Prio string // "" means the source's default (tx_board, tx_prio)
+	MsgType              string
+	Metadata             Value
+	Fields               map[string]Value
+	BoardType, BoardInst string // "" means the source's tx_board
+	Prio                 string // sent exactly as given
 }
 
 // RawBytes is an exact frame, for sending odd frames on purpose.
@@ -115,7 +117,7 @@ const (
 	Unknown SendState = "UNKNOWN" // the write broke partway, bytes may be out
 )
 
-// SendResult is what goes back to core.
+// SendResult is what goes back to the Orion Server.
 type SendResult struct {
 	RequestID      string
 	State          SendState

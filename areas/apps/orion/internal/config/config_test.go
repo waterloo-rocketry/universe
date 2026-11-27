@@ -56,9 +56,30 @@ func TestCheckCAN(t *testing.T) {
 		t.Errorf("committed bench config: ok %v, errs %v, warnings %v", ok, errs, warnings)
 	}
 	// a serial port with no format is one error, so the file reached the CAN rules
-	path := writeFile(t, "[[source]]\ntype = \"can\"\nid = \"can-bench\"\nport = \"COM4\"\n")
+	path := writeFile(t, "[source]\ntype = \"can\"\nid = \"can-bench\"\nport = \"COM4\"\nlog_dir = \"canlog\"\n")
 	if errs, _, _ := Check("can", path); len(errs) != 1 {
 		t.Errorf("got %d errors, want 1: %v", len(errs), errs)
+	}
+}
+
+// A source's file must say which role it's for, and a file for another role
+// stops at that error.
+func TestCheckSourceType(t *testing.T) {
+	tests := []struct {
+		name string
+		text string
+		want string
+	}{
+		{"missing type", "[source]\nid = \"can-bench\"\nport = \"COM4\"\n", `source.type: missing; set type = "can"`},
+		{"another role's file", "[source]\ntype = \"daq\"\nid = \"daq-main\"\nport = \"COM4\"\n", `source.type is "daq", but this is orion can; run orion daq, or set type = "can"`},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			errs, _, _ := Check("can", writeFile(t, tt.text))
+			if len(errs) != 1 || errs[0].Error() != tt.want {
+				t.Errorf("got %v, want only %q", errs, tt.want)
+			}
+		})
 	}
 }
 

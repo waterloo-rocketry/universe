@@ -7,16 +7,17 @@ import (
 
 type Unit string
 
+// issue #92 should own this full set of units
 const (
-	PSI Unit = "psi"
-	Lbf Unit = "lbf"
-	Kg Unit = "kg"
-	N Unit = "N"
-	DegC Unit = "°C"
-	Volt Unit = "V"
+	PSI    Unit = "psi"
+	Lbf    Unit = "lbf"
+	Kg     Unit = "kg"
+	N      Unit = "N"
+	DegC   Unit = "°C"
+	Volt   Unit = "V"
 	MiVolt Unit = "mV"
-	Amp Unit = "A"
-	MPS Unit = "m/s"
+	Amp    Unit = "A"
+	MPS    Unit = "m/s"
 )
 
 type Calibration interface {
@@ -27,33 +28,39 @@ type Calibration interface {
 
 // NOTE: this is a placeholder until issue #92 is complete, which holds the real struct
 type CalibrationConfig struct {
-	Linear *linearCal
+	Linear     *linearCal
 	Thermistor *thermistorCal
 }
 
 type linearCal struct {
-	slope float64
+	slope  float64
 	offset float64
-	unit Unit
+	unit   Unit
 }
 
-type thermistorCal struct {
-	supplyV float64
-	seriesOhm float64
-	betaK float64
-	rInfOhm float64
+func NewLinear(slope float64, offset float64, unit Unit) Calibration {
+	return linearCal{slope, offset, unit}
 }
 
 func (c linearCal) Apply(v float64) (float64, bool) {
 	return c.slope*v + c.offset, true
 }
-
-func (c linearCal) Unit() Unit { 
+func (c linearCal) Unit() Unit {
 	return c.unit
 }
-
 func (c linearCal) Text() string {
 	return fmt.Sprintf("%v*x + %v (%s)", c.slope, c.offset, c.unit)
+}
+
+type thermistorCal struct {
+	supplyV   float64
+	seriesOhm float64
+	betaK     float64
+	rInfOhm   float64
+}
+
+func NewThermistor(supplyV, seriesOhm, betaK, rInfOhm float64) Calibration {
+	return thermistorCal{supplyV, seriesOhm, betaK, rInfOhm}
 }
 
 func (c thermistorCal) Apply(v float64) (float64, bool) {
@@ -61,23 +68,13 @@ func (c thermistorCal) Apply(v float64) (float64, bool) {
 		return math.NaN(), false
 	}
 	r := (c.supplyV - v) / (v / c.seriesOhm)
-	return c.betaK / math.Log2(r / c.rInfOhm) - 273.15, true
+	return c.betaK/math.Log2(r/c.rInfOhm) - 273.15, true
 }
-
 func (c thermistorCal) Unit() Unit {
 	return DegC
 }
-
 func (c thermistorCal) Text() string {
 	return fmt.Sprintf("Thermistor(V=%v, R=%v, β=%v, r_inf=%v) (%s)", c.supplyV, c.seriesOhm, c.betaK, c.rInfOhm, c.Unit())
-}
-
-func NewLinear(slope float64, offset float64, unit Unit) Calibration {
-	return linearCal{slope, offset, unit}
-}
-
-func NewThermistor(supplyV, seriesOhm, betaK, rInfOhm float64) Calibration {
-	return thermistorCal{supplyV, seriesOhm, betaK, rInfOhm}
 }
 
 func FromConfig(c CalibrationConfig) Calibration {
@@ -86,7 +83,7 @@ func FromConfig(c CalibrationConfig) Calibration {
 		return NewLinear(c.Linear.slope, c.Linear.offset, c.Linear.unit)
 	case c.Thermistor != nil:
 		return NewThermistor(c.Thermistor.supplyV, c.Thermistor.seriesOhm, c.Thermistor.betaK, c.Thermistor.rInfOhm)
-	default: 
+	default:
 		// issue #92 guarantees that exactly one is set, so this should not be a problem
 		panic("calibration config has no set variant")
 	}

@@ -1,6 +1,7 @@
 package canbridge
 
 import (
+	"strings"
 	"testing"
 )
 
@@ -25,8 +26,8 @@ func TestApplyDefaults(t *testing.T) {
 	}}
 	cfg.applyDefaults()
 
-	if cfg.Orion.BackfillWindowS != nil {
-		t.Errorf("BackfillWindowS = %d, want it left unset (DAQ only)", *cfg.Orion.BackfillWindowS)
+	if cfg.Orion.BackfillWindowS == nil || *cfg.Orion.BackfillWindowS != 30 {
+		t.Errorf("BackfillWindowS = %v, want 30", cfg.Orion.BackfillWindowS)
 	}
 	src := cfg.Source
 	if src.Baud == nil || *src.Baud != 115200 {
@@ -46,6 +47,7 @@ func TestApplyDefaults(t *testing.T) {
 func TestApplyDefaultsKeepsSetValues(t *testing.T) {
 	// Values already present must not be overwritten by the defaults.
 	cfg := Config{
+		Orion: Orion{BackfillWindowS: ptr(10)},
 		Source: Source{
 			ID:                  "can-injector",
 			Baud:                ptr(9600),
@@ -56,6 +58,9 @@ func TestApplyDefaultsKeepsSetValues(t *testing.T) {
 	}
 	cfg.applyDefaults()
 
+	if *cfg.Orion.BackfillWindowS != 10 {
+		t.Errorf("BackfillWindowS = %d, want it left unchanged", *cfg.Orion.BackfillWindowS)
+	}
 	src := cfg.Source
 	if *src.Baud != 9600 {
 		t.Errorf("Baud = %d, want 9600 (should not be overwritten)", *src.Baud)
@@ -93,19 +98,19 @@ func TestCheckSerialOrMockWithoutFormat(t *testing.T) {
 	}
 }
 
-func TestCheckBackfillWindowNotSet(t *testing.T) {
+func TestCheckBackfillWindowPositive(t *testing.T) {
 	tests := []struct {
 		name    string
 		orion   Orion
 		wantErr bool
 	}{
-		{"no backfill window passes", Orion{}, false},
-		{"a backfill window fails (DAQ only)", Orion{BackfillWindowS: ptr(30)}, true},
-		{"a zero backfill window still fails", Orion{BackfillWindowS: ptr(0)}, true},
+		{"a positive backfill window passes", Orion{BackfillWindowS: ptr(30)}, false},
+		{"a zero backfill window fails", Orion{BackfillWindowS: ptr(0)}, true},
+		{"a negative backfill window fails", Orion{BackfillWindowS: ptr(-1)}, true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			err := checkBackfillWindowNotSet(Config{Orion: tt.orion, Source: Source{ID: "can-injector"}})
+			err := checkBackfillWindowPositive(Config{Orion: tt.orion, Source: Source{ID: "can-injector"}})
 			if (err != nil) != tt.wantErr {
 				t.Errorf("got error %v, wantErr %v", err, tt.wantErr)
 			}
@@ -294,10 +299,10 @@ func TestCheck(t *testing.T) {
 		}
 	})
 
-	t.Run("commandable USB_DEBUG source in ops passes (it's two-way)", func(t *testing.T) {
+	t.Run("commandable USB_DEBUG source with a backfill window in ops passes", func(t *testing.T) {
 		cfg := Config{
 			ConfigVersion: 1,
-			Orion:         Orion{Server: "http://127.0.0.1:7400", Mode: "ops"},
+			Orion:         Orion{Server: "http://127.0.0.1:7400", Mode: "ops", BackfillWindowS: ptr(30)},
 			Source: Source{
 				ID:         "can-ltt-1",
 				Connection: "USB_DEBUG",
@@ -326,21 +331,29 @@ func TestCheck(t *testing.T) {
 				Format: "usb",
 			},
 		}
-		cfg.Check(known)
+		errs, _ := cfg.Check(known)
 		if cfg.Source.Baud == nil || *cfg.Source.Baud != 115200 {
 			t.Errorf("Check did not apply the baud default")
+		}
+		if cfg.Orion.BackfillWindowS == nil || *cfg.Orion.BackfillWindowS != 30 {
+			t.Errorf("Check did not apply the backfill_window_s default")
+		}
+		for _, err := range errs {
+			if strings.Contains(err.Error(), "backfill_window_s") {
+				t.Errorf("the default backfill window was refused: %v", err)
+			}
 		}
 	})
 
 	t.Run("collects several errors and a warning at once", func(t *testing.T) {
 		// this ops config accumulates four distinct error rules and a warning:
-		//   - backfill window on a CAN source             (checkBackfillWindowNotSet)
+		//   - zero backfill window                        (checkBackfillWindowPositive)
 		//   - no log_dir                                  (checkLogDirSet)
 		//   - commandable actuator without critical       (checkCommandableActuatorFields)
 		//   - unknown board name                          (checkStateNotInRocketCAN)
 		//   - bare COMn port in ops                       (warning)
 		cfg := Config{
-			Orion: Orion{Mode: "ops", BackfillWindowS: ptr(30)},
+			Orion: Orion{Mode: "ops", BackfillWindowS: ptr(0)},
 			Source: Source{
 				ID:         "can-debug",
 				Connection: "USB_DEBUG",

@@ -23,7 +23,7 @@ type Config struct {
 type Orion struct {
 	Server          string `toml:"server"`            // for example "http://127.0.0.1:7400"
 	Mode            string `toml:"mode"`              // "ops" or "test"; must match the server's
-	BackfillWindowS *int   `toml:"backfill_window_s"` // DAQ only; Check refuses it here, since CAN has no acknowledged delivery
+	BackfillWindowS *int   `toml:"backfill_window_s"` // how long unacknowledged data is kept for backfill (DAQ and CAN); default 30
 }
 
 type Source struct {
@@ -59,6 +59,10 @@ func (AllNamesOK) HasBoard(string) bool    { return true }
 func (AllNamesOK) HasState(string) bool    { return true }
 
 func (c *Config) applyDefaults() {
+	if c.Orion.BackfillWindowS == nil {
+		backfillWindowS := 30
+		c.Orion.BackfillWindowS = &backfillWindowS
+	}
 	src := &c.Source
 	if src.Baud == nil {
 		baud := 115200
@@ -91,17 +95,18 @@ func checkSerialOrMockWithoutFormat(cfg Config) error {
 	return nil
 }
 
-// CAN sends live data only: no acks, no backfill and no resume after a
-// reconnect, so the backfill window belongs to DAQ files only
-func checkBackfillWindowNotSet(cfg Config) error {
-	if cfg.Orion.BackfillWindowS != nil {
-		return fmt.Errorf("backfill_window_s is DAQ only, since CAN has no acknowledged delivery (source: %q)", cfg.Source.ID)
+// a zero or negative window would keep nothing for backfill, so every
+// outage would lose data
+func checkBackfillWindowPositive(cfg Config) error {
+	if w := cfg.Orion.BackfillWindowS; w != nil && *w <= 0 {
+		return fmt.Errorf("backfill_window_s must be positive, got %d (source: %q)", *w, cfg.Source.ID)
 	}
 	return nil
 }
 
-// every CAN source keeps its own raw log: CAN doesn't re-send after an
-// outage, so the raw log is the only copy of what it read while disconnected
+// every CAN source keeps its own raw log: it's the raw record of every frame,
+// and the only copy of what was read during an outage longer than the
+// backfill window
 func checkLogDirSet(cfg Config) error {
 	if cfg.Source.LogDir == "" {
 		return fmt.Errorf("log_dir expected, since every CAN source keeps a raw log (source: %q)", cfg.Source.ID)
@@ -160,7 +165,7 @@ func (c *Config) Check(names RocketCANNames) (errs []error, warnings []string) {
 	if err := checkSerialOrMockWithoutFormat(*c); err != nil {
 		errs = append(errs, err)
 	}
-	if err := checkBackfillWindowNotSet(*c); err != nil {
+	if err := checkBackfillWindowPositive(*c); err != nil {
 		errs = append(errs, err)
 	}
 	if err := checkLogDirSet(*c); err != nil {

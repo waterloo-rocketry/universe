@@ -81,10 +81,16 @@ rows = []
 for slope, offset, unit in linear: 
     c = LinearCalibration(slope, offset, unit)
     for v in inputs: 
-        rows.append({"curve": "linear", "slope": slope, "offset": offset, "unit": unit, "v": v, **run(c, v)})
+        rows.append({
+            "curve": "linear", 
+            "data": {"slope": slope, "offset": offset, "unit": unit, "v": v, **run(c, v)}
+        })
 for therm in thermistors: 
     c = ThermistorCalibration(*therm)
     for v in inputs: 
-        rows.append({"curve": "thermistor", "params": therm, "v": v, **run(c, v)})
+        rows.append({
+            "curve": "thermistor", 
+            "data": {"params": therm, "v": v, **run(c, v)}
+        })
 
 print(json.dumps(rows, indent=2))

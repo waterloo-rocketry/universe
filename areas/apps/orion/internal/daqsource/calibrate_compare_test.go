@@ -50,8 +50,12 @@ func TestCompareOmnibus(t *testing.T) {
 		case "thermistor": 
 			var cfg Thermistor
 			json.Unmarshal(env.Data, &cfg)
-			
+
 			got_val, ok := NewThermistor(cfg.Params[0], cfg.Params[1], cfg.Params[2], cfg.Params[3]).Apply(cfg.Voltage)
+			if !cfg.Ok {
+				if ok { t.Errorf("thermistor v=%v: expected no-value, got %v", cfg.Voltage, got_val) }
+				continue
+			}
 			want_val, _ := strconv.ParseFloat(cfg.Value, 64)
 			if !ok || math.Abs(got_val - want_val) > 1e-9+1e-9*math.Abs(want_val) {
 				t.Errorf("thermistor v=%v, omnibus=%v, orion=(%v, %v)", cfg.Voltage, cfg.Value, got_val, ok)

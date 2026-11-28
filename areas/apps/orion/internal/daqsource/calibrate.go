@@ -71,7 +71,7 @@ func (c thermistorCal) Apply(v float64) (float64, bool) {
 	if r <= 0 {
 		return math.NaN(), false  // Omnibus returns 0
 	}
-	t := c.betaK/math.Log2(r/c.rInfOhm) - 273.15
+	t := c.betaK/math.Log(r/c.rInfOhm) - 273.15
 	if math.IsNaN(t) || math.IsInf(t, 0) {
 		return math.NaN(), false
 	}

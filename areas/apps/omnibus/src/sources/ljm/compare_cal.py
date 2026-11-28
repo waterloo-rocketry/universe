@@ -128,4 +128,5 @@ for therm in thermistors:
             "data": {"params": therm, "v": v, **run(c, v)}
         })
 
-print(json.dumps(rows, indent=2))
+with open("omnibus.json", "w", encoding="utf-8") as f: 
+    json.dump(rows, f, indent=2)

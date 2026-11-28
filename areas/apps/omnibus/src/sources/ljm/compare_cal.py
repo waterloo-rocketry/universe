@@ -1,5 +1,6 @@
-import json, math
+import json, math, random
 
+# the following classes are pasted from calibration.py to avoid importing LabJack issues
 class Calibration:
     """
     Represents a calibration curve which transforms a voltage input into a value
@@ -66,6 +67,7 @@ class ThermistorCalibration(Calibration):
         )
 
 
+rng = random.Random(42)
 
 def run(cal, v): 
     try: 
@@ -73,21 +75,46 @@ def run(cal, v):
     except ZeroDivisionError: 
         return {"ok": False, "why": "zerodiv"}
 
+base_inputs = [0.4, 1.0, 2.0, 2.9496, 2.5, 4.0, 0.0, -1.0, 5.0, 9.99]
+
+def linear_inputs(): 
+    pts = base_inputs + [-10.0, 10.0, -0.001, 0.001]
+    pts += [rng.uniform(-10, 10) for _ in range(200)]
+    return pts
+
+def thermistor_inputs(supply): 
+    eps = 1e-9
+    edges = [
+        0.0,           # division by 0
+        -1.0,          # R <= 0
+        supply,        # R == 0
+        supply + 0.01, # R < 0
+        9.99,          # > supply
+        eps,           # tiny > 0 (huge R)
+        supply - eps,  # tiny R > 0, T huge
+        2.5,           # normal
+    ]
+    valid_interval   = [rng.uniform(eps, supply-eps) for _ in range(200)]
+    invalid_interval = [rng.uniform(-10, 0) for _ in range(20)] + \
+                       [rng.uniform(supply, 10) for _ in range(20)]
+    return edges + valid_interval + invalid_interval
+
+
 linear = [(906.25, -362.5, "psi"), (250, -125, "psi")]
 thermistors = [(5, 10000, 3434, 0.099524)]
-inputs = [0.4, 1.0, 2.0, 2.9496, 2.5, 4.0, 0.0, -1.0, 5.0, 9.99]
 
 rows = []
 for slope, offset, unit in linear: 
     c = LinearCalibration(slope, offset, unit)
-    for v in inputs: 
+    for v in linear_inputs(): 
         rows.append({
             "curve": "linear", 
             "data": {"slope": slope, "offset": offset, "unit": unit, "v": v, **run(c, v)}
         })
 for therm in thermistors: 
+    supply = therm[0]
     c = ThermistorCalibration(*therm)
-    for v in inputs: 
+    for v in thermistor_inputs(supply): 
         rows.append({
             "curve": "thermistor", 
             "data": {"params": therm, "v": v, **run(c, v)}

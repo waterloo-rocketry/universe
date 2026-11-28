@@ -112,6 +112,2250 @@
   {
     "curve": "linear",
     "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -10.0,
+      "ok": true,
+      "value": "-9425.0"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 10.0,
+      "ok": true,
+      "value": "8700.0"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -0.001,
+      "ok": true,
+      "value": "-363.40625"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 0.001,
+      "ok": true,
+      "value": "-361.59375"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 2.7885359691576745,
+      "ok": true,
+      "value": "2164.6107220491426"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -9.49978489554666,
+      "ok": true,
+      "value": "-8971.68006158916"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -4.499413632617615,
+      "ok": true,
+      "value": "-4440.093604559714"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -5.5357852370235445,
+      "ok": true,
+      "value": "-5379.305371052587"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 4.729424283280249,
+      "ok": true,
+      "value": "3923.5407567227257"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 3.533989748458225,
+      "ok": true,
+      "value": "2840.178209540267"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 7.843591354096908,
+      "ok": true,
+      "value": "6745.754664650323"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -8.261223347411677,
+      "ok": true,
+      "value": "-7849.233658591833"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -1.561563606294591,
+      "ok": true,
+      "value": "-1777.6670182044732"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -9.404055611238594,
+      "ok": true,
+      "value": "-8884.925397684976"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -5.627240503927933,
+      "ok": true,
+      "value": "-5462.186706684689"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 0.10710576206724731,
+      "ok": true,
+      "value": "-265.4354031265571"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -9.469280606322727,
+      "ok": true,
+      "value": "-8944.035549479971"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -6.02324698626703,
+      "ok": true,
+      "value": "-5821.067581304496"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 2.997688755590463,
+      "ok": true,
+      "value": "2354.155434753857"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 0.8988296120643327,
+      "ok": true,
+      "value": "452.06433593330144"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -5.591187559186066,
+      "ok": true,
+      "value": "-5429.513725512373"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 1.7853136775181753,
+      "ok": true,
+      "value": "1255.4405202508462"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 6.1886091335565325,
+      "ok": true,
+      "value": "5245.927027285607"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -9.87002480643878,
+      "ok": true,
+      "value": "-9307.209980835145"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 6.116385036656158,
+      "ok": true,
+      "value": "5180.4739394696435"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 3.962787899764537,
+      "ok": true,
+      "value": "3228.776534161612"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -3.1949896696401625,
+      "ok": true,
+      "value": "-3257.9593881113974"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -6.890410003764369,
+      "ok": true,
+      "value": "-6606.93406591146"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 9.144261444135623,
+      "ok": true,
+      "value": "7924.486933747909"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -3.2681090977474643,
+      "ok": true,
+      "value": "-3324.2238698336396"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -8.145083132397042,
+      "ok": true,
+      "value": "-7743.9815887348195"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -8.06567246333072,
+      "ok": true,
+      "value": "-7672.015669893465"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 6.949887326949195,
+      "ok": true,
+      "value": "5935.835390047708"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 2.0745206273378223,
+      "ok": true,
+      "value": "1517.5343185249014"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 6.142565465487603,
+      "ok": true,
+      "value": "5204.19995309814"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 4.594635733876357,
+      "ok": true,
+      "value": "3801.388633825449"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 0.7245618290940143,
+      "ok": true,
+      "value": "294.13415761645047"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 9.462315279587411,
+      "ok": true,
+      "value": "8212.723222126091"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -2.42931245583293,
+      "ok": true,
+      "value": "-2564.064413098593"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 1.0408126254645396,
+      "ok": true,
+      "value": "580.736441827239"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 6.588093285059898,
+      "ok": true,
+      "value": "5607.959539585533"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 2.370395047284921,
+      "ok": true,
+      "value": "1785.6705116019598"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 7.234138006215545,
+      "ok": true,
+      "value": "6193.437568132837"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 1.5470429051352408,
+      "ok": true,
+      "value": "1039.507632778812"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 4.09143672429847,
+      "ok": true,
+      "value": "3345.3645313954885"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -9.083512326886755,
+      "ok": true,
+      "value": "-8594.433046241122"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -5.442034486969063,
+      "ok": true,
+      "value": "-5294.343753815713"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -4.212240727957857,
+      "ok": true,
+      "value": "-4179.843159711808"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -8.40416046152745,
+      "ok": true,
+      "value": "-7978.7704182592515"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -5.344182272779396,
+      "ok": true,
+      "value": "-5205.665184706328"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -7.979971411805417,
+      "ok": true,
+      "value": "-7594.349091948659"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -4.440527937798158,
+      "ok": true,
+      "value": "-4386.72844362958"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 2.713688885288004,
+      "ok": true,
+      "value": "2096.7805522922536"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -2.7033564205983147,
+      "ok": true,
+      "value": "-2812.4167561672225"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -2.5963806576623476,
+      "ok": true,
+      "value": "-2715.4699710065024"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -5.809859384570246,
+      "ok": true,
+      "value": "-5627.685067266786"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -4.660443559017732,
+      "ok": true,
+      "value": "-4586.02697535982"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 8.73309175424988,
+      "ok": true,
+      "value": "7551.864402288954"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 2.9607077049318704,
+      "ok": true,
+      "value": "2320.6413575945076"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 2.1826201133397642,
+      "ok": true,
+      "value": "1615.4994777141615"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -6.57722703603806,
+      "ok": true,
+      "value": "-6323.112001409492"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 4.582535959006984,
+      "ok": true,
+      "value": "3790.423212850079"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -6.731950124761433,
+      "ok": true,
+      "value": "-6463.329800565049"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -2.410891164847044,
+      "ok": true,
+      "value": "-2547.3701181426336"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 9.790467012731906,
+      "ok": true,
+      "value": "8510.11073028829"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 2.7999951970818575,
+      "ok": true,
+      "value": "2174.9956473554334"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 1.1389948754929247,
+      "ok": true,
+      "value": "669.714105915463"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 3.6922850197974917,
+      "ok": true,
+      "value": "2983.633299191477"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 6.857038403796192,
+      "ok": true,
+      "value": "5851.6910534403"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 5.519998230924896,
+      "ok": true,
+      "value": "4639.998396775687"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -5.419038560717913,
+      "ok": true,
+      "value": "-5273.503695650608"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -9.357995121919245,
+      "ok": true,
+      "value": "-8843.183079239316"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -3.690939038818362,
+      "ok": true,
+      "value": "-3707.4135039291405"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -4.645182480485945,
+      "ok": true,
+      "value": "-4572.196622940388"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -5.78034312827347,
+      "ok": true,
+      "value": "-5600.9359599978325"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 8.858194286701089,
+      "ok": true,
+      "value": "7665.238572322862"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 7.527352529453378,
+      "ok": true,
+      "value": "6459.1632298171235"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -3.706442384030442,
+      "ok": true,
+      "value": "-3721.463410527588"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 3.1087733058976,
+      "ok": true,
+      "value": "2454.8258084697"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -2.0873619787867153,
+      "ok": true,
+      "value": "-2254.171793275461"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 8.29095179481087,
+      "ok": true,
+      "value": "7151.17506404735"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -0.8229629482520231,
+      "ok": true,
+      "value": "-1108.3101718533958"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -4.702396670038951,
+      "ok": true,
+      "value": "-4624.046982222799"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -5.067449846120331,
+      "ok": true,
+      "value": "-4954.87642304655"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 1.2273626832630153,
+      "ok": true,
+      "value": "749.7974317071078"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -4.745167829541295,
+      "ok": true,
+      "value": "-4662.808345521798"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 1.6917198044708108,
+      "ok": true,
+      "value": "1170.6210728016724"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 7.956457672049538,
+      "ok": true,
+      "value": "6848.039765294894"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -2.0119898971920547,
+      "ok": true,
+      "value": "-2185.8658443302993"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -5.613584816854333,
+      "ok": true,
+      "value": "-5449.811240274239"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 9.950752129902206,
+      "ok": true,
+      "value": "8655.369117723874"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 0.19052587352929073,
+      "ok": true,
+      "value": "-189.83592711408028"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -8.181811756524123,
+      "ok": true,
+      "value": "-7777.266904349986"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -9.057672491505308,
+      "ok": true,
+      "value": "-8571.015695426686"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -7.8070173929868165,
+      "ok": true,
+      "value": "-7437.609512394302"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 2.5489208340618,
+      "ok": true,
+      "value": "1947.4595058685063"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 5.841587287259282,
+      "ok": true,
+      "value": "4931.438479078724"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -1.5568006640063192,
+      "ok": true,
+      "value": "-1773.3506017557268"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -8.729445876960858,
+      "ok": true,
+      "value": "-8273.560325995777"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -2.3676142698692644,
+      "ok": true,
+      "value": "-2508.150432069021"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 9.922427604801936,
+      "ok": true,
+      "value": "8629.700016851753"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 0.5822869019827408,
+      "ok": true,
+      "value": "165.1975049218588"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 9.421567552272364,
+      "ok": true,
+      "value": "8175.795594246831"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 7.215594044689961,
+      "ok": true,
+      "value": "6176.632103000277"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -9.770379561143606,
+      "ok": true,
+      "value": "-9216.906477286393"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 4.414436387203892,
+      "ok": true,
+      "value": "3638.0829759035273"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 3.634207380531496,
+      "ok": true,
+      "value": "2931.0004386066685"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 0.7394066081759032,
+      "ok": true,
+      "value": "307.58723865941226"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -4.663496200949144,
+      "ok": true,
+      "value": "-4588.793432110162"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 2.819235971596161,
+      "ok": true,
+      "value": "2192.4325992590207"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -7.768956528082471,
+      "ok": true,
+      "value": "-7403.116853574739"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -1.3046949866178998,
+      "ok": true,
+      "value": "-1544.8798316224718"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -0.9255258734158716,
+      "ok": true,
+      "value": "-1201.2578227831336"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 9.076318550421604,
+      "ok": true,
+      "value": "7862.913686319578"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 7.517058807563881,
+      "ok": true,
+      "value": "6449.834544354767"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -4.732218984978185,
+      "ok": true,
+      "value": "-4651.07345513648"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 0.011722261005965962,
+      "ok": true,
+      "value": "-351.87670096334335"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -6.426962389397373,
+      "ok": true,
+      "value": "-6186.934665391369"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 8.25255678689641,
+      "ok": true,
+      "value": "7116.379588124872"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 7.410371396735339,
+      "ok": true,
+      "value": "6353.149078291402"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -4.0311041710273425,
+      "ok": true,
+      "value": "-4015.688154993529"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 2.7789898973201037,
+      "ok": true,
+      "value": "2155.959594446344"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 2.1794042287634454,
+      "ok": true,
+      "value": "1612.5850823168723"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -6.943214629007304,
+      "ok": true,
+      "value": "-6654.78825753787"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 5.250216001503025,
+      "ok": true,
+      "value": "4395.508251362116"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 0.7875806023925147,
+      "ok": true,
+      "value": "351.2449209182165"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 5.572529572611165,
+      "ok": true,
+      "value": "4687.604925178868"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 0.6070734439035501,
+      "ok": true,
+      "value": "187.6603085375923"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -9.98856207744113,
+      "ok": true,
+      "value": "-9414.634382681024"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -3.516878859906538,
+      "ok": true,
+      "value": "-3549.6714667903"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -9.610465152283354,
+      "ok": true,
+      "value": "-9071.98404425679"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 8.581972325292341,
+      "ok": true,
+      "value": "7414.912419796184"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 7.574437556463685,
+      "ok": true,
+      "value": "6501.834035545215"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 6.6333105872235905,
+      "ok": true,
+      "value": "5648.9377196713785"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -3.8497174919467714,
+      "ok": true,
+      "value": "-3851.3064770767614"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -8.84149667011625,
+      "ok": true,
+      "value": "-8375.10635729285"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 7.560191984080809,
+      "ok": true,
+      "value": "6488.923985573234"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 8.938988905959881,
+      "ok": true,
+      "value": "7738.458696026142"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -8.286930958642424,
+      "ok": true,
+      "value": "-7872.531181269696"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -0.28019073366772496,
+      "ok": true,
+      "value": "-616.4228523863758"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -8.615749630632328,
+      "ok": true,
+      "value": "-8170.523102760547"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 5.212043305144631,
+      "ok": true,
+      "value": "4360.914245287322"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 5.316688586139755,
+      "ok": true,
+      "value": "4455.749031189152"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -7.432170710004744,
+      "ok": true,
+      "value": "-7097.904705941799"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -0.49435243802537343,
+      "ok": true,
+      "value": "-810.5068969604947"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 0.9960718698988771,
+      "ok": true,
+      "value": "540.1901320958574"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -4.698867421198818,
+      "ok": true,
+      "value": "-4620.848600461429"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 7.448660821705147,
+      "ok": true,
+      "value": "6387.84886967029"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -1.5372411959822614,
+      "ok": true,
+      "value": "-1755.6248338589244"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -5.764035891158359,
+      "ok": true,
+      "value": "-5586.1575263622635"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 0.7859217755891663,
+      "ok": true,
+      "value": "349.74160912768195"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 4.598621381799523,
+      "ok": true,
+      "value": "3805.0006272558176"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -5.9769787322060814,
+      "ok": true,
+      "value": "-5779.136976061762"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -3.7656741739821005,
+      "ok": true,
+      "value": "-3775.1422201712785"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 9.902987133217891,
+      "ok": true,
+      "value": "8612.082089478714"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 2.9975611527890695,
+      "ok": true,
+      "value": "2354.039794715094"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -1.2379983217099184,
+      "ok": true,
+      "value": "-1484.4359790496135"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 0.35151682071181156,
+      "ok": true,
+      "value": "-43.93788122992078"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -7.579916082634686,
+      "ok": true,
+      "value": "-7231.798949887684"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -5.506053259368853,
+      "ok": true,
+      "value": "-5352.360766303023"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -3.238288757050894,
+      "ok": true,
+      "value": "-3297.1991860773724"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 1.7661743691446663,
+      "ok": true,
+      "value": "1238.095522037354"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -5.39770534806846,
+      "ok": true,
+      "value": "-5254.170471687042"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -5.595652310968811,
+      "ok": true,
+      "value": "-5433.559906815485"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -8.58013827981935,
+      "ok": true,
+      "value": "-8138.250316086286"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 2.6220591454019786,
+      "ok": true,
+      "value": "2013.7411005205431"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -5.421164323776912,
+      "ok": true,
+      "value": "-5275.430168422827"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 8.108400260122558,
+      "ok": true,
+      "value": "6985.737735736068"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 7.19270800507493,
+      "ok": true,
+      "value": "6155.891629599156"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -8.582853002226932,
+      "ok": true,
+      "value": "-8140.710533268157"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -5.239907312620096,
+      "ok": true,
+      "value": "-5111.166002061962"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 3.379555565925612,
+      "ok": true,
+      "value": "2700.222231620086"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -5.715263852591228,
+      "ok": true,
+      "value": "-5541.9578664108"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -7.3537630254995,
+      "ok": true,
+      "value": "-7026.847741858922"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 8.71028481161342,
+      "ok": true,
+      "value": "7531.195610524662"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 1.420861866505689,
+      "ok": true,
+      "value": "925.1560665207805"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -0.5465794737641172,
+      "ok": true,
+      "value": "-857.8376480987313"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 5.6923884858150675,
+      "ok": true,
+      "value": "4796.227065269905"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 6.149939955332869,
+      "ok": true,
+      "value": "5210.883084520412"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -6.191801712762446,
+      "ok": true,
+      "value": "-5973.820302190967"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -8.061383715423533,
+      "ok": true,
+      "value": "-7668.128992102576"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -1.3789763518724492,
+      "ok": true,
+      "value": "-1612.197318884407"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -1.5284275396015836,
+      "ok": true,
+      "value": "-1747.6374577639351"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -0.6595066392664997,
+      "ok": true,
+      "value": "-960.1778918352653"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 4.581516989197013,
+      "ok": true,
+      "value": "3789.499771459793"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 3.467290945866031,
+      "ok": true,
+      "value": "2779.732419691091"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 9.683304227319322,
+      "ok": true,
+      "value": "8412.994456008135"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -8.031642576960822,
+      "ok": true,
+      "value": "-7641.176085370745"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -1.9475743579546254,
+      "ok": true,
+      "value": "-2127.4892618963795"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -3.2139478921007374,
+      "ok": true,
+      "value": "-3275.1402772162933"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 7.233450727055821,
+      "ok": true,
+      "value": "6192.814721394338"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -5.026873321594287,
+      "ok": true,
+      "value": "-4918.103947694823"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -6.195821831183769,
+      "ok": true,
+      "value": "-5977.463534510291"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -1.027729043337363,
+      "ok": true,
+      "value": "-1293.8794455244852"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -1.5623672033119167,
+      "ok": true,
+      "value": "-1778.3952780014245"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -4.429097106661191,
+      "ok": true,
+      "value": "-4376.369252911703"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -5.00387104235799,
+      "ok": true,
+      "value": "-4897.258132136929"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 8.465311985520255,
+      "ok": true,
+      "value": "7309.188986877732"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -1.13738509893086,
+      "ok": true,
+      "value": "-1393.255245906092"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 7.226982095236611,
+      "ok": true,
+      "value": "6186.952523808179"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 1.0065062489969616,
+      "ok": true,
+      "value": "549.6462881534965"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": -8.988233409502374,
+      "ok": true,
+      "value": "-8508.086527361527"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 9.985649368254531,
+      "ok": true,
+      "value": "8686.99473998067"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 906.25,
+      "offset": -362.5,
+      "unit": "psi",
+      "v": 6.720551701599039,
+      "ok": true,
+      "value": "5727.999979574129"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
       "slope": 250,
       "offset": -125,
       "unit": "psi",
@@ -220,87 +2464,2247 @@
     }
   },
   {
-    "curve": "thermistor",
+    "curve": "linear",
     "data": {
-      "params": [
-        5,
-        10000,
-        3434,
-        0.099524
-      ],
-      "v": 0.4,
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -10.0,
       "ok": true,
-      "value": "-27.162234262682574"
+      "value": "-2625.0"
     }
   },
   {
-    "curve": "thermistor",
+    "curve": "linear",
     "data": {
-      "params": [
-        5,
-        10000,
-        3434,
-        0.099524
-      ],
-      "v": 1.0,
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 10.0,
       "ok": true,
-      "value": "-7.030785473310004"
+      "value": "2375.0"
     }
   },
   {
-    "curve": "thermistor",
+    "curve": "linear",
     "data": {
-      "params": [
-        5,
-        10000,
-        3434,
-        0.099524
-      ],
-      "v": 2.0,
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -0.001,
       "ok": true,
-      "value": "14.86084962772253"
+      "value": "-125.25"
     }
   },
   {
-    "curve": "thermistor",
+    "curve": "linear",
     "data": {
-      "params": [
-        5,
-        10000,
-        3434,
-        0.099524
-      ],
-      "v": 2.9496,
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 0.001,
       "ok": true,
-      "value": "34.71989989503436"
+      "value": "-124.75"
     }
   },
   {
-    "curve": "thermistor",
+    "curve": "linear",
     "data": {
-      "params": [
-        5,
-        10000,
-        3434,
-        0.099524
-      ],
-      "v": 2.5,
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 9.379925145695026,
       "ok": true,
-      "value": "24.999886277653047"
+      "value": "2219.9812864237565"
     }
   },
   {
-    "curve": "thermistor",
+    "curve": "linear",
     "data": {
-      "params": [
-        5,
-        10000,
-        3434,
-        0.099524
-      ],
-      "v": 4.0,
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 8.527339660162554,
       "ok": true,
-      "value": "65.79616373193227"
+      "value": "2006.8349150406384"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 6.973914688286108,
+      "ok": true,
+      "value": "1618.478672071527"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -6.67377778792172,
+      "ok": true,
+      "value": "-1793.44444698043"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -0.2871774909856306,
+      "ok": true,
+      "value": "-196.79437274640765"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -5.725054016016367,
+      "ok": true,
+      "value": "-1556.2635040040918"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -1.9791941490109473,
+      "ok": true,
+      "value": "-619.7985372527369"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -8.827292000556422,
+      "ok": true,
+      "value": "-2331.8230001391057"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -2.420537620461678,
+      "ok": true,
+      "value": "-730.1344051154194"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 9.706176875594519,
+      "ok": true,
+      "value": "2301.54421889863"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -4.6959388365569605,
+      "ok": true,
+      "value": "-1298.98470913924"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 5.681412038971388,
+      "ok": true,
+      "value": "1295.353009742847"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -0.8998326532171337,
+      "ok": true,
+      "value": "-349.9581633042834"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -1.5398502801967417,
+      "ok": true,
+      "value": "-509.96257004918544"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 9.146352817193463,
+      "ok": true,
+      "value": "2161.588204298366"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 9.908453789854278,
+      "ok": true,
+      "value": "2352.1134474635696"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 1.1153664681123647,
+      "ok": true,
+      "value": "153.8416170280912"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 4.36816550592652,
+      "ok": true,
+      "value": "967.0413764816299"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -6.904063494518717,
+      "ok": true,
+      "value": "-1851.0158736296794"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -4.0658434901087155,
+      "ok": true,
+      "value": "-1141.4608725271787"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 9.374187299383177,
+      "ok": true,
+      "value": "2218.546824845794"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 1.5836058163251252,
+      "ok": true,
+      "value": "270.9014540812813"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 0.8439040274854843,
+      "ok": true,
+      "value": "85.97600687137108"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 4.959511207581283,
+      "ok": true,
+      "value": "1114.8778018953208"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -8.856694541850338,
+      "ok": true,
+      "value": "-2339.1736354625846"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 1.6835518891794248,
+      "ok": true,
+      "value": "295.8879722948562"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 0.05700765839027078,
+      "ok": true,
+      "value": "-110.74808540243231"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 7.054397840965706,
+      "ok": true,
+      "value": "1638.5994602414264"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -6.851345441210334,
+      "ok": true,
+      "value": "-1837.8363603025837"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 9.215578065489009,
+      "ok": true,
+      "value": "2178.8945163722524"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -8.397770695188262,
+      "ok": true,
+      "value": "-2224.4426737970657"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -6.283500780385536,
+      "ok": true,
+      "value": "-1695.875195096384"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 1.9007021290005532,
+      "ok": true,
+      "value": "350.1755322501383"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 3.5042510720818036,
+      "ok": true,
+      "value": "751.0627680204509"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -5.295922099981376,
+      "ok": true,
+      "value": "-1448.980524995344"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -7.602267721057516,
+      "ok": true,
+      "value": "-2025.5669302643792"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 7.80574628258875,
+      "ok": true,
+      "value": "1826.4365706471874"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -5.075693044227503,
+      "ok": true,
+      "value": "-1393.9232610568756"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 1.8903830706688236,
+      "ok": true,
+      "value": "347.5957676672059"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 2.3876302066420614,
+      "ok": true,
+      "value": "471.9075516605153"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -1.6155016932825497,
+      "ok": true,
+      "value": "-528.8754233206374"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 1.6734457858244944,
+      "ok": true,
+      "value": "293.3614464561236"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 0.4556543106391775,
+      "ok": true,
+      "value": "-11.08642234020563"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 8.694125154728546,
+      "ok": true,
+      "value": "2048.5312886821366"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -5.914816011529272,
+      "ok": true,
+      "value": "-1603.704002882318"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 4.323836015788295,
+      "ok": true,
+      "value": "955.9590039470738"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -5.22628094768308,
+      "ok": true,
+      "value": "-1431.57023692077"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -2.08428306417491,
+      "ok": true,
+      "value": "-646.0707660437275"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 3.4338044591994255,
+      "ok": true,
+      "value": "733.4511147998563"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -4.000058404024756,
+      "ok": true,
+      "value": "-1125.014601006189"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -3.6764560745629193,
+      "ok": true,
+      "value": "-1044.1140186407297"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 5.037289848288042,
+      "ok": true,
+      "value": "1134.3224620720105"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -8.549137710136854,
+      "ok": true,
+      "value": "-2262.2844275342136"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -0.834289547628277,
+      "ok": true,
+      "value": "-333.57238690706924"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 9.969088817088846,
+      "ok": true,
+      "value": "2367.2722042722116"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 9.92192895710189,
+      "ok": true,
+      "value": "2355.4822392754727"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -8.534785578007341,
+      "ok": true,
+      "value": "-2258.696394501835"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -5.7369137546591915,
+      "ok": true,
+      "value": "-1559.228438664798"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -4.6959917049919735,
+      "ok": true,
+      "value": "-1298.9979262479933"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 8.66518755987418,
+      "ok": true,
+      "value": "2041.2968899685452"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 7.61728347372879,
+      "ok": true,
+      "value": "1779.3208684321976"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 7.585404849690857,
+      "ok": true,
+      "value": "1771.3512124227143"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -2.609458225222321,
+      "ok": true,
+      "value": "-777.3645563055802"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -6.845063352855361,
+      "ok": true,
+      "value": "-1836.2658382138402"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 6.674899092796139,
+      "ok": true,
+      "value": "1543.7247731990346"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 4.070798501747419,
+      "ok": true,
+      "value": "892.6996254368546"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 2.233555314519002,
+      "ok": true,
+      "value": "433.3888286297505"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 9.744661272630086,
+      "ok": true,
+      "value": "2311.1653181575216"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 3.079526354214652,
+      "ok": true,
+      "value": "644.8815885536629"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -9.843537856956841,
+      "ok": true,
+      "value": "-2585.88446423921"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 6.342082702309234,
+      "ok": true,
+      "value": "1460.5206755773086"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -4.012424956000443,
+      "ok": true,
+      "value": "-1128.1062390001107"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 3.2677742993215464,
+      "ok": true,
+      "value": "691.9435748303866"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 8.778600078542077,
+      "ok": true,
+      "value": "2069.650019635519"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -7.314177712132645,
+      "ok": true,
+      "value": "-1953.5444280331612"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -7.691426591617956,
+      "ok": true,
+      "value": "-2047.8566479044891"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -7.859280445811647,
+      "ok": true,
+      "value": "-2089.820111452912"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 1.064472817696318,
+      "ok": true,
+      "value": "141.11820442407952"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -4.553035753703673,
+      "ok": true,
+      "value": "-1263.2589384259184"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 2.0965965406044784,
+      "ok": true,
+      "value": "399.1491351511196"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 4.352243742775958,
+      "ok": true,
+      "value": "963.0609356939894"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -5.928053753450941,
+      "ok": true,
+      "value": "-1607.0134383627353"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 2.6847591777015936,
+      "ok": true,
+      "value": "546.1897944253984"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -4.720321967391811,
+      "ok": true,
+      "value": "-1305.0804918479528"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -0.22936295701246934,
+      "ok": true,
+      "value": "-182.34073925311733"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 8.106729821586466,
+      "ok": true,
+      "value": "1901.6824553966164"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 6.922074265897109,
+      "ok": true,
+      "value": "1605.5185664742773"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -8.154030645745332,
+      "ok": true,
+      "value": "-2163.507661436333"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -1.5284845487254728,
+      "ok": true,
+      "value": "-507.1211371813682"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -4.466395520554967,
+      "ok": true,
+      "value": "-1241.5988801387416"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -9.929086218244354,
+      "ok": true,
+      "value": "-2607.2715545610886"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 5.422384460392543,
+      "ok": true,
+      "value": "1230.5961150981357"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 2.742267546027593,
+      "ok": true,
+      "value": "560.5668865068982"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -4.760894751313036,
+      "ok": true,
+      "value": "-1315.223687828259"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 4.824618166958617,
+      "ok": true,
+      "value": "1081.1545417396542"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 1.0336084225278253,
+      "ok": true,
+      "value": "133.40210563195632"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -1.4462616203864123,
+      "ok": true,
+      "value": "-486.56540509660306"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -9.806606007833201,
+      "ok": true,
+      "value": "-2576.6515019583003"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -8.495122798524658,
+      "ok": true,
+      "value": "-2248.7806996311647"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 7.662127866002859,
+      "ok": true,
+      "value": "1790.5319665007146"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 8.078571431197862,
+      "ok": true,
+      "value": "1894.6428577994654"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 0.911805784110447,
+      "ok": true,
+      "value": "102.95144602761175"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 6.691900397720335,
+      "ok": true,
+      "value": "1547.975099430084"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 1.6501913297958808,
+      "ok": true,
+      "value": "287.5478324489702"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -7.038124288650347,
+      "ok": true,
+      "value": "-1884.5310721625867"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -7.451089614357224,
+      "ok": true,
+      "value": "-1987.7724035893061"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -3.8348330013973264,
+      "ok": true,
+      "value": "-1083.7082503493316"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 7.9796297748518015,
+      "ok": true,
+      "value": "1869.9074437129505"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 5.922446097760833,
+      "ok": true,
+      "value": "1355.6115244402083"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 7.214051640018056,
+      "ok": true,
+      "value": "1678.512910004514"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 7.978492730529492,
+      "ok": true,
+      "value": "1869.623182632373"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -5.798469233204919,
+      "ok": true,
+      "value": "-1574.6173083012297"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -5.009405215541511,
+      "ok": true,
+      "value": "-1377.3513038853778"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -7.944127566564287,
+      "ok": true,
+      "value": "-2111.0318916410715"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 5.602324837428853,
+      "ok": true,
+      "value": "1275.581209357213"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 7.68269402902018,
+      "ok": true,
+      "value": "1795.673507255045"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -1.872452203357664,
+      "ok": true,
+      "value": "-593.113050839416"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 2.4132302030142565,
+      "ok": true,
+      "value": "478.3075507535641"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -6.908933233355907,
+      "ok": true,
+      "value": "-1852.2333083389767"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 8.597620313873488,
+      "ok": true,
+      "value": "2024.4050784683718"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 7.292113924399281,
+      "ok": true,
+      "value": "1698.0284810998203"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 9.524120658619257,
+      "ok": true,
+      "value": "2256.030164654814"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 6.215434398807936,
+      "ok": true,
+      "value": "1428.858599701984"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 7.628324093266489,
+      "ok": true,
+      "value": "1782.0810233166221"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -9.504272762036226,
+      "ok": true,
+      "value": "-2501.0681905090564"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 4.731289435101642,
+      "ok": true,
+      "value": "1057.8223587754105"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -3.3562906410714266,
+      "ok": true,
+      "value": "-964.0726602678567"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 8.61631772096651,
+      "ok": true,
+      "value": "2029.0794302416275"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 6.044702778742778,
+      "ok": true,
+      "value": "1386.1756946856945"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 7.28128056750559,
+      "ok": true,
+      "value": "1695.3201418763974"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 6.214986331487779,
+      "ok": true,
+      "value": "1428.7465828719448"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -4.663885808110559,
+      "ok": true,
+      "value": "-1290.9714520276398"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 5.747490182709424,
+      "ok": true,
+      "value": "1311.872545677356"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -7.838087471940858,
+      "ok": true,
+      "value": "-2084.521867985214"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 7.443335658121796,
+      "ok": true,
+      "value": "1735.8339145304492"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 7.171865026755633,
+      "ok": true,
+      "value": "1667.9662566889083"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -5.551325649086712,
+      "ok": true,
+      "value": "-1512.831412271678"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 6.331732111938578,
+      "ok": true,
+      "value": "1457.9330279846445"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -0.7939353064211581,
+      "ok": true,
+      "value": "-323.48382660528955"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -3.8961826532279886,
+      "ok": true,
+      "value": "-1099.045663306997"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 5.906909983057236,
+      "ok": true,
+      "value": "1351.727495764309"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -5.448090251844593,
+      "ok": true,
+      "value": "-1487.0225629611482"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -9.52671130597097,
+      "ok": true,
+      "value": "-2506.6778264927425"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -6.137404233445826,
+      "ok": true,
+      "value": "-1659.3510583614566"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -3.4347609760458697,
+      "ok": true,
+      "value": "-983.6902440114675"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 7.287058840605727,
+      "ok": true,
+      "value": "1696.764710151432"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 9.337782080967223,
+      "ok": true,
+      "value": "2209.4455202418058"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -4.417500145562572,
+      "ok": true,
+      "value": "-1229.3750363906431"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 2.829634772152554,
+      "ok": true,
+      "value": "582.4086930381385"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -2.0064323127987826,
+      "ok": true,
+      "value": "-626.6080781996957"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 9.622993743965203,
+      "ok": true,
+      "value": "2280.748435991301"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 0.7243146495744384,
+      "ok": true,
+      "value": "56.07866239360959"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 8.784742806494314,
+      "ok": true,
+      "value": "2071.1857016235786"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -7.693164962971448,
+      "ok": true,
+      "value": "-2048.291240742862"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 9.408012220444558,
+      "ok": true,
+      "value": "2227.0030551111395"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -6.4286436765507275,
+      "ok": true,
+      "value": "-1732.160919137682"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 9.25068631523111,
+      "ok": true,
+      "value": "2187.6715788077777"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -4.690672749540628,
+      "ok": true,
+      "value": "-1297.668187385157"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -7.831949055705778,
+      "ok": true,
+      "value": "-2082.9872639264445"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -1.3087248287071134,
+      "ok": true,
+      "value": "-452.18120717677834"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 4.570901213054086,
+      "ok": true,
+      "value": "1017.7253032635215"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -3.726453716100176,
+      "ok": true,
+      "value": "-1056.6134290250438"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 2.124177066122865,
+      "ok": true,
+      "value": "406.0442665307162"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 0.2284611933895615,
+      "ok": true,
+      "value": "-67.88470165260962"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -2.2960913331054567,
+      "ok": true,
+      "value": "-699.0228332763642"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 1.5317608699319898,
+      "ok": true,
+      "value": "257.94021748299747"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -4.905549877228362,
+      "ok": true,
+      "value": "-1351.3874693070904"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 4.175705676683412,
+      "ok": true,
+      "value": "918.926419170853"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -9.96617443562741,
+      "ok": true,
+      "value": "-2616.5436089068526"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 8.511503309981656,
+      "ok": true,
+      "value": "2002.875827495414"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 0.7690399418558371,
+      "ok": true,
+      "value": "67.25998546395928"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 4.38859998289691,
+      "ok": true,
+      "value": "972.1499957242274"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 4.83900155678953,
+      "ok": true,
+      "value": "1084.7503891973824"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 3.41257008865999,
+      "ok": true,
+      "value": "728.1425221649976"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -2.7155705643747163,
+      "ok": true,
+      "value": "-803.8926410936791"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -8.600523777473796,
+      "ok": true,
+      "value": "-2275.130944368449"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 3.2847536982254475,
+      "ok": true,
+      "value": "696.1884245563618"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -3.3959992791480715,
+      "ok": true,
+      "value": "-973.9998197870179"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -3.721687098832806,
+      "ok": true,
+      "value": "-1055.4217747082016"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 6.960305590126708,
+      "ok": true,
+      "value": "1615.076397531677"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 4.395085260279004,
+      "ok": true,
+      "value": "973.7713150697509"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -3.993554635774716,
+      "ok": true,
+      "value": "-1123.388658943679"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -3.8143067558269355,
+      "ok": true,
+      "value": "-1078.576688956734"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -1.8321418276156631,
+      "ok": true,
+      "value": "-583.0354569039157"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -1.9519922588455074,
+      "ok": true,
+      "value": "-612.9980647113769"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -4.086895949481059,
+      "ok": true,
+      "value": "-1146.7239873702647"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -7.454244018816936,
+      "ok": true,
+      "value": "-1988.561004704234"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -1.591073324541835,
+      "ok": true,
+      "value": "-522.7683311354588"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 8.80727341460366,
+      "ok": true,
+      "value": "2076.818353650915"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 3.5463589054546585,
+      "ok": true,
+      "value": "761.5897263636646"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 8.056110914651654,
+      "ok": true,
+      "value": "1889.0277286629137"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 2.310298319027611,
+      "ok": true,
+      "value": "452.5745797569027"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -3.981002508688693,
+      "ok": true,
+      "value": "-1120.2506271721732"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 0.9587442627139637,
+      "ok": true,
+      "value": "114.68606567849093"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -9.991881206054249,
+      "ok": true,
+      "value": "-2622.970301513562"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -4.261725662621457,
+      "ok": true,
+      "value": "-1190.4314156553642"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -1.402237000203307,
+      "ok": true,
+      "value": "-475.5592500508268"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 1.5996956239136395,
+      "ok": true,
+      "value": "274.9239059784099"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": 3.0941124740614327,
+      "ok": true,
+      "value": "648.5281185153582"
+    }
+  },
+  {
+    "curve": "linear",
+    "data": {
+      "slope": 250,
+      "offset": -125,
+      "unit": "psi",
+      "v": -0.7002361950597162,
+      "ok": true,
+      "value": "-300.05904876492906"
     }
   },
   {
@@ -340,7 +4744,21 @@
         3434,
         0.099524
       ],
-      "v": 5.0,
+      "v": 5,
+      "ok": true,
+      "value": "0"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 5.01,
       "ok": true,
       "value": "0"
     }
@@ -355,6 +4773,3408 @@
         0.099524
       ],
       "v": 9.99,
+      "ok": true,
+      "value": "0"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 1e-09,
+      "ok": true,
+      "value": "-171.70363773368848"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 4.999999999,
+      "ok": true,
+      "value": "-590.6717595222921"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 2.5,
+      "ok": true,
+      "value": "24.999886277653047"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 2.2107989966397175,
+      "ok": true,
+      "value": "19.102881167634166"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 1.0685070055180987,
+      "ok": true,
+      "value": "-5.296765411652473"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 2.365930929600259,
+      "ok": true,
+      "value": "22.246449773038194"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 4.505904128338909,
+      "ok": true,
+      "value": "95.80839137907748"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 3.9801238000418517,
+      "ok": true,
+      "value": "64.97307703050888"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 0.8484569816508908,
+      "ok": true,
+      "value": "-11.12286287026194"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 0.4239776844560177,
+      "ok": true,
+      "value": "-26.039221110305704"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 2.577260049545178,
+      "ok": true,
+      "value": "26.60901167992381"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 3.164704278563097,
+      "ok": true,
+      "value": "39.80445042436929"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 1.675941277378628,
+      "ok": true,
+      "value": "8.267548338491451"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 4.092117322046474,
+      "ok": true,
+      "value": "69.83861283593973"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 3.7556906872013847,
+      "ok": true,
+      "value": "56.62991693321908"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 3.363978352440244,
+      "ok": true,
+      "value": "44.90602400805568"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 1.12320333053716,
+      "ok": true,
+      "value": "-3.954353849234849"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 0.9956496642346233,
+      "ok": true,
+      "value": "-7.143067912115839"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 0.12212693958528092,
+      "ok": true,
+      "value": "-47.30473024208359"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 1.2242127209020657,
+      "ok": true,
+      "value": "-1.5588985484048976"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 2.375681721143753,
+      "ok": true,
+      "value": "22.445331246642866"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 4.248688472424184,
+      "ok": true,
+      "value": "77.7898875784025"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 0.36414114677718906,
+      "ok": true,
+      "value": "-28.941107898385837"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 2.072205055159715,
+      "ok": true,
+      "value": "16.31333792777758"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 3.148826903429038,
+      "ok": true,
+      "value": "39.415808051223394"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 0.972176184309676,
+      "ok": true,
+      "value": "-7.75371738358109"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 3.481771252059816,
+      "ok": true,
+      "value": "48.15392752158141"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 2.4718858450634302,
+      "ok": true,
+      "value": "24.41878068899331"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 1.2199221984042254,
+      "ok": true,
+      "value": "-1.6586690991376827"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 3.2802900552468044,
+      "ok": true,
+      "value": "42.709554177737004"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 0.02772409167906916,
+      "ok": true,
+      "value": "-67.6077575680277"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 3.754822382590435,
+      "ok": true,
+      "value": "56.60050442633286"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 3.850230942330033,
+      "ok": true,
+      "value": "59.952961332607856"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 0.5329364836045201,
+      "ok": true,
+      "value": "-21.46023969089825"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 2.1257309698633784,
+      "ok": true,
+      "value": "17.389786985075943"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 0.8794334091808849,
+      "ok": true,
+      "value": "-10.2533043655053"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 4.7898302104817665,
+      "ok": true,
+      "value": "136.08033378859255"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 2.5897887521827885,
+      "ok": true,
+      "value": "26.871800453727417"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 0.25109192660276786,
+      "ok": true,
+      "value": "-35.62700720465875"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 1.2459913988014617,
+      "ok": true,
+      "value": "-1.0549454392059374"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 4.241681736061626,
+      "ok": true,
+      "value": "77.39820744628526"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 2.282309127437939,
+      "ok": true,
+      "value": "20.547770129001833"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 4.007083008008489,
+      "ok": true,
+      "value": "66.09341761472558"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 3.33788866259661,
+      "ok": true,
+      "value": "44.212118780277535"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 4.939462264356455,
+      "ok": true,
+      "value": "209.42773661700323"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 2.977261592156194,
+      "ok": true,
+      "value": "35.35374894440616"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 4.7501980413157,
+      "ok": true,
+      "value": "127.43682683070898"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 4.457129628269333,
+      "ok": true,
+      "value": "91.69147292276966"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 3.0632616135835096,
+      "ok": true,
+      "value": "37.36009088245396"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 3.5963698059412876,
+      "ok": true,
+      "value": "51.52183270296899"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 2.5238908241124536,
+      "ok": true,
+      "value": "25.495478680513827"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 4.152845847945937,
+      "ok": true,
+      "value": "72.73935249347915"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 2.739359752958398,
+      "ok": true,
+      "value": "30.056340693418917"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 4.4860405153718945,
+      "ok": true,
+      "value": "94.07891423321621"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 3.7182772103106134,
+      "ok": true,
+      "value": "55.379396549857915"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 2.373372184165918,
+      "ok": true,
+      "value": "22.398207924755354"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 1.2959577428067137,
+      "ok": true,
+      "value": "0.08640145697239632"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 1.2361986880538183,
+      "ok": true,
+      "value": "-1.2810390474966198"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 3.1883071836054584,
+      "ok": true,
+      "value": "40.386627529545194"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 3.8290684209542,
+      "ok": true,
+      "value": "59.187323286327796"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 2.606499064097311,
+      "ok": true,
+      "value": "27.223166393149654"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 3.1337421846554094,
+      "ok": true,
+      "value": "39.048727691438046"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 1.3729872350384966,
+      "ok": true,
+      "value": "1.8093822787132012"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 0.3874167701687124,
+      "ok": true,
+      "value": "-27.772078359228573"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 1.4286407547443063,
+      "ok": true,
+      "value": "3.030006313575086"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 1.358575535867493,
+      "ok": true,
+      "value": "1.490134198519172"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 1.5985478424543924,
+      "ok": true,
+      "value": "6.655665928779683"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 2.7007611125119775,
+      "ok": true,
+      "value": "29.225469630255816"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 0.6918703083040304,
+      "ok": true,
+      "value": "-15.855187250767699"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 1.156307399178411,
+      "ok": true,
+      "value": "-3.158070547204943"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 3.4697490611073616,
+      "ok": true,
+      "value": "47.81318747329453"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 3.5320957080599227,
+      "ok": true,
+      "value": "49.60524534049563"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 0.3211442544409327,
+      "ok": true,
+      "value": "-31.26135732175868"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 2.037996848517735,
+      "ok": true,
+      "value": "15.625385986095978"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 2.7130557024343545,
+      "ok": true,
+      "value": "29.4893831889612"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 2.078871170684231,
+      "ok": true,
+      "value": "16.44738408477508"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 1.0341719481583824,
+      "ok": true,
+      "value": "-6.158038476126137"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 2.100717589026841,
+      "ok": true,
+      "value": "16.886696489322276"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 4.524192390891208,
+      "ok": true,
+      "value": "97.47155836294081"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 2.920397070852967,
+      "ok": true,
+      "value": "34.05635390600963"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 3.477614932098794,
+      "ok": true,
+      "value": "48.035873944434286"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 4.283660160806207,
+      "ok": true,
+      "value": "79.80489783898389"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 3.8279728800591584,
+      "ok": true,
+      "value": "59.14804616897544"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 1.9019051448777962,
+      "ok": true,
+      "value": "12.88251508287351"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 0.029480418908173194,
+      "ok": true,
+      "value": "-66.84490054446127"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 1.758794013655606,
+      "ok": true,
+      "value": "9.972767695507684"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 3.767375624789979,
+      "ok": true,
+      "value": "57.02758538072146"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 4.267239752138627,
+      "ok": true,
+      "value": "78.84599111570407"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 4.7671516914436705,
+      "ok": true,
+      "value": "130.9175144855194"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 2.0951064133110666,
+      "ok": true,
+      "value": "16.773856548995525"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 3.7375783443952226,
+      "ok": true,
+      "value": "56.0202734015254"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 2.730661548576931,
+      "ok": true,
+      "value": "29.868503313780423"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 3.0162629444997013,
+      "ok": true,
+      "value": "36.25670255259007"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 1.102693472178017,
+      "ok": true,
+      "value": "-4.453671114156293"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 1.0971081736683375,
+      "ok": true,
+      "value": "-4.59047233283502"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 2.1791798803615112,
+      "ok": true,
+      "value": "18.465604089564863"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 0.14512410067552656,
+      "ok": true,
+      "value": "-44.64087718310685"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 1.6806477188196531,
+      "ok": true,
+      "value": "8.364931955351835"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 3.395709424783465,
+      "ok": true,
+      "value": "45.76185036865462"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 2.0215833458795522,
+      "ok": true,
+      "value": "15.295200441449367"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 0.8252236566874546,
+      "ok": true,
+      "value": "-11.787872236013072"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 2.3369507462267705,
+      "ok": true,
+      "value": "21.65641954016678"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 0.6381389871505478,
+      "ok": true,
+      "value": "-17.640146628343985"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 3.1112848046258095,
+      "ok": true,
+      "value": "38.50602965163637"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 0.13483226047175553,
+      "ok": true,
+      "value": "-45.78581019201269"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 1.970101281910483,
+      "ok": true,
+      "value": "14.258725776277913"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 2.8219599149950865,
+      "ok": true,
+      "value": "31.858825538024234"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 0.1355102326473581,
+      "ok": true,
+      "value": "-45.70818137343855"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 3.2137482397611796,
+      "ok": true,
+      "value": "41.02027802425238"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 0.6784974368814222,
+      "ok": true,
+      "value": "-16.290462155636078"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 2.308492220334162,
+      "ok": true,
+      "value": "21.07843288967871"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 0.2514231683425685,
+      "ok": true,
+      "value": "-35.60420010236797"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 1.8955193211824901,
+      "ok": true,
+      "value": "12.753387078119431"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 1.0583014216340871,
+      "ok": true,
+      "value": "-5.5511976314759295"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 1.634229024752851,
+      "ok": true,
+      "value": "7.401367133790075"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 3.806148538947676,
+      "ok": true,
+      "value": "58.37274554605625"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 1.895631078062429,
+      "ok": true,
+      "value": "12.755647366508697"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 3.7600491172699044,
+      "ok": true,
+      "value": "56.77783951699246"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 4.1596214251125145,
+      "ok": true,
+      "value": "73.07624626735355"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 1.2613576594073599,
+      "ok": true,
+      "value": "-0.7017977067226298"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 0.4095311646444003,
+      "ok": true,
+      "value": "-26.709912215667913"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 0.09691643621128687,
+      "ok": true,
+      "value": "-50.76180750961021"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 2.6970952395338306,
+      "ok": true,
+      "value": "29.14690881769485"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 4.99953914154623,
+      "ok": true,
+      "value": "1269.5749293879685"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 1.749801718900999,
+      "ok": true,
+      "value": "9.788565031074313"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 3.2507204659490867,
+      "ok": true,
+      "value": "41.952989481164934"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 3.9061652474920083,
+      "ok": true,
+      "value": "62.04344756352026"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 3.258773275915938,
+      "ok": true,
+      "value": "42.15807250520095"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 3.7711660197891645,
+      "ok": true,
+      "value": "57.15733330394761"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 4.74805866268072,
+      "ok": true,
+      "value": "127.01771194505159"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 0.9968034124139431,
+      "ok": true,
+      "value": "-7.113263006883017"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 0.10190008756090169,
+      "ok": true,
+      "value": "-50.02254227832253"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 0.7619117296191871,
+      "ok": true,
+      "value": "-13.66162877300934"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 0.6311048751185893,
+      "ok": true,
+      "value": "-17.881276607747168"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 3.3472942227606355,
+      "ok": true,
+      "value": "44.461287427738455"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 2.8198479095221565,
+      "ok": true,
+      "value": "31.8122927947216"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 1.0898227050965892,
+      "ok": true,
+      "value": "-4.769460095793249"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 3.497324855831824,
+      "ok": true,
+      "value": "48.59810811495976"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 3.834490491247408,
+      "ok": true,
+      "value": "59.382228289598686"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 0.8389457175034329,
+      "ok": true,
+      "value": "-11.393732106812593"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 3.0362374692401635,
+      "ok": true,
+      "value": "36.723540677957374"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 3.7396282592805776,
+      "ok": true,
+      "value": "56.08886584071246"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 0.5726643576654226,
+      "ok": true,
+      "value": "-19.960249590360633"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 4.096505870916823,
+      "ok": true,
+      "value": "70.0414501349967"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 4.823603864240996,
+      "ok": true,
+      "value": "145.16358609011507"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 0.5404937490718353,
+      "ok": true,
+      "value": "-21.16891596210786"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 0.12839212843597322,
+      "ok": true,
+      "value": "-46.53997933945237"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 1.5597862223495615,
+      "ok": true,
+      "value": "5.840073212609013"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 3.3867364338973496,
+      "ok": true,
+      "value": "45.51848131937578"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 4.790864190113134,
+      "ok": true,
+      "value": "136.33153227599024"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 1.9832722077898277,
+      "ok": true,
+      "value": "14.524043884357752"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 3.5750735248173124,
+      "ok": true,
+      "value": "50.87855845109618"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 0.37998239006330686,
+      "ok": true,
+      "value": "-28.139497539311947"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 3.4530720792836727,
+      "ok": true,
+      "value": "47.34416908719277"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 3.1362119777507376,
+      "ok": true,
+      "value": "39.10868711497233"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 0.50950652802608,
+      "ok": true,
+      "value": "-22.382728899976712"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 3.8624044242111584,
+      "ok": true,
+      "value": "60.39948896079767"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 4.2514661947433945,
+      "ok": true,
+      "value": "77.94623998292832"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 3.0020580738833975,
+      "ok": true,
+      "value": "35.926543971042975"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 0.6052753260944654,
+      "ok": true,
+      "value": "-18.78289973050468"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 4.919221756605668,
+      "ok": true,
+      "value": "190.371700835522"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 3.9131767312398273,
+      "ok": true,
+      "value": "62.31273920321996"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 1.7360188268478374,
+      "ok": true,
+      "value": "9.50584464010609"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 2.141890066316966,
+      "ok": true,
+      "value": "17.71489272480028"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 1.8528543813491392,
+      "ok": true,
+      "value": "11.889209271588925"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 2.529803948373468,
+      "ok": true,
+      "value": "25.618405772001665"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 1.7061558746239536,
+      "ok": true,
+      "value": "8.891589222998448"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 4.247878134298736,
+      "ok": true,
+      "value": "77.7443911281191"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 4.111654589805629,
+      "ok": true,
+      "value": "70.74945654383157"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 0.5276943540089152,
+      "ok": true,
+      "value": "-21.664060611172943"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 4.803937835151317,
+      "ok": true,
+      "value": "139.64310685371925"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 3.177925530236059,
+      "ok": true,
+      "value": "40.129896531077975"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 4.143536554354877,
+      "ok": true,
+      "value": "72.28101256874993"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 3.536543218115767,
+      "ok": true,
+      "value": "49.735521114237486"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 2.177435725167411,
+      "ok": true,
+      "value": "18.430472712890946"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 3.6689765195993687,
+      "ok": true,
+      "value": "53.78141004493705"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 4.827368655259441,
+      "ok": true,
+      "value": "146.3057917283116"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 1.3504119823968395,
+      "ok": true,
+      "value": "1.3086845678251962"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 4.040996093417381,
+      "ok": true,
+      "value": "67.54672547882171"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 2.690864532164933,
+      "ok": true,
+      "value": "29.013518104509956"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 2.4174875194489855,
+      "ok": true,
+      "value": "23.30025938819665"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 2.1778724651483223,
+      "ok": true,
+      "value": "18.439269488281866"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 3.655131071063559,
+      "ok": true,
+      "value": "53.34222672041312"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 1.3419776907093357,
+      "ok": true,
+      "value": "1.1207431170222435"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 4.258565799393232,
+      "ok": true,
+      "value": "78.34868673950263"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 4.153655093791555,
+      "ok": true,
+      "value": "72.7794421054553"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 0.4333144911050462,
+      "ok": true,
+      "value": "-25.614827644836993"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 4.408155919250597,
+      "ok": true,
+      "value": "87.95390124001176"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 1.219317196467053,
+      "ok": true,
+      "value": "-1.672750827765924"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 2.3235423330867415,
+      "ok": true,
+      "value": "21.38393152673484"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 3.0516585209319396,
+      "ok": true,
+      "value": "37.08607121992276"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 1.8949465208833416,
+      "ok": true,
+      "value": "12.741801910063998"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 0.1434999897930479,
+      "ok": true,
+      "value": "-44.81695668408898"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 4.2547641808603895,
+      "ok": true,
+      "value": "78.13268092298517"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 0.9091992864247792,
+      "ok": true,
+      "value": "-9.434905292493"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 1.0605992514744553,
+      "ok": true,
+      "value": "-5.493797645831307"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 3.9891617835448177,
+      "ok": true,
+      "value": "65.34535115505264"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 1.7016942161407405,
+      "ok": true,
+      "value": "8.799607126268825"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 4.401599898030487,
+      "ok": true,
+      "value": "87.47969456796437"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 3.5059187512586405,
+      "ok": true,
+      "value": "48.84518685418897"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 1.3813428792283875,
+      "ok": true,
+      "value": "1.9938602426500438"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 0.050755573173083324,
+      "ok": true,
+      "value": "-59.82714410605956"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 4.740312887989031,
+      "ok": true,
+      "value": "125.53501754556044"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": -9.143870380419788,
+      "ok": true,
+      "value": "0"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": -2.7992533589580573,
+      "ok": true,
+      "value": "0"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": -5.114221531512126,
+      "ok": true,
+      "value": "0"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": -2.4183534651753362,
+      "ok": true,
+      "value": "0"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": -3.0939066055347695,
+      "ok": true,
+      "value": "0"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": -3.540971002590477,
+      "ok": true,
+      "value": "0"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": -5.091786649214138,
+      "ok": true,
+      "value": "0"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": -2.0706713186768253,
+      "ok": true,
+      "value": "0"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": -9.069466494453284,
+      "ok": true,
+      "value": "0"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": -7.7840359952746985,
+      "ok": true,
+      "value": "0"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": -3.0821284470479817,
+      "ok": true,
+      "value": "0"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": -6.937939698699116,
+      "ok": true,
+      "value": "0"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": -4.184444146676328,
+      "ok": true,
+      "value": "0"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": -5.267395112404753,
+      "ok": true,
+      "value": "0"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": -4.690780688542322,
+      "ok": true,
+      "value": "0"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": -5.744961872947853,
+      "ok": true,
+      "value": "0"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": -2.540645632863904,
+      "ok": true,
+      "value": "0"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": -6.6920870280406985,
+      "ok": true,
+      "value": "0"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": -2.971450578142311,
+      "ok": true,
+      "value": "0"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": -7.290835730238037,
+      "ok": true,
+      "value": "0"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 6.257018381004707,
+      "ok": true,
+      "value": "0"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 5.6032794237615295,
+      "ok": true,
+      "value": "0"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 5.962921467257587,
+      "ok": true,
+      "value": "0"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 5.597773706275264,
+      "ok": true,
+      "value": "0"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 7.679319826918749,
+      "ok": true,
+      "value": "0"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 8.810948047420515,
+      "ok": true,
+      "value": "0"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 5.92574921218831,
+      "ok": true,
+      "value": "0"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 6.081923199393028,
+      "ok": true,
+      "value": "0"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 7.420992936063543,
+      "ok": true,
+      "value": "0"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 8.622925005465259,
+      "ok": true,
+      "value": "0"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 9.883035114415284,
+      "ok": true,
+      "value": "0"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 7.62318434554304,
+      "ok": true,
+      "value": "0"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 6.414993516374775,
+      "ok": true,
+      "value": "0"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 5.5026305404539535,
+      "ok": true,
+      "value": "0"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 5.970587890455367,
+      "ok": true,
+      "value": "0"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 6.137415817412774,
+      "ok": true,
+      "value": "0"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 5.897207718427016,
+      "ok": true,
+      "value": "0"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 5.07074183628032,
+      "ok": true,
+      "value": "0"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 7.670675446338317,
+      "ok": true,
+      "value": "0"
+    }
+  },
+  {
+    "curve": "thermistor",
+    "data": {
+      "params": [
+        5,
+        10000,
+        3434,
+        0.099524
+      ],
+      "v": 6.371556633916336,
       "ok": true,
       "value": "0"
     }

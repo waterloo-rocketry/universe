@@ -71,9 +71,17 @@ rng = random.Random(42)
 
 def run(cal, v): 
     try: 
-        return {"ok": True, "value": repr(cal.calibrate(v))}
+        val = cal.calibrate(v)
     except ZeroDivisionError: 
         return {"ok": False, "why": "zerodiv"}
+    if isinstance(cal, ThermistorCalibration): 
+        # Omnibus returns 0 when R <= 0 and could pass NaN/Inf through
+        R = (cal.voltage - v) / (v / cal.resistance) if v != 0 else float("nan")
+        if R <= 0: 
+            return {"ok": False, "why": "r_nonpositive"}
+        if math.isnan(val) or math.isinf(val): 
+            return {"ok": False, "why": "naninf"}
+    return {"ok": True, "value": repr(val)}
 
 base_inputs = [0.4, 1.0, 2.0, 2.9496, 2.5, 4.0, 0.0, -1.0, 5.0, 9.99]
 

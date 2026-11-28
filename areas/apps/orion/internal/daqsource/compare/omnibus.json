@@ -4731,8 +4731,8 @@
         0.099524
       ],
       "v": -1.0,
-      "ok": true,
-      "value": "0"
+      "ok": false,
+      "why": "r_nonpositive"
     }
   },
   {
@@ -4745,8 +4745,8 @@
         0.099524
       ],
       "v": 5,
-      "ok": true,
-      "value": "0"
+      "ok": false,
+      "why": "r_nonpositive"
     }
   },
   {
@@ -4759,8 +4759,8 @@
         0.099524
       ],
       "v": 5.01,
-      "ok": true,
-      "value": "0"
+      "ok": false,
+      "why": "r_nonpositive"
     }
   },
   {
@@ -4773,8 +4773,8 @@
         0.099524
       ],
       "v": 9.99,
-      "ok": true,
-      "value": "0"
+      "ok": false,
+      "why": "r_nonpositive"
     }
   },
   {
@@ -7629,8 +7629,8 @@
         0.099524
       ],
       "v": -9.143870380419788,
-      "ok": true,
-      "value": "0"
+      "ok": false,
+      "why": "r_nonpositive"
     }
   },
   {
@@ -7643,8 +7643,8 @@
         0.099524
       ],
       "v": -2.7992533589580573,
-      "ok": true,
-      "value": "0"
+      "ok": false,
+      "why": "r_nonpositive"
     }
   },
   {
@@ -7657,8 +7657,8 @@
         0.099524
       ],
       "v": -5.114221531512126,
-      "ok": true,
-      "value": "0"
+      "ok": false,
+      "why": "r_nonpositive"
     }
   },
   {
@@ -7671,8 +7671,8 @@
         0.099524
       ],
       "v": -2.4183534651753362,
-      "ok": true,
-      "value": "0"
+      "ok": false,
+      "why": "r_nonpositive"
     }
   },
   {
@@ -7685,8 +7685,8 @@
         0.099524
       ],
       "v": -3.0939066055347695,
-      "ok": true,
-      "value": "0"
+      "ok": false,
+      "why": "r_nonpositive"
     }
   },
   {
@@ -7699,8 +7699,8 @@
         0.099524
       ],
       "v": -3.540971002590477,
-      "ok": true,
-      "value": "0"
+      "ok": false,
+      "why": "r_nonpositive"
     }
   },
   {
@@ -7713,8 +7713,8 @@
         0.099524
       ],
       "v": -5.091786649214138,
-      "ok": true,
-      "value": "0"
+      "ok": false,
+      "why": "r_nonpositive"
     }
   },
   {
@@ -7727,8 +7727,8 @@
         0.099524
       ],
       "v": -2.0706713186768253,
-      "ok": true,
-      "value": "0"
+      "ok": false,
+      "why": "r_nonpositive"
     }
   },
   {
@@ -7741,8 +7741,8 @@
         0.099524
       ],
       "v": -9.069466494453284,
-      "ok": true,
-      "value": "0"
+      "ok": false,
+      "why": "r_nonpositive"
     }
   },
   {
@@ -7755,8 +7755,8 @@
         0.099524
       ],
       "v": -7.7840359952746985,
-      "ok": true,
-      "value": "0"
+      "ok": false,
+      "why": "r_nonpositive"
     }
   },
   {
@@ -7769,8 +7769,8 @@
         0.099524
       ],
       "v": -3.0821284470479817,
-      "ok": true,
-      "value": "0"
+      "ok": false,
+      "why": "r_nonpositive"
     }
   },
   {
@@ -7783,8 +7783,8 @@
         0.099524
       ],
       "v": -6.937939698699116,
-      "ok": true,
-      "value": "0"
+      "ok": false,
+      "why": "r_nonpositive"
     }
   },
   {
@@ -7797,8 +7797,8 @@
         0.099524
       ],
       "v": -4.184444146676328,
-      "ok": true,
-      "value": "0"
+      "ok": false,
+      "why": "r_nonpositive"
     }
   },
   {
@@ -7811,8 +7811,8 @@
         0.099524
       ],
       "v": -5.267395112404753,
-      "ok": true,
-      "value": "0"
+      "ok": false,
+      "why": "r_nonpositive"
     }
   },
   {
@@ -7825,8 +7825,8 @@
         0.099524
       ],
       "v": -4.690780688542322,
-      "ok": true,
-      "value": "0"
+      "ok": false,
+      "why": "r_nonpositive"
     }
   },
   {
@@ -7839,8 +7839,8 @@
         0.099524
       ],
       "v": -5.744961872947853,
-      "ok": true,
-      "value": "0"
+      "ok": false,
+      "why": "r_nonpositive"
     }
   },
   {
@@ -7853,8 +7853,8 @@
         0.099524
       ],
       "v": -2.540645632863904,
-      "ok": true,
-      "value": "0"
+      "ok": false,
+      "why": "r_nonpositive"
     }
   },
   {
@@ -7867,8 +7867,8 @@
         0.099524
       ],
       "v": -6.6920870280406985,
-      "ok": true,
-      "value": "0"
+      "ok": false,
+      "why": "r_nonpositive"
     }
   },
   {
@@ -7881,8 +7881,8 @@
         0.099524
       ],
       "v": -2.971450578142311,
-      "ok": true,
-      "value": "0"
+      "ok": false,
+      "why": "r_nonpositive"
     }
   },
   {
@@ -7895,8 +7895,8 @@
         0.099524
       ],
       "v": -7.290835730238037,
-      "ok": true,
-      "value": "0"
+      "ok": false,
+      "why": "r_nonpositive"
     }
   },
   {
@@ -7909,8 +7909,8 @@
         0.099524
       ],
       "v": 6.257018381004707,
-      "ok": true,
-      "value": "0"
+      "ok": false,
+      "why": "r_nonpositive"
     }
   },
   {
@@ -7923,8 +7923,8 @@
         0.099524
       ],
       "v": 5.6032794237615295,
-      "ok": true,
-      "value": "0"
+      "ok": false,
+      "why": "r_nonpositive"
     }
   },
   {
@@ -7937,8 +7937,8 @@
         0.099524
       ],
       "v": 5.962921467257587,
-      "ok": true,
-      "value": "0"
+      "ok": false,
+      "why": "r_nonpositive"
     }
   },
   {
@@ -7951,8 +7951,8 @@
         0.099524
       ],
       "v": 5.597773706275264,
-      "ok": true,
-      "value": "0"
+      "ok": false,
+      "why": "r_nonpositive"
     }
   },
   {
@@ -7965,8 +7965,8 @@
         0.099524
       ],
       "v": 7.679319826918749,
-      "ok": true,
-      "value": "0"
+      "ok": false,
+      "why": "r_nonpositive"
     }
   },
   {
@@ -7979,8 +7979,8 @@
         0.099524
       ],
       "v": 8.810948047420515,
-      "ok": true,
-      "value": "0"
+      "ok": false,
+      "why": "r_nonpositive"
     }
   },
   {
@@ -7993,8 +7993,8 @@
         0.099524
       ],
       "v": 5.92574921218831,
-      "ok": true,
-      "value": "0"
+      "ok": false,
+      "why": "r_nonpositive"
     }
   },
   {
@@ -8007,8 +8007,8 @@
         0.099524
       ],
       "v": 6.081923199393028,
-      "ok": true,
-      "value": "0"
+      "ok": false,
+      "why": "r_nonpositive"
     }
   },
   {
@@ -8021,8 +8021,8 @@
         0.099524
       ],
       "v": 7.420992936063543,
-      "ok": true,
-      "value": "0"
+      "ok": false,
+      "why": "r_nonpositive"
     }
   },
   {
@@ -8035,8 +8035,8 @@
         0.099524
       ],
       "v": 8.622925005465259,
-      "ok": true,
-      "value": "0"
+      "ok": false,
+      "why": "r_nonpositive"
     }
   },
   {
@@ -8049,8 +8049,8 @@
         0.099524
       ],
       "v": 9.883035114415284,
-      "ok": true,
-      "value": "0"
+      "ok": false,
+      "why": "r_nonpositive"
     }
   },
   {
@@ -8063,8 +8063,8 @@
         0.099524
       ],
       "v": 7.62318434554304,
-      "ok": true,
-      "value": "0"
+      "ok": false,
+      "why": "r_nonpositive"
     }
   },
   {
@@ -8077,8 +8077,8 @@
         0.099524
       ],
       "v": 6.414993516374775,
-      "ok": true,
-      "value": "0"
+      "ok": false,
+      "why": "r_nonpositive"
     }
   },
   {
@@ -8091,8 +8091,8 @@
         0.099524
       ],
       "v": 5.5026305404539535,
-      "ok": true,
-      "value": "0"
+      "ok": false,
+      "why": "r_nonpositive"
     }
   },
   {
@@ -8105,8 +8105,8 @@
         0.099524
       ],
       "v": 5.970587890455367,
-      "ok": true,
-      "value": "0"
+      "ok": false,
+      "why": "r_nonpositive"
     }
   },
   {
@@ -8119,8 +8119,8 @@
         0.099524
       ],
       "v": 6.137415817412774,
-      "ok": true,
-      "value": "0"
+      "ok": false,
+      "why": "r_nonpositive"
     }
   },
   {
@@ -8133,8 +8133,8 @@
         0.099524
       ],
       "v": 5.897207718427016,
-      "ok": true,
-      "value": "0"
+      "ok": false,
+      "why": "r_nonpositive"
     }
   },
   {
@@ -8147,8 +8147,8 @@
         0.099524
       ],
       "v": 5.07074183628032,
-      "ok": true,
-      "value": "0"
+      "ok": false,
+      "why": "r_nonpositive"
     }
   },
   {
@@ -8161,8 +8161,8 @@
         0.099524
       ],
       "v": 7.670675446338317,
-      "ok": true,
-      "value": "0"
+      "ok": false,
+      "why": "r_nonpositive"
     }
   },
   {
@@ -8175,8 +8175,8 @@
         0.099524
       ],
       "v": 6.371556633916336,
-      "ok": true,
-      "value": "0"
+      "ok": false,
+      "why": "r_nonpositive"
     }
   }
 ]
